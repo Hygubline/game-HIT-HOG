@@ -27,25 +27,42 @@
         /* 开始界面 */
         #startScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 100; border-radius: 8px;
+            background: linear-gradient(180deg, #0d1117 0%, #161b22 50%, #1a1a2e 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; border-radius: 8px; padding: 20px;
         }
+        #startScreen::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(233,69,96,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .menu-panel {
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 30px 40px; backdrop-filter: blur(10px);
+            display: flex; flex-direction: row; align-items: center; gap: 40px; position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .menu-left { display: flex; flex-direction: column; align-items: flex-start; }
+        .menu-right { display: flex; align-items: center; justify-content: center; }
+        .title-section { text-align: left; margin-bottom: 15px; }
         #startScreen h1 {
-            font-size: min(72px, 12vw); color: #e94560;
-            text-shadow: 4px 4px 0 #ffd700, 8px 8px 0 rgba(0,0,0,0.3);
-            margin-bottom: 20px; animation: titleBounce 1s ease-in-out infinite;
+            font-size: min(48px, 10vw); color: #fff; letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(233,69,96,0.5), 0 3px 0 #e94560;
+            margin-bottom: 6px; animation: titleGlow 4s ease-in-out infinite;
         }
-        @keyframes titleBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        #startScreen .subtitle { font-size: min(24px, 5vw); color: #ffd700; margin-bottom: 30px; }
+        @keyframes titleGlow { 0%, 100% { text-shadow: 0 0 20px rgba(233,69,96,0.5), 0 3px 0 #e94560; } 50% { text-shadow: 0 0 30px rgba(233,69,96,0.7), 0 3px 0 #e94560; } }
+        #startScreen .subtitle { font-size: min(14px, 3.5vw); color: rgba(255,215,0,0.7); letter-spacing: 2px; font-weight: normal; }
+        #startScreen .dog-preview { width: min(140px, 28vw); animation: dogFloat 3s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
+        @keyframes dogFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         #startScreen .menu-btn {
-            width: min(200px, 60vw); padding: 15px 0; margin: 10px; font-size: min(24px, 5vw); font-weight: bold;
-            border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+            width: 180px; padding: 12px 0; margin: 5px 0; font-size: 14px; font-weight: 600;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;
+            letter-spacing: 1px;
         }
-        #startBtn { background: linear-gradient(135deg, #e94560, #ff6b6b); color: #fff; box-shadow: 0 5px 0 #b8354d; }
-        #tutorialBtn { background: linear-gradient(135deg, #4ade80, #22c55e); color: #fff; box-shadow: 0 5px 0 #16a34a; }
-        #startScreen .dog-preview { width: min(150px, 30vw); margin-bottom: 30px; animation: dogWalk 0.5s steps(2) infinite; }
-        @keyframes dogWalk { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+        #startScreen .menu-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        #startScreen .menu-btn:active { transform: translateY(1px); }
+        #startBtn { background: linear-gradient(135deg, #e94560, #d63850); color: #fff; box-shadow: 0 4px 15px rgba(233,69,96,0.4); font-size: 16px; padding: 14px 0; }
+        #startBtn:hover { box-shadow: 0 6px 25px rgba(233,69,96,0.6); }
         /* 教程 */
         #tutorialScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -142,8 +159,10 @@
         @keyframes sajiaoShake { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
         #deathImage { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: min(250px, 50vw); opacity: 0; z-index: 28; pointer-events: none; }
         #mapName { position: absolute; top: 5px; right: 10px; color: #888; font-size: min(12px, 3vw); display: none; z-index: 10; }
-        /* 暂停按钮 */
-        #pauseBtn { position: absolute; top: 5px; right: 80px; background: rgba(0,0,0,0.5); border: 2px solid #e94560; color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: none; z-index: 11; }
+        /* 暂停按钮和音效按钮 */
+        #pauseBtn, #soundBtn { position: absolute; top: 5px; background: rgba(0,0,0,0.5); border: 2px solid #e94560; color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: none; z-index: 11; }
+        #pauseBtn { right: 80px; }
+        #soundBtn { right: 130px; }
         /* 退出确认弹窗 */
         #exitConfirm {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -201,17 +220,33 @@
         #dashBtn { grid-column: 1; grid-row: 1; background: rgba(96,165,250,0.4); }
         #itemBtn { grid-column: 3; grid-row: 1; background: rgba(74,222,128,0.4); border-color: #4ade80; }
         /* 货币显示 */
-        #currencyDisplay { position: absolute; top: 10px; right: 10px; color: #ffd700; font-size: 18px; z-index: 101; }
+        #currencyDisplay { position: absolute; top: 15px; right: 20px; color: #ffd700; font-size: 16px; z-index: 101; background: rgba(0,0,0,0.4); padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.3); }
         #rewardInfo { color: #4ade80; font-size: 14px; margin: 10px 0; }
-        /* 商店按钮 */
-        #shopBtn { background: linear-gradient(135deg, #ffd700, #f59e0b); color: #000; box-shadow: 0 5px 0 #b45309; }
-        #achieveBtn { background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; box-shadow: 0 5px 0 #5b21b6; }
-        .menu-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        #modeSelect { display: none; flex-direction: column; align-items: center; gap: 10px; margin-top: 15px; }
-        #modeSelect .mode-btn { width: 180px; padding: 12px; font-size: 16px; border: 2px solid #e94560; border-radius: 8px; background: rgba(233,69,96,0.2); color: #fff; cursor: pointer; }
-        #modeSelect .mode-btn:hover { background: rgba(233,69,96,0.5); }
-        #modeSelect .mode-btn.selected { background: #e94560; }
-        .mode-desc { font-size: 12px; color: #aaa; }
+        /* 统计面板 */
+        .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; padding: 10px 16px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); }
+        .stat-item-menu { text-align: center; }
+        .stat-item-menu .stat-value { color: #ffd700; font-size: 16px; font-weight: bold; }
+        .stat-item-menu .stat-label { color: rgba(255,255,255,0.4); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        /* 次要按钮 - 统一风格 */
+        .secondary-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .secondary-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); box-shadow: none; width: 85px; font-size: 12px; padding: 8px 0; }
+        .secondary-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.4); color: #fff; }
+        #shopBtn, #achieveBtn, #tutorialBtn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); box-shadow: none; width: 85px; font-size: 12px; padding: 8px 0; }
+        #shopBtn:hover, #achieveBtn:hover, #tutorialBtn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.4); color: #fff; }
+        .menu-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; }
+        #mainMenu { display: flex; flex-direction: column; align-items: flex-start; }
+        /* 模式选择 */
+        #modeSelect { display: none; flex-direction: column; align-items: center; gap: 8px; }
+        .mode-select-title { color: rgba(255,255,255,0.6); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        #modeSelect .mode-btn { width: 220px; padding: 14px 16px; font-size: 14px; border: 2px solid rgba(255,255,255,0.15); border-radius: 10px; background: rgba(255,255,255,0.03); color: #fff; cursor: pointer; transition: all 0.15s ease; text-align: left; display: flex; flex-direction: column; }
+        #modeSelect .mode-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); }
+        #modeSelect .mode-btn.selected { background: rgba(233,69,96,0.2); border-color: #e94560; box-shadow: 0 0 20px rgba(233,69,96,0.2); }
+        .mode-desc { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+        #modeSelect .mode-btn.selected .mode-desc { color: rgba(255,255,255,0.6); }
+        .mode-actions { display: flex; gap: 10px; margin-top: 15px; }
+        #confirmStartBtn { background: linear-gradient(135deg, #e94560, #d63850); width: 130px; }
+        #backToMainBtn { background: transparent; border: 2px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); box-shadow: none; width: 80px; font-size: 13px; }
+        #backToMainBtn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
         /* 商店界面 */
         #shopScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; padding: 20px; z-index: 102; overflow-y: auto; }
         #shopScreen h2 { color: #ffd700; font-size: 28px; margin-bottom: 5px; }
@@ -263,23 +298,38 @@
         <!-- 开始界面 -->
         <div id="startScreen">
             <div id="currencyDisplay">🦴 <span id="totalCurrency">0</span></div>
-            <img class="dog-preview" src="main chararter.png" alt="八重之犬">
-            <h1>八重之犬</h1>
-            <div class="subtitle">🐕 一脚踢翻峡谷 🐕</div>
-            <div id="mainMenu">
-                <div class="menu-row"><button class="menu-btn" id="startBtn">开始游戏</button></div>
-                <div class="menu-row">
-                    <button class="menu-btn" id="shopBtn">🦴 商店</button>
-                    <button class="menu-btn" id="achieveBtn">🏆 成就</button>
+            <div class="menu-panel">
+                <div class="menu-left">
+                    <div class="title-section">
+                        <h1>八重之犬</h1>
+                        <div class="subtitle">一脚踢翻峡谷</div>
+                    </div>
+                    <div class="stats-bar">
+                        <div class="stat-item-menu"><div class="stat-value" id="menuHighScore">0</div><div class="stat-label">最高分</div></div>
+                        <div class="stat-item-menu"><div class="stat-value" id="menuGamesPlayed">0</div><div class="stat-label">局数</div></div>
+                        <div class="stat-item-menu"><div class="stat-value" id="menuTotalKills">0</div><div class="stat-label">击杀</div></div>
+                    </div>
+                    <div id="mainMenu">
+                        <button class="menu-btn" id="startBtn">开始游戏</button>
+                        <div class="secondary-actions">
+                            <button class="menu-btn" id="shopBtn">商店</button>
+                            <button class="menu-btn" id="achieveBtn">成就</button>
+                            <button class="menu-btn" id="tutorialBtn">教程</button>
+                        </div>
+                    </div>
+                    <div id="modeSelect">
+                        <div class="mode-select-title">选择模式</div>
+                        <div class="mode-btn selected" data-mode="speed">⚡ 速战模式 <span style="opacity:0.5">(60秒)</span><div class="mode-desc">经典快节奏，限时挑战</div></div>
+                        <div class="mode-btn" data-mode="endless">♾️ 无尽模式<div class="mode-desc">活到死为止，挑战极限</div></div>
+                        <div class="mode-actions">
+                            <button class="menu-btn" id="backToMainBtn">返回</button>
+                            <button class="menu-btn" id="confirmStartBtn">开始</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="menu-btn" id="tutorialBtn">游戏教程</button>
-            </div>
-            <div id="modeSelect">
-                <div class="mode-btn selected" data-mode="speed">⚡ 速战模式 (60秒)<div class="mode-desc">经典快节奏</div></div>
-                <div class="mode-btn" data-mode="endless">♾️ 无尽模式<div class="mode-desc">活到死为止</div></div>
-                <div class="mode-btn" data-mode="wave">🌊 波次挑战<div class="mode-desc">清10波获胜</div></div>
-                <button class="menu-btn" id="confirmStartBtn" style="margin-top:10px">确认开始</button>
-                <button class="menu-btn" id="backToMainBtn" style="margin-top:5px; background: #666; box-shadow: 0 5px 0 #444;">返回</button>
+                <div class="menu-right">
+                    <img class="dog-preview" src="main chararter.png" alt="八重之犬">
+                </div>
             </div>
         </div>
         <!-- 教程 -->
@@ -336,6 +386,7 @@
             <div>❤️<span id="lives">3</span> ⏱️<span id="time">60</span></div>
         </div>
         <div id="mapName"></div>
+        <button id="soundBtn">🔊</button>
         <button id="pauseBtn">⏸️</button>
         <!-- 退出确认弹窗 -->
         <div id="exitConfirm">
@@ -382,13 +433,7 @@
                 <span class="skill-name">撒娇</span>
                 <div class="skill-cd" id="sajiaoCD"></div>
             </div>
-            <div class="skill-slot ready" id="skillTaunt">
-                <span class="skill-key">I</span>
-                <span class="skill-icon">📢</span>
-                <span class="skill-name">嘲讽</span>
-                <div class="skill-cd" id="tauntCD"></div>
-            </div>
-        </div>
+                    </div>
         <div id="combo"></div>
         <div id="danmaku"></div>
         <div id="event"></div>
@@ -459,6 +504,13 @@ function loadGame() {
 function updateCurrencyDisplay() {
     const el = document.getElementById('totalCurrency');
     if (el) el.textContent = saveData.currency;
+    // Update menu stats
+    const highScore = document.getElementById('menuHighScore');
+    const gamesPlayed = document.getElementById('menuGamesPlayed');
+    const totalKills = document.getElementById('menuTotalKills');
+    if (highScore) highScore.textContent = saveData.highScore || 0;
+    if (gamesPlayed) gamesPlayed.textContent = saveData.gamesPlayed || 0;
+    if (totalKills) totalKills.textContent = saveData.totalKills || 0;
 }
 
 function earnCurrency() {
@@ -479,6 +531,136 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 let gamePhase = 'menu';
 const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 800;
+
+// ==================== 音效系统 ====================
+let audioCtx = null;
+let soundEnabled = true;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playSound(type) {
+    if (!soundEnabled || !audioCtx) return;
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        switch(type) {
+            case 'kick': // 踢击 - 短促低音
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+                break;
+            case 'slash': // 剑气 - 挥砍音
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+                break;
+            case 'sajiao': // 撒娇 - 可爱上升音
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.2);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+                break;
+            case 'dash': // 冲刺 - 嗖的一声
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now); osc.stop(now + 0.08);
+                break;
+            case 'hit': // 受伤 - 痛苦音
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.setValueAtTime(150, now + 0.05);
+                osc.frequency.setValueAtTime(100, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+                break;
+            case 'kill': // 击杀 - 爆炸音
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+                break;
+            case 'combo': // 连击 - 上升音阶
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500 + gameState.combo * 50, now);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+                break;
+            case 'boss': // Boss出场 - 警报音
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.setValueAtTime(400, now + 0.2);
+                osc.frequency.setValueAtTime(200, now + 0.4);
+                osc.frequency.setValueAtTime(400, now + 0.6);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.setValueAtTime(0.2, now + 0.6);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+                osc.start(now); osc.stop(now + 0.8);
+                break;
+            case 'upgrade': // 升级 - 胜利音
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523, now); // C5
+                osc.frequency.setValueAtTime(659, now + 0.1); // E5
+                osc.frequency.setValueAtTime(784, now + 0.2); // G5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+                break;
+            case 'gameover': // 游戏结束 - 下降音
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                osc.start(now); osc.stop(now + 0.6);
+                break;
+            case 'jump': // 跳跃
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+                break;
+            case 'pickup': // 拾取道具
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.setValueAtTime(800, now + 0.05);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+                break;
+        }
+    } catch(e) {}
+}
+
+// 点击页面时初始化音频
+document.addEventListener('click', initAudio, { once: true });
+document.addEventListener('touchstart', initAudio, { once: true });
 
 // 图片
 const images = { main: new Image(), attack: new Image(), dead: new Image(), sajiao: new Image(), kick: new Image(), dash: new Image(), map1: new Image(), map2: new Image(), map3: new Image(), monster1: new Image(), monster2: new Image(), monster3: new Image(), monster4: new Image(), boss1: new Image(), boss2: new Image() };
@@ -718,21 +900,27 @@ const enemyTypes = [
     { name: '路人', color: '#60a5fa', hp: 2, speed: 1.5, size: 45, points: 200, role: 'normal', img: 'monster2', imgScale: 0.09 },
     { name: '高手', color: '#f472b6', hp: 3, speed: 2, size: 50, points: 300, role: 'normal', img: 'monster3', imgScale: 0.1 }
 ];
+// Special enemies focused on action/pressure (tank de-emphasized)
 const specialEnemyTypes = [
-    { name: '冲锋', color: '#ff4444', hp: 2, speed: 0.5, size: 45, points: 250, role: 'charger', chargeSpeed: 8, chargeDelay: 60, img: 'monster4', imgScale: 0.09 },
-    { name: '嘴炮', color: '#aa44ff', hp: 2, speed: 0.8, size: 45, points: 300, role: 'shooter', shootCD: 120, keepDistance: 200, img: 'monster1', imgScale: 0.08 },
-    { name: '坦克', color: '#8b4513', hp: 8, speed: 0.5, size: 70, points: 500, role: 'tank', damageReduction: 0.5, img: 'monster2', imgScale: 0.12 },
-    { name: '碰瓷', color: '#ffff00', hp: 1, speed: 2, size: 35, points: 200, role: 'bomber', explodeTimer: 60, explodeRadius: 100, img: 'monster3', imgScale: 0.07 }
+    { name: '冲锋', color: '#ff4444', hp: 2, speed: 0.5, size: 45, points: 250, role: 'charger', chargeSpeed: 10, chargeDelay: 45, img: 'monster4', imgScale: 0.09, spawnWeight: 3 },
+    { name: '嘴炮', color: '#aa44ff', hp: 2, speed: 0.8, size: 45, points: 300, role: 'shooter', shootCD: 100, keepDistance: 200, img: 'monster1', imgScale: 0.08, spawnWeight: 2 },
+    { name: '坦克', color: '#8b4513', hp: 5, speed: 0.6, size: 60, points: 400, role: 'tank', damageReduction: 0.3, img: 'monster2', imgScale: 0.11, spawnWeight: 0.5 },
+    { name: '碰瓷', color: '#ffff00', hp: 1, speed: 2.5, size: 35, points: 200, role: 'bomber', explodeTimer: 50, explodeRadius: 100, img: 'monster3', imgScale: 0.07, spawnWeight: 2 }
 ];
 const itemTypes = [
     { name: '西瓜', emoji: '🍉', effect: 'melee', damage: 3, color: '#22c55e' },
     { name: '臭豆腐', emoji: '💩', effect: 'bomb', radius: 150, color: '#854d0e' },
     { name: '喇叭', emoji: '📢', effect: 'pushAll', force: 20, color: '#f97316' }
 ];
-const randomEvents = [
-    { name: '陨石', type: 'meteor' }, { name: '变小', type: 'shrink' },
-    { name: '变大', type: 'grow' }, { name: '慢动作', type: 'slowmo' }, { name: '神罚', type: 'lightning' }
+// Danger Spike system - clear, readable danger phases
+const dangerSpikes = [
+    { name: '冲锋潮!', type: 'charger_rush', duration: 8 },
+    { name: '嘴炮狂潮!', type: 'shooter_surge', duration: 6 },
+    { name: '爆炸预警!', type: 'bomber_wave', duration: 5 }
 ];
+let dangerSpikeActive = false;
+let dangerSpikeTimer = 0;
+let dangerSpikeType = null;
 
 // ==================== 触屏控制 ====================
 let touchState = { moveX: 0, moveY: 0, jump: false };
@@ -784,7 +972,7 @@ function initMobileControls() {
     }
 
     // 技能按钮
-    setupTouchBtn('jumpBtn', () => { if (player.onGround && !player.isDead) { player.vy = -15; player.onGround = false; } });
+    setupTouchBtn('jumpBtn', () => { if (player.onGround && !player.isDead) { player.vy = -15; player.onGround = false; playSound('jump'); } });
     setupTouchBtn('kickBtn', () => performKick());
     setupTouchBtn('slashBtn', () => performSlash());
     setupTouchBtn('sajiaoBtn', () => performSajiao());
@@ -847,6 +1035,11 @@ document.getElementById('achieveBtn').addEventListener('click', showAchieve);
 
 // 暂停/退出功能
 document.getElementById('pauseBtn').addEventListener('click', showExitConfirm);
+// 音效开关
+document.getElementById('soundBtn').addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+});
 document.getElementById('confirmExitBtn').addEventListener('click', () => {
     document.getElementById('exitConfirm').style.display = 'none';
     backToMenu();
@@ -869,6 +1062,7 @@ function startGame() {
     document.getElementById('ui').style.display = 'block';
     document.getElementById('mapName').style.display = 'block';
     document.getElementById('pauseBtn').style.display = 'block';
+    document.getElementById('soundBtn').style.display = 'block';
     document.getElementById('mapName').textContent = '📍 ' + mapThemes[currentMap].name;
     if (isMobile) document.getElementById('mobileControls').style.display = 'flex';
     else document.getElementById('skillBar').style.display = 'flex';
@@ -887,6 +1081,7 @@ function backToMenu() {
     document.getElementById('bossHealthBar').style.display = 'none';
     document.getElementById('mapName').style.display = 'none';
     document.getElementById('pauseBtn').style.display = 'none';
+    document.getElementById('soundBtn').style.display = 'none';
     document.getElementById('exitConfirm').style.display = 'none';
     document.getElementById('skillBar').style.display = 'none';
     document.getElementById('mobileControls').style.display = 'none';
@@ -973,6 +1168,7 @@ function startWave(waveNum) {
 
 // 升级面板
 function showUpgradePanel() {
+    playSound('upgrade');
     gameState.isPaused = true;
     const panel = document.getElementById('upgradePanel');
     const optionsDiv = document.getElementById('upgradeOptions');
@@ -1020,7 +1216,6 @@ function updateCooldownUI() {
     const skills = [
         { id: 'skillSlash', cdId: 'slashCD', cd: cooldowns.slash },
         { id: 'skillSajiao', cdId: 'sajiaoCD', cd: cooldowns.sajiao },
-        { id: 'skillTaunt', cdId: 'tauntCD', cd: cooldowns.taunt },
         { id: 'skillDash', cdId: 'dashCD', cd: cooldowns.dash }
     ];
     skills.forEach(s => {
@@ -1044,6 +1239,7 @@ function updateCooldownUI() {
 // ==================== 技能 ====================
 function performSlash() {
     if (cooldowns.slash > 0 || player.slashing || player.isDead) return;
+    playSound('slash');
     gameStats.skillUsage.slash++;
     player.slashing = true; player.slashTimer = 25; player.currentState = 'slash';
     cooldowns.slash = Math.floor(playerBuffs.slashCD);
@@ -1057,38 +1253,59 @@ function performSlash() {
 
 function performSajiao() {
     if (cooldowns.sajiao > 0 || player.isDead) return;
+    playSound('sajiao');
     gameStats.skillUsage.sajiao++;
     cooldowns.sajiao = Math.floor(playerBuffs.sajiaoCD);
     player.currentState = 'sajiao';
     document.getElementById('sajiaoOverlay').style.opacity = 1;
+    // Taunt effect merged: enemies get taunted and rush player (creates kick opportunities!)
+    enemies.forEach(e => {
+        if (!e.flying && !e.isBoss) {
+            e.taunted = true;
+            e.tauntTimer = 120;
+            e.stunned = true;
+            e.stunTimer = 30; // Brief stun then rush
+        }
+    });
+    spawnFloatingText(player.x, player.y - 60, tauntQuotes[Math.floor(Math.random() * tauntQuotes.length)], '#ff69b4');
     setTimeout(() => {
         enemies.forEach(e => {
             if (!e.flying) {
-                if (e.isBoss) { dealDamageToEnemy(e, playerBuffs.sajiaoBossDmg); spawnFloatingText(e.x, e.y, '-' + playerBuffs.sajiaoBossDmg, '#ff69b4'); }
-                else { e.flying = true; e.vy = -20; e.vx = (Math.random() - 0.5) * 30; e.currentHp = 0; handleEnemyKill(e); }
-                spawnHitEffect(e.x, e.y, 3);
+                if (e.isBoss) {
+                    dealDamageToEnemy(e, playerBuffs.sajiaoBossDmg);
+                    spawnFloatingText(e.x, e.y, '-' + playerBuffs.sajiaoBossDmg, '#ff69b4');
+                    // Boss gets briefly stunned too
+                    e.stunned = true;
+                    e.stunTimer = 60;
+                }
+                else {
+                    // Weaken enemies instead of instant kill - makes them kickable!
+                    e.currentHp = 1;
+                    e.weakened = true;
+                    spawnFloatingText(e.x, e.y, '💔', '#ff69b4');
+                }
+                spawnHitEffect(e.x, e.y, 2);
             }
         });
-        for (let i = 0; i < 30; i++) particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 5, vy: -3, life: 60, color: '#ff69b4', size: 8, isHeart: true });
-        gameState.screenShake = 25;
+        for (let i = 0; i < 20; i++) particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 5, vy: -3, life: 60, color: '#ff69b4', size: 8, isHeart: true });
+        gameState.screenShake = 20;
         if (playerBuffs.sajiaoInvincible) { player.invincible = true; player.invincibleTimer = 120; }
-        // 撒娇定身效果
         if (playerBuffs.sajiaoFear) {
-            enemies.forEach(e => { if (!e.flying && !e.isBoss) { e.stunned = true; e.stunTimer = 120; } });
+            enemies.forEach(e => { if (!e.flying && !e.isBoss) { e.stunned = true; e.stunTimer = 180; } });
             spawnFloatingText(player.x, player.y - 80, '😱定身!', '#ff69b4');
         }
-        // 撒娇回血效果
         if (playerBuffs.sajiaoHeal && gameState.lives < 5) {
             gameState.lives++;
             document.getElementById('lives').textContent = gameState.lives;
             spawnFloatingText(player.x, player.y - 100, '+1❤️', '#ff69b4');
         }
     }, 400);
-    setTimeout(() => { document.getElementById('sajiaoOverlay').style.opacity = 0; if (!player.isDead) player.currentState = 'idle'; }, 1200);
+    setTimeout(() => { document.getElementById('sajiaoOverlay').style.opacity = 0; if (!player.isDead) player.currentState = 'idle'; }, 1000);
 }
 
 function performTaunt() {
     if (cooldowns.taunt > 0 || player.isDead) return;
+    playSound('slash');
     gameStats.skillUsage.taunt++;
     cooldowns.taunt = 480;
     spawnFloatingText(player.x, player.y - 60, tauntQuotes[Math.floor(Math.random() * tauntQuotes.length)], '#ff6b35');
@@ -1097,6 +1314,7 @@ function performTaunt() {
 
 function performDash() {
     if (cooldowns.dash > 0 || player.dashing || player.isDead) return;
+    playSound('dash');
     gameStats.skillUsage.dash++;
     cooldowns.dash = 180;
     player.dashing = true; player.dashTimer = 15; player.invincible = true; player.invincibleTimer = 20; player.currentState = 'dash';
@@ -1108,20 +1326,57 @@ function performDash() {
 
 function performKick() {
     if (player.kicking || player.slashing || player.isDead) return;
+    playSound('kick');
     gameStats.skillUsage.kick++;
     player.kicking = true; player.kickTimer = 15; player.currentState = 'kick';
     const range = playerBuffs.kickRange * player.scale;
     let hit = 0;
+    let executionKick = false;
     enemies.forEach(e => {
         if (e.flying || (!playerBuffs.kickPierce && hit > 0)) return;
         if (Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < range) {
             hit++;
-            dealDamageToEnemy(e, playerBuffs.kickDamage);
-            if (e.currentHp <= 0) { e.flying = true; e.vx = (player.facingRight ? 1 : -1) * playerBuffs.kickKnockback; e.vy = -10; handleEnemyKill(e); gameState.screenShake = 8; if (playerBuffs.kickLifesteal && gameState.lives < 5 && Math.random() < 0.3) { gameState.lives++; document.getElementById('lives').textContent = gameState.lives; spawnFloatingText(player.x, player.y - 60, '+1❤️', '#ff4444'); } }
-            else { e.vx += (player.facingRight ? 1 : -1) * 6; e.vy = -4; }
-            spawnHitEffect(e.x, e.y, 1);
+            // EXECUTION KICK: weakened or low HP enemies get launched HARD
+            const isExecutable = e.weakened || e.currentHp <= 1 || (e.currentHp <= e.hp * 0.3);
+            const knockbackMult = isExecutable ? 2.5 : 1;
+            const damageMult = isExecutable ? 2 : 1;
+
+            dealDamageToEnemy(e, playerBuffs.kickDamage * damageMult);
+
+            if (e.currentHp <= 0) {
+                e.flying = true;
+                e.vx = (player.facingRight ? 1 : -1) * playerBuffs.kickKnockback * knockbackMult;
+                e.vy = isExecutable ? -15 : -10;
+                e.isProjectile = true; // Mark as projectile for chain collision bonus
+                handleEnemyKill(e);
+                gameState.screenShake = isExecutable ? 15 : 8;
+
+                if (isExecutable) {
+                    executionKick = true;
+                    spawnFloatingText(e.x, e.y - 30, '💥处决!', '#ffd700');
+                    // Extra particles for execution kick
+                    for (let i = 0; i < 12; i++) {
+                        const a = Math.random() * Math.PI * 2;
+                        particles.push({ x: e.x, y: e.y, vx: Math.cos(a) * 8, vy: Math.sin(a) * 8, life: 30, color: '#ffd700', size: 5 });
+                    }
+                }
+
+                if (playerBuffs.kickLifesteal && gameState.lives < 5 && Math.random() < 0.3) {
+                    gameState.lives++;
+                    document.getElementById('lives').textContent = gameState.lives;
+                    spawnFloatingText(player.x, player.y - 60, '+1❤️', '#ff4444');
+                }
+            } else {
+                e.vx += (player.facingRight ? 1 : -1) * 8;
+                e.vy = -5;
+            }
+            spawnHitEffect(e.x, e.y, isExecutable ? 2.5 : 1);
         }
     });
+    if (executionKick) {
+        gameState.slowMo = true;
+        gameState.slowMoTimer = 10; // Brief slowmo for impact
+    }
 }
 
 function dealDamageToEnemy(e, dmg) {
@@ -1133,7 +1388,20 @@ function dealDamageToEnemy(e, dmg) {
 
 // ==================== 敌人 ====================
 function spawnEnemy() {
-    const type = Math.random() < 0.6 ? enemyTypes[Math.floor(Math.random() * enemyTypes.length)] : specialEnemyTypes[Math.floor(Math.random() * specialEnemyTypes.length)];
+    let type;
+    if (Math.random() < 0.55) {
+        // Normal enemies
+        type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+    } else {
+        // Special enemies with weighted selection
+        const totalWeight = specialEnemyTypes.reduce((sum, t) => sum + (t.spawnWeight || 1), 0);
+        let rand = Math.random() * totalWeight;
+        for (const t of specialEnemyTypes) {
+            rand -= (t.spawnWeight || 1);
+            if (rand <= 0) { type = t; break; }
+        }
+        if (!type) type = specialEnemyTypes[0];
+    }
     const fromRight = Math.random() > 0.5;
     const isElite = Math.random() < 0.13; // 13%概率生成精英
     const eliteMult = isElite ? { hp: 3, size: 1.4, speed: 1.2, points: 5 } : { hp: 1, size: 1, speed: 1, points: 1 };
@@ -1156,19 +1424,86 @@ function spawnEnemy() {
 }
 
 function spawnBoss() {
+    playSound('boss');
     showEvent(bossQuotes[Math.floor(Math.random() * bossQuotes.length)]);
     const name = bossNames[Math.floor(Math.random() * bossNames.length)];
     const bossImg = Math.random() > 0.5 ? 'boss1' : 'boss2';
     enemies.push({
         x: canvas.width + 80, y: canvas.height - 130, vx: -1, vy: 0, name, color: '#ffd700',
-        hp: 50, currentHp: 50, speed: 1, originalSpeed: 1, size: 90, points: 5000,
+        hp: 60, currentHp: 60, speed: 1.2, originalSpeed: 1.2, size: 85, points: 5000,
         role: 'boss', flying: false, rotation: 0, scale: 1, taunted: false, tauntTimer: 0,
-        isBoss: true, bossTimer: 0, bossSkillCD: 100,
-        phase: 1, enraged: false, attackCD: 0,
+        isBoss: true, bossTimer: 0, bossSkillCD: 80,
+        phase: 1, enraged: false, attackCD: 0, summonCD: 0,
         img: bossImg, imgScale: 0.18, facingRight: true
     });
     document.getElementById('bossHealthBar').style.display = 'block';
     document.querySelector('#bossHealthBar .boss-name').textContent = '👑 ' + name;
+}
+
+// Boss AI update - called from main update loop
+function updateBossAI(boss) {
+    if (!boss || boss.flying) return;
+
+    boss.bossTimer++;
+
+    // Phase 2: Enraged at 50% HP
+    if (!boss.enraged && boss.currentHp <= boss.hp * 0.5) {
+        boss.enraged = true;
+        boss.phase = 2;
+        boss.speed = boss.originalSpeed * 1.5;
+        boss.color = '#ff4444';
+        showEvent('🔥 Boss狂暴化!');
+        gameState.screenShake = 20;
+        playSound('boss');
+        // Burst of minions on enrage
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => spawnBossMinion(boss), i * 200);
+        }
+    }
+
+    // Movement: approach player but keep some distance
+    const distToPlayer = boss.x - player.x;
+    const targetDist = boss.enraged ? 100 : 150;
+    if (Math.abs(distToPlayer) > targetDist + 50) {
+        boss.vx = distToPlayer > 0 ? -boss.speed : boss.speed;
+    } else if (Math.abs(distToPlayer) < targetDist - 30) {
+        boss.vx = distToPlayer > 0 ? boss.speed * 0.5 : -boss.speed * 0.5;
+    } else {
+        boss.vx = 0;
+    }
+
+    // Summon minions periodically (kickable projectiles!)
+    boss.summonCD = (boss.summonCD || 0) - 1;
+    if (boss.summonCD <= 0) {
+        boss.summonCD = boss.enraged ? 180 : 300; // Faster in enraged
+        spawnBossMinion(boss);
+        spawnFloatingText(boss.x, boss.y - 50, '召唤!', '#ffd700');
+    }
+
+    // Update boss health bar
+    const hpPercent = (boss.currentHp / boss.hp) * 100;
+    document.getElementById('bossHpFill').style.width = hpPercent + '%';
+    if (boss.enraged) {
+        document.getElementById('bossHpFill').style.background = 'linear-gradient(90deg, #ff4444, #ff0000)';
+    }
+}
+
+function spawnBossMinion(boss) {
+    // Spawn a weak enemy that's perfect for kicking into the boss!
+    const minion = {
+        x: boss.x + (Math.random() - 0.5) * 60,
+        y: boss.y,
+        vx: (player.x > boss.x ? 1 : -1) * 2,
+        vy: 0,
+        name: '小弟', color: '#ff6b6b',
+        hp: 1, currentHp: 1, speed: 2.5, originalSpeed: 2.5,
+        size: 30, points: 50, role: 'normal',
+        flying: false, rotation: 0, scale: 1,
+        taunted: false, tauntTimer: 0, isBoss: false, isElite: false,
+        isBossMinion: true, weakened: true, // Pre-weakened = easy execution kicks!
+        img: 'monster1', imgScale: 0.06, facingRight: player.x > boss.x
+    };
+    enemies.push(minion);
 }
 
 function spawnItem() {
@@ -1187,6 +1522,7 @@ function useItem() {
 }
 
 function handleEnemyKill(e) {
+    playSound('kill');
     gameStats.killCount++;
     gameState.combo++;
     if (gameState.combo > gameStats.maxCombo) gameStats.maxCombo = gameState.combo;
@@ -1196,33 +1532,68 @@ function handleEnemyKill(e) {
     if (e.isBoss) {
         gameStats.bossKilled++;
         document.getElementById('bossHealthBar').style.display = 'none';
-        showEvent('Boss没了!');
-        for (let i = 0; i < 50; i++) particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 50, color: '#ffd700', size: 6 });
-        spawnRelic(e.x, e.y);
+        showEvent('👑 Boss击败!');
+        // Big celebration
+        for (let i = 0; i < 60; i++) particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20, life: 60, color: ['#ffd700', '#ff69b4', '#00ffff'][i % 3], size: 6 });
+        spawnRelic(e.x, e.y); // Guaranteed relic from boss
+        // Bonus currency
+        gameState.score += 2000;
+        spawnFloatingText(e.x, e.y - 50, '+2000 Boss奖励!', '#ffd700');
     }
     if (e.isElite) {
         showEvent('精英击杀!');
         for (let i = 0; i < 20; i++) particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 35, color: '#ffd700', size: 5 });
-        if (Math.random() < 0.6) spawnRelic(e.x, e.y);
+        // No relic from elites anymore - only bosses drop relics
     }
     spawnFloatingText(e.x, e.y - 20, '+' + bonus, e.isElite ? '#ffd700' : '#fff');
     if (gameState.combo >= 3) showCombo(gameState.combo);
 }
 
 function checkChainCollision() {
+    let chainCount = 0;
     for (let i = 0; i < enemies.length; i++) {
         if (!enemies[i].flying) continue;
         for (let j = 0; j < enemies.length; j++) {
             if (i === j || enemies[j].flying) continue;
             const dx = enemies[j].x - enemies[i].x, dy = enemies[j].y - enemies[i].y;
-            if (Math.sqrt(dx * dx + dy * dy) < (enemies[i].size + enemies[j].size) / 2) {
-                enemies[j].flying = true; enemies[j].currentHp = 0;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < (enemies[i].size + enemies[j].size) / 2) {
+                chainCount++;
+                enemies[j].flying = true;
+                enemies[j].currentHp = 0;
+                enemies[j].isProjectile = true;
+
+                // Transfer momentum with boost
                 const p = Math.sqrt(enemies[i].vx ** 2 + enemies[i].vy ** 2);
-                enemies[j].vx = (dx / Math.sqrt(dx*dx+dy*dy)) * p * 0.8; enemies[j].vy = (dy / Math.sqrt(dx*dx+dy*dy)) * p * 0.8 - 5;
-                handleEnemyKill(enemies[j]); spawnHitEffect(enemies[j].x, enemies[j].y, 1.5);
-                spawnFloatingText((enemies[i].x + enemies[j].x) / 2, enemies[i].y - 25, '连锁!', '#ff6b35');
+                const transferMult = 1.2; // Chain gets stronger!
+                enemies[j].vx = (dx / dist) * p * transferMult;
+                enemies[j].vy = (dy / dist) * p * transferMult - 8;
+
+                // Chain bonus score
+                const chainBonus = 200 * chainCount;
+                gameState.score += chainBonus;
+
+                handleEnemyKill(enemies[j]);
+                spawnHitEffect(enemies[j].x, enemies[j].y, 2 + chainCount * 0.5);
+
+                // Escalating feedback
+                const chainTexts = ['连锁!', '双杀!', '三连!', '超神!', '绝杀!'];
+                const chainColors = ['#ff6b35', '#ffd700', '#ff69b4', '#00ffff', '#ff0000'];
+                const textIdx = Math.min(chainCount - 1, chainTexts.length - 1);
+                spawnFloatingText((enemies[i].x + enemies[j].x) / 2, enemies[i].y - 25, chainTexts[textIdx] + '+' + chainBonus, chainColors[textIdx]);
+
+                // Screen shake scales with chain
+                gameState.screenShake = Math.min(8 + chainCount * 4, 25);
+
+                // Sound feedback
+                if (chainCount >= 2) playSound('combo');
             }
         }
+    }
+    // Big chain reaction reward
+    if (chainCount >= 3) {
+        showEvent('🔥 ' + chainCount + '连锁反应!');
+        gameState.score += chainCount * 500;
     }
 }
 
@@ -1238,7 +1609,7 @@ function spawnDanmaku(text) {
 }
 
 function showEvent(text) { const el = document.getElementById('event'); el.textContent = text; el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 1200); }
-function showCombo(c) { const el = document.getElementById('combo'); el.textContent = c + ' COMBO!'; el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 400); }
+function showCombo(c) { playSound('combo'); const el = document.getElementById('combo'); el.textContent = c + ' COMBO!'; el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 400); }
 function spawnHitEffect(x, y, power) {
     for (let i = 0; i < 8 + power * 6; i++) { const a = Math.random() * Math.PI * 2, s = 2 + Math.random() * 4 * power; particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 25, color: ['#ffd700', '#e94560', '#4ade80'][Math.floor(Math.random() * 3)], size: 3 + Math.random() * 4 }); }
     floatingTexts.push({ x: x + (Math.random() - 0.5) * 40, y: y - 15, text: emojis[Math.floor(Math.random() * emojis.length)], vy: -3, life: 50, size: 25 + power * 8 });
@@ -1246,23 +1617,99 @@ function spawnHitEffect(x, y, power) {
 function spawnFloatingText(x, y, text, color) { floatingTexts.push({ x, y, text, color, vy: -2, life: 50, size: 18, isText: true }); }
 
 function triggerRandomEvent() {
-    const e = randomEvents[Math.floor(Math.random() * randomEvents.length)];
-    showEvent(e.name + '!');
-    if (e.type === 'meteor') for (let i = 0; i < 4; i++) setTimeout(() => meteors.push({ x: Math.random() * canvas.width, y: -40, vy: 7 + Math.random() * 4, size: 25 + Math.random() * 15 }), i * 250);
-    else if (e.type === 'shrink') { gameState.globalScale = 0.5; player.scale = 0.5; enemies.forEach(en => en.scale = 0.5); setTimeout(() => { gameState.globalScale = 1; player.scale = 1; enemies.forEach(en => en.scale = 1); }, 4000); }
-    else if (e.type === 'grow') { gameState.globalScale = 1.5; player.scale = 1.5; enemies.forEach(en => en.scale = 1.5); setTimeout(() => { gameState.globalScale = 1; player.scale = 1; enemies.forEach(en => en.scale = 1); }, 4000); }
-    else if (e.type === 'slowmo') { gameState.slowMo = true; gameState.slowMoTimer = 150; document.getElementById('slowmo').style.opacity = 0.5; }
-    else if (e.type === 'lightning') { enemies.forEach(en => { if (!en.flying && !en.isBoss) { lightnings.push({ x: en.x, y: 0, targetY: en.y, timer: 25 }); en.currentHp = 0; en.flying = true; en.vy = -15; gameState.score += en.points; spawnHitEffect(en.x, en.y, 2); } }); gameState.screenShake = 25; }
+    // Replaced with danger spike system
+    if (dangerSpikeActive) return;
+    triggerDangerSpike();
+}
+
+function triggerDangerSpike() {
+    if (dangerSpikeActive) return;
+    const spike = dangerSpikes[Math.floor(Math.random() * dangerSpikes.length)];
+    dangerSpikeActive = true;
+    dangerSpikeType = spike.type;
+    dangerSpikeTimer = spike.duration * 60; // frames
+
+    showEvent('⚠️ ' + spike.name);
+    gameState.screenShake = 10;
+    playSound('boss');
+
+    // Spawn appropriate enemies for the danger spike
+    if (spike.type === 'charger_rush') {
+        for (let i = 0; i < 4; i++) {
+            setTimeout(() => {
+                if (gamePhase === 'playing') {
+                    const charger = specialEnemyTypes.find(e => e.role === 'charger');
+                    spawnSpecificEnemy(charger);
+                }
+            }, i * 400);
+        }
+    } else if (spike.type === 'shooter_surge') {
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                if (gamePhase === 'playing') {
+                    const shooter = specialEnemyTypes.find(e => e.role === 'shooter');
+                    spawnSpecificEnemy(shooter);
+                }
+            }, i * 500);
+        }
+    } else if (spike.type === 'bomber_wave') {
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                if (gamePhase === 'playing') {
+                    const bomber = specialEnemyTypes.find(e => e.role === 'bomber');
+                    spawnSpecificEnemy(bomber);
+                }
+            }, i * 300);
+        }
+    }
+}
+
+function spawnSpecificEnemy(type) {
+    if (!type) return;
+    const fromRight = Math.random() > 0.5;
+    enemies.push({
+        x: fromRight ? canvas.width + 40 : -40,
+        y: canvas.height - 100 - type.size / 2,
+        vx: (fromRight ? -1 : 1) * type.speed,
+        vy: 0, ...type,
+        currentHp: type.hp, hp: type.hp,
+        flying: false, rotation: 0, scale: 1,
+        taunted: false, tauntTimer: 0, isBoss: false, isElite: false,
+        chargeTimer: type.chargeDelay || 0, isCharging: false,
+        shootTimer: type.shootCD || 0, explodeCountdown: -1, isExploding: false,
+        facingRight: fromRight, img: type.img, imgScale: type.imgScale,
+        name: type.name, originalSpeed: type.speed
+    });
+}
+
+function updateDangerSpike() {
+    if (!dangerSpikeActive) return;
+    dangerSpikeTimer--;
+    if (dangerSpikeTimer <= 0) {
+        dangerSpikeActive = false;
+        dangerSpikeType = null;
+        showEvent('危机解除!');
+        // Reward for surviving
+        gameState.score += 500;
+        spawnFloatingText(player.x, player.y - 60, '+500 危机奖励!', '#4ade80');
+        if (gameState.lives < 5 && Math.random() < 0.3) {
+            gameState.lives++;
+            document.getElementById('lives').textContent = gameState.lives;
+            spawnFloatingText(player.x, player.y - 80, '+1❤️', '#ff69b4');
+        }
+    }
 }
 
 function playerHit(reason) {
     if (player.invincible || player.isDead) return;
     // 减伤效果：有概率完全免伤
     if (playerBuffs.damageReduce > 0 && Math.random() < playerBuffs.damageReduce) {
+        playSound('dash');
         spawnFloatingText(player.x, player.y - 40, '🛡️格挡!', '#4ade80');
         player.invincible = true; player.invincibleTimer = 30;
         return;
     }
+    playSound('hit');
     gameState.lives--; gameState.deathReason = reason;
     document.getElementById('lives').textContent = gameState.lives;
     if (gameState.lives <= 0) { player.isDead = true; player.currentState = 'dead'; endGame(); }
@@ -1289,6 +1736,7 @@ function update() {
         }
     }
     updateCooldownUI();
+    updateDangerSpike();
 
     // 玩家移动（键盘+触屏）
     if (!player.isDead && !player.dashing) {
@@ -1300,7 +1748,7 @@ function update() {
         if (moveX !== 0) { player.vx = moveX * 6 * ts * (playerBuffs.speedMult || 1) * (playerBuffs.speedBonus || 1); player.facingRight = moveX > 0; }
         else player.vx *= 0.8;
 
-        if ((keys['Space'] || keys['KeyW']) && player.onGround) { player.vy = -15; player.onGround = false; }
+        if ((keys['Space'] || keys['KeyW']) && player.onGround) { player.vy = -15; player.onGround = false; playSound('jump'); }
         if (keys['KeyJ'] && !player.kicking && !player.slashing) performKick();
     }
 
@@ -1326,6 +1774,7 @@ function update() {
     // 道具
     if (!player.isDead) for (let i = items.length - 1; i >= 0; i--) {
         if (Math.sqrt((items[i].x - player.x) ** 2 + (items[i].y - player.y) ** 2) < 35) {
+            playSound('pickup');
             if (items[i].isRelic) { pickupRelic(items[i]); items.splice(i, 1); }
             else { player.item = items[i]; spawnFloatingText(items[i].x, items[i].y - 25, '拿到' + items[i].name, items[i].color); items.splice(i, 1); }
         }
@@ -1375,7 +1824,7 @@ function update() {
                     // 阶段1：普通技能
                     const sk = Math.floor(Math.random() * 3);
                     if (sk === 0) { e.vx = (player.x > e.x ? 1 : -1) * 12; spawnFloatingText(e.x, e.y - 50, '冲!', '#ff4444'); }
-                    else if (sk === 1) { for (let j = 0; j < 2; j++) setTimeout(() => spawnEnemy(), j * 150); spawnFloatingText(e.x, e.y - 50, '叫人!', '#aa44ff'); }
+                    else if (sk === 1) { for (let j = 0; j < 3; j++) setTimeout(() => spawnBossMinion(e), j * 150); spawnFloatingText(e.x, e.y - 50, '叫小弟!', '#aa44ff'); }
                     else { const lx = player.x + (Math.random() - 0.5) * 100; lightnings.push({ x: lx, y: 0, targetY: canvas.height - 80, timer: 25 }); setTimeout(() => { if (Math.abs(player.x - lx) < 45) playerHit('被雷劈'); }, 250); spawnFloatingText(e.x, e.y - 50, '雷!', '#ffff00'); }
                 } else {
                     // 阶段2：狂暴技能
@@ -1386,8 +1835,8 @@ function update() {
                         spawnFloatingText(e.x, e.y - 50, '狂冲!', '#ff4444');
                         gameState.screenShake = 10;
                     } else if (sk === 1) {
-                        // 召唤更多小弟
-                        for (let j = 0; j < 4; j++) setTimeout(() => spawnEnemy(), j * 100);
+                        // 召唤更多小弟（kickable!）
+                        for (let j = 0; j < 5; j++) setTimeout(() => spawnBossMinion(e), j * 80);
                         spawnFloatingText(e.x, e.y - 50, '全员出击!', '#aa44ff');
                     } else if (sk === 2) {
                         // 三连雷
@@ -1551,6 +2000,7 @@ function render() {
 
 // ==================== 结算 ====================
 function endGame() {
+    playSound('gameover');
     gameState.gameOver = true; player.isDead = true; player.currentState = 'dead';
     document.getElementById('deathImage').style.opacity = 1;
     if (isMobile) document.getElementById('mobileControls').style.display = 'none';
