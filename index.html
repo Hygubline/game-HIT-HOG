@@ -228,11 +228,11 @@
         .stat-item-menu .stat-value { color: #ffd700; font-size: 16px; font-weight: bold; }
         .stat-item-menu .stat-label { color: rgba(255,255,255,0.4); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
         /* 次要按钮 - 统一风格 */
-        .secondary-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .secondary-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
         .secondary-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); box-shadow: none; width: 85px; font-size: 12px; padding: 8px 0; }
         .secondary-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.4); color: #fff; }
-        #shopBtn, #achieveBtn, #tutorialBtn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); box-shadow: none; width: 85px; font-size: 12px; padding: 8px 0; }
-        #shopBtn:hover, #achieveBtn:hover, #tutorialBtn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.4); color: #fff; }
+        #shopBtn, #achieveBtn, #tutorialBtn, #leaderboardBtn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); box-shadow: none; width: 80px; font-size: 11px; padding: 8px 0; }
+        #shopBtn:hover, #achieveBtn:hover, #tutorialBtn:hover, #leaderboardBtn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.4); color: #fff; }
         .menu-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; }
         #mainMenu { display: flex; flex-direction: column; align-items: flex-start; }
         /* 模式选择 */
@@ -290,7 +290,53 @@
         #relicPickup .relic-name { color: #fff; font-size: 18px; margin: 10px 0; }
         #relicPickup .relic-desc { color: #aaa; font-size: 14px; margin-bottom: 15px; }
         #relicPickup button { background: #ffd700; color: #000; border: none; padding: 10px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; }
+        /* ==================== 排行榜 ==================== */
+        #leaderboardScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: none; flex-direction: column;
+            align-items: center; padding: 20px; z-index: 102; overflow-y: auto;
+        }
+        #leaderboardScreen h2 { color: #ffd700; font-size: 28px; margin-bottom: 10px; }
+        .lb-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .lb-tab {
+            padding: 10px 25px; background: rgba(255,255,255,0.1); border: 2px solid #444;
+            border-radius: 8px; color: #aaa; cursor: pointer; font-size: 14px; transition: all 0.15s;
+        }
+        .lb-tab:hover { border-color: #888; color: #fff; }
+        .lb-tab.active { background: rgba(233,69,96,0.3); border-color: #e94560; color: #fff; }
+        .lb-list { width: 100%; max-width: 500px; }
+        .lb-header, .lb-row {
+            display: grid; grid-template-columns: 40px 1fr 70px 50px 50px 60px;
+            gap: 8px; padding: 10px 12px; align-items: center; font-size: 13px;
+        }
+        .lb-header { color: #888; border-bottom: 1px solid #333; font-size: 11px; text-transform: uppercase; }
+        .lb-row { background: rgba(255,255,255,0.03); border-radius: 6px; margin-bottom: 6px; color: #fff; }
+        .lb-row:nth-child(2) { background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); }
+        .lb-row:nth-child(3) { background: rgba(192,192,192,0.1); }
+        .lb-row:nth-child(4) { background: rgba(205,127,50,0.1); }
+        .lb-rank { color: #ffd700; font-weight: bold; text-align: center; }
+        .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-score { color: #4ade80; font-weight: bold; }
+        .lb-empty { color: #666; text-align: center; padding: 40px; }
+        .lb-loading { color: #888; text-align: center; padding: 40px; }
+        #leaderboardScreen .back-btn { margin-top: 20px; }
+        /* 游戏结束提交 */
+        #submitSection { margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        #submitSection input {
+            width: 120px; padding: 8px 12px; border: 2px solid #e94560; border-radius: 6px;
+            background: rgba(0,0,0,0.5); color: #fff; font-size: 14px; text-align: center;
+        }
+        #submitSection input::placeholder { color: #666; }
+        #submitBtn {
+            background: linear-gradient(135deg, #ffd700, #ffb700); color: #000; border: none;
+            padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: 8px;
+        }
+        #submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #submitStatus { font-size: 12px; margin-top: 6px; }
+        #submitStatus.success { color: #4ade80; }
+        #submitStatus.error { color: #e94560; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 </head>
 <body>
     <div id="gameContainer">
@@ -315,6 +361,7 @@
                             <button class="menu-btn" id="shopBtn">商店</button>
                             <button class="menu-btn" id="achieveBtn">成就</button>
                             <button class="menu-btn" id="tutorialBtn">教程</button>
+                            <button class="menu-btn" id="leaderboardBtn">排行榜</button>
                         </div>
                     </div>
                     <div id="modeSelect">
@@ -374,6 +421,28 @@
             <h2>🏆 成就</h2>
             <div class="achieve-list" id="achieveList"></div>
             <button class="back-btn" onclick="hideAchieve()" style="margin-top:20px">返回</button>
+        </div>
+        <!-- 排行榜 -->
+        <div id="leaderboardScreen">
+            <h2>🏆 排行榜</h2>
+            <div class="lb-tabs">
+                <div class="lb-tab active" data-mode="speed">⚡ 速战模式</div>
+                <div class="lb-tab" data-mode="endless">♾️ 无尽模式</div>
+            </div>
+            <div class="lb-list">
+                <div class="lb-header">
+                    <div>#</div>
+                    <div>玩家</div>
+                    <div>分数</div>
+                    <div>击杀</div>
+                    <div>连击</div>
+                    <div>时间</div>
+                </div>
+                <div id="lbContent">
+                    <div class="lb-loading">加载中...</div>
+                </div>
+            </div>
+            <button class="back-btn" onclick="hideLeaderboard()">返回</button>
         </div>
         <!-- 天赋 -->
         <div id="talentScreen">
@@ -463,6 +532,11 @@
             <div class="comment" id="statComment">"你不强，但你很烦。"</div>
             <div id="rewardInfo">+<span id="earnedCurrency">0</span> 🦴</div>
             <p>分数: <span id="finalScore">0</span></p>
+            <div id="submitSection">
+                <input type="text" id="playerName" placeholder="输入昵称" maxlength="12">
+                <button id="submitBtn" onclick="submitScore()">提交分数</button>
+                <div id="submitStatus"></div>
+            </div>
             <button onclick="restartGame()">再来</button>
             <button id="backToMenuBtn" onclick="backToMenu()">菜单</button>
         </div>
@@ -499,6 +573,143 @@ function loadGame() {
         const data = localStorage.getItem('dogGame_save');
         if (data) { saveData = { ...saveData, ...JSON.parse(data) }; updateCurrencyDisplay(); }
     } catch (e) {}
+}
+
+// === SUPABASE LEADERBOARD ===
+const SUPABASE_URL = 'https://nfbgzrxtzwlbjffsjjci.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mYmd6cnh0endsYmpmZnNqamNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjQwNDIsImV4cCI6MjA4OTYwMDA0Mn0.PXOvmsx1B9ipCsEs8eCwpm5xf1TIiz1V7H0KBa_F0s8';
+
+let supabase = null;
+let currentLbMode = 'speed';
+
+function initSupabase() {
+    try {
+        const sb = window.supabase;
+        let createFn = null;
+
+        // Try different ways to access createClient
+        if (sb) {
+            if (typeof sb.createClient === 'function') {
+                createFn = sb.createClient;
+            } else if (sb.default && typeof sb.default.createClient === 'function') {
+                createFn = sb.default.createClient;
+            } else if (typeof sb === 'function') {
+                createFn = sb;
+            }
+        }
+
+        if (createFn) {
+            supabase = createFn(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Supabase initialized successfully');
+        } else {
+            console.warn('Supabase createClient not found');
+        }
+    } catch (e) {
+        console.error('Supabase init error:', e);
+        supabase = null;
+    }
+}
+
+async function submitScore() {
+    if (!supabase) {
+        showSubmitStatus('排行榜未配置', 'error');
+        return;
+    }
+
+    const nameInput = document.getElementById('playerName');
+    const name = nameInput.value.trim() || '无名狗';
+    const btn = document.getElementById('submitBtn');
+
+    btn.disabled = true;
+    showSubmitStatus('提交中...', '');
+
+    try {
+        const { error } = await supabase.from('leaderboard_scores').insert({
+            name: name.substring(0, 12),
+            mode: selectedMode,
+            score: gameState.score,
+            kills: gameStats.killCount,
+            max_combo: gameStats.maxCombo,
+            survival_time: selectedMode === 'endless' ? gameStats.survivalTime : Math.max(0, 60 - gameState.time)
+        });
+
+        if (error) throw error;
+
+        showSubmitStatus('提交成功! 🎉', 'success');
+        // Save name for next time
+        try { localStorage.setItem('dogGame_playerName', name); } catch(e) {}
+    } catch (e) {
+        console.error('Submit error:', e);
+        showSubmitStatus('提交失败: ' + (e.message || '网络错误'), 'error');
+        btn.disabled = false;
+    }
+}
+
+function showSubmitStatus(msg, type) {
+    const el = document.getElementById('submitStatus');
+    el.textContent = msg;
+    el.className = type;
+}
+
+async function loadLeaderboard(mode) {
+    currentLbMode = mode;
+    const content = document.getElementById('lbContent');
+    content.innerHTML = '<div class="lb-loading">加载中...</div>';
+
+    // Update tab UI
+    document.querySelectorAll('.lb-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.mode === mode);
+    });
+
+    if (!supabase) {
+        content.innerHTML = '<div class="lb-empty">排行榜未配置<br><small>请设置 Supabase 凭据</small></div>';
+        return;
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('leaderboard_scores')
+            .select('name, score, kills, max_combo, survival_time, created_at')
+            .eq('mode', mode)
+            .order('score', { ascending: false })
+            .limit(10);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            content.innerHTML = '<div class="lb-empty">暂无记录<br><small>成为第一个上榜的玩家!</small></div>';
+            return;
+        }
+
+        content.innerHTML = data.map((row, i) => `
+            <div class="lb-row">
+                <div class="lb-rank">${i + 1}</div>
+                <div class="lb-name">${escapeHtml(row.name)}</div>
+                <div class="lb-score">${row.score}</div>
+                <div>${row.kills}</div>
+                <div>${row.max_combo}</div>
+                <div>${row.survival_time}s</div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Load leaderboard error:', e);
+        content.innerHTML = '<div class="lb-empty">加载失败<br><small>' + (e.message || '网络错误') + '</small></div>';
+    }
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function showLeaderboard() {
+    document.getElementById('leaderboardScreen').style.display = 'flex';
+    loadLeaderboard(currentLbMode);
+}
+
+function hideLeaderboard() {
+    document.getElementById('leaderboardScreen').style.display = 'none';
 }
 
 function updateCurrencyDisplay() {
@@ -654,6 +865,40 @@ function playSound(type) {
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
                 osc.start(now); osc.stop(now + 0.1);
                 break;
+            case 'impact': // 重击音 - 低沉有力
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(80, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                osc.start(now); osc.stop(now + 0.12);
+                break;
+            case 'execution': // 处决音 - 强力下降+回响
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.15);
+                gain.gain.setValueAtTime(0.45, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+                // 二次音效层叠
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(400, now + 0.05);
+                osc2.frequency.exponentialRampToValueAtTime(100, now + 0.25);
+                gain2.gain.setValueAtTime(0.2, now + 0.05);
+                gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc2.start(now + 0.05); osc2.stop(now + 0.25);
+                break;
+            case 'chain': // 连锁音 - 清脆上升
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+                break;
         }
     } catch(e) {}
 }
@@ -682,7 +927,13 @@ let currentMap = 0;
 let gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0, dash: 0 }, eventCount: 0 };
 
 // 状态
-let gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死了', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false };
+let gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死了', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0 };
+
+// === HITSTOP SYSTEM ===
+function triggerHitStop(frames) {
+    gameState.hitStop = Math.max(gameState.hitStop, frames);
+}
+const HIT_STOP = { LIGHT: 2, MEDIUM: 4, HEAVY: 6, EXECUTION: 8 };
 let cooldowns = { slash: 0, sajiao: 0, taunt: 0, dash: 0 };
 
 // 强化
@@ -1032,6 +1283,12 @@ document.getElementById('confirmStartBtn').addEventListener('click', () => {
 });
 document.getElementById('shopBtn').addEventListener('click', showShop);
 document.getElementById('achieveBtn').addEventListener('click', showAchieve);
+document.getElementById('leaderboardBtn').addEventListener('click', showLeaderboard);
+
+// 排行榜 tabs
+document.querySelectorAll('.lb-tab').forEach(tab => {
+    tab.addEventListener('click', () => loadLeaderboard(tab.dataset.mode));
+});
 
 // 暂停/退出功能
 document.getElementById('pauseBtn').addEventListener('click', showExitConfirm);
@@ -1246,9 +1503,16 @@ function performSlash() {
     const sx = player.x + (player.facingRight ? 60 : -60);
     slashEffects.push({ x: sx, y: player.y, vx: player.facingRight ? 15 : -15, width: playerBuffs.slashWidth, height: 60, life: 30, damage: playerBuffs.slashDamage });
     if (playerBuffs.slashDouble) slashEffects.push({ x: sx, y: player.y - 30, vx: player.facingRight ? 15 : -15, width: playerBuffs.slashWidth, height: 60, life: 30, damage: playerBuffs.slashDamage });
-    enemies.forEach(e => { if (!e.flying && Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < 100) { dealDamageToEnemy(e, 3); spawnHitEffect(e.x, e.y, 2); } });
+    let slashHit = false;
+    enemies.forEach(e => {
+        if (!e.flying && Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < 100) {
+            slashHit = true;
+            dealDamageToEnemy(e, 3, 'heavy');
+            spawnHitEffect(e.x, e.y, 2);
+        }
+    });
     spawnFloatingText(player.x, player.y - 60, '⚔️', '#ffd700');
-    gameState.screenShake = 12;
+    gameState.screenShake = slashHit ? 10 : 5;
 }
 
 function performSajiao() {
@@ -1340,8 +1604,9 @@ function performKick() {
             const isExecutable = e.weakened || e.currentHp <= 1 || (e.currentHp <= e.hp * 0.3);
             const knockbackMult = isExecutable ? 2.5 : 1;
             const damageMult = isExecutable ? 2 : 1;
+            const hitType = isExecutable ? 'execution' : (e.isBoss ? 'heavy' : 'normal');
 
-            dealDamageToEnemy(e, playerBuffs.kickDamage * damageMult);
+            dealDamageToEnemy(e, playerBuffs.kickDamage * damageMult, hitType);
 
             if (e.currentHp <= 0) {
                 e.flying = true;
@@ -1349,16 +1614,20 @@ function performKick() {
                 e.vy = isExecutable ? -15 : -10;
                 e.isProjectile = true; // Mark as projectile for chain collision bonus
                 handleEnemyKill(e);
-                gameState.screenShake = isExecutable ? 15 : 8;
+                gameState.screenShake = isExecutable ? 18 : 6;
 
                 if (isExecutable) {
                     executionKick = true;
+                    playSound('execution');
                     spawnFloatingText(e.x, e.y - 30, '💥处决!', '#ffd700');
-                    // Extra particles for execution kick
-                    for (let i = 0; i < 12; i++) {
+                    // Extra particles for execution kick - golden burst
+                    for (let i = 0; i < 16; i++) {
                         const a = Math.random() * Math.PI * 2;
-                        particles.push({ x: e.x, y: e.y, vx: Math.cos(a) * 8, vy: Math.sin(a) * 8, life: 30, color: '#ffd700', size: 5 });
+                        const spd = 6 + Math.random() * 6;
+                        particles.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd - 4, life: 35, color: i % 2 === 0 ? '#ffd700' : '#ffffff', size: 4 + Math.random() * 4 });
                     }
+                    // Impact ring
+                    particles.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 20, color: '#ffd700', size: 15, expanding: true, isWave: true });
                 }
 
                 if (playerBuffs.kickLifesteal && gameState.lives < 5 && Math.random() < 0.3) {
@@ -1367,23 +1636,52 @@ function performKick() {
                     spawnFloatingText(player.x, player.y - 60, '+1❤️', '#ff4444');
                 }
             } else {
-                e.vx += (player.facingRight ? 1 : -1) * 8;
-                e.vy = -5;
+                // Non-lethal kick pushback
+                e.vx += (player.facingRight ? 1 : -1) * 10;
+                e.vy = -6;
+                gameState.screenShake = 3;
             }
-            spawnHitEffect(e.x, e.y, isExecutable ? 2.5 : 1);
+            spawnHitEffect(e.x, e.y, isExecutable ? 3 : 1.2, isExecutable);
         }
     });
     if (executionKick) {
         gameState.slowMo = true;
-        gameState.slowMoTimer = 10; // Brief slowmo for impact
+        gameState.slowMoTimer = 12; // Brief slowmo for impact
+        document.getElementById('slowmo').style.opacity = 0.3;
     }
 }
 
-function dealDamageToEnemy(e, dmg) {
+function dealDamageToEnemy(e, dmg, hitType = 'normal') {
     let d = dmg;
     if (e.role === 'tank') d *= 0.5;
     e.currentHp -= d;
-    if (e.currentHp <= 0 && !e.flying) { e.flying = true; e.vx = (Math.random() - 0.5) * 15; e.vy = -12; handleEnemyKill(e); }
+
+    // Enemy hit reaction (not for bosses on light hits, always for heavy/execution)
+    const applyReaction = !e.isBoss || hitType !== 'normal';
+    if (applyReaction && !e.flying) {
+        e.hitFlash = 8; // White flash frames
+        e.hitStun = hitType === 'execution' ? 12 : (hitType === 'heavy' ? 8 : 4);
+        // Brief recoil
+        const recoilStr = hitType === 'execution' ? 4 : (hitType === 'heavy' ? 2 : 1);
+        e.vx += (player.x < e.x ? recoilStr : -recoilStr);
+    }
+
+    // Hitstop based on hit type
+    if (hitType === 'execution') {
+        triggerHitStop(HIT_STOP.EXECUTION);
+        playSound('impact');
+    } else if (hitType === 'heavy') {
+        triggerHitStop(HIT_STOP.MEDIUM);
+    } else {
+        triggerHitStop(HIT_STOP.LIGHT);
+    }
+
+    if (e.currentHp <= 0 && !e.flying) {
+        e.flying = true;
+        e.vx = (Math.random() - 0.5) * 15;
+        e.vy = -12;
+        handleEnemyKill(e);
+    }
 }
 
 // ==================== 敌人 ====================
@@ -1565,27 +1863,37 @@ function checkChainCollision() {
 
                 // Transfer momentum with boost
                 const p = Math.sqrt(enemies[i].vx ** 2 + enemies[i].vy ** 2);
-                const transferMult = 1.2; // Chain gets stronger!
+                const transferMult = 1.3; // Chain gets stronger!
                 enemies[j].vx = (dx / dist) * p * transferMult;
-                enemies[j].vy = (dy / dist) * p * transferMult - 8;
+                enemies[j].vy = (dy / dist) * p * transferMult - 10;
 
                 // Chain bonus score
                 const chainBonus = 200 * chainCount;
                 gameState.score += chainBonus;
 
                 handleEnemyKill(enemies[j]);
-                spawnHitEffect(enemies[j].x, enemies[j].y, 2 + chainCount * 0.5);
+
+                // Enhanced chain hit effect
+                const hitPower = 2 + chainCount * 0.8;
+                spawnHitEffect(enemies[j].x, enemies[j].y, hitPower, chainCount >= 2);
+
+                // Hitstop for chains
+                triggerHitStop(chainCount >= 2 ? HIT_STOP.MEDIUM : HIT_STOP.LIGHT);
+
+                // Chain collision sound
+                playSound('chain');
 
                 // Escalating feedback
                 const chainTexts = ['连锁!', '双杀!', '三连!', '超神!', '绝杀!'];
                 const chainColors = ['#ff6b35', '#ffd700', '#ff69b4', '#00ffff', '#ff0000'];
                 const textIdx = Math.min(chainCount - 1, chainTexts.length - 1);
-                spawnFloatingText((enemies[i].x + enemies[j].x) / 2, enemies[i].y - 25, chainTexts[textIdx] + '+' + chainBonus, chainColors[textIdx]);
+                const textSize = 22 + chainCount * 4;
+                floatingTexts.push({ x: (enemies[i].x + enemies[j].x) / 2, y: enemies[i].y - 25, text: chainTexts[textIdx] + '+' + chainBonus, color: chainColors[textIdx], vy: -3, life: 60, size: textSize, isText: true });
 
                 // Screen shake scales with chain
-                gameState.screenShake = Math.min(8 + chainCount * 4, 25);
+                gameState.screenShake = Math.min(6 + chainCount * 5, 22);
 
-                // Sound feedback
+                // Sound feedback for bigger chains
                 if (chainCount >= 2) playSound('combo');
             }
         }
@@ -1594,6 +1902,10 @@ function checkChainCollision() {
     if (chainCount >= 3) {
         showEvent('🔥 ' + chainCount + '连锁反应!');
         gameState.score += chainCount * 500;
+        triggerHitStop(HIT_STOP.HEAVY);
+        gameState.slowMo = true;
+        gameState.slowMoTimer = 15;
+        document.getElementById('slowmo').style.opacity = 0.25;
     }
 }
 
@@ -1610,9 +1922,36 @@ function spawnDanmaku(text) {
 
 function showEvent(text) { const el = document.getElementById('event'); el.textContent = text; el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 1200); }
 function showCombo(c) { playSound('combo'); const el = document.getElementById('combo'); el.textContent = c + ' COMBO!'; el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 400); }
-function spawnHitEffect(x, y, power) {
-    for (let i = 0; i < 8 + power * 6; i++) { const a = Math.random() * Math.PI * 2, s = 2 + Math.random() * 4 * power; particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 25, color: ['#ffd700', '#e94560', '#4ade80'][Math.floor(Math.random() * 3)], size: 3 + Math.random() * 4 }); }
-    floatingTexts.push({ x: x + (Math.random() - 0.5) * 40, y: y - 15, text: emojis[Math.floor(Math.random() * emojis.length)], vy: -3, life: 50, size: 25 + power * 8 });
+function spawnHitEffect(x, y, power, isExecution = false) {
+    const particleCount = Math.floor(6 + power * 8);
+    const baseSpeed = 2 + power * 3;
+    const baseSize = 2 + power * 2;
+    const colors = isExecution ? ['#ffd700', '#ffffff', '#ff6b35'] : ['#ffd700', '#e94560', '#4ade80'];
+
+    for (let i = 0; i < particleCount; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const s = baseSpeed + Math.random() * baseSpeed;
+        particles.push({
+            x, y,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s - (isExecution ? 3 : 0),
+            life: 20 + power * 8,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: baseSize + Math.random() * 3
+        });
+    }
+
+    // White flash burst for strong hits
+    if (power >= 2) {
+        particles.push({ x, y, vx: 0, vy: 0, life: 8, color: '#ffffff', size: 20 + power * 10, expanding: true, isFlash: true });
+    }
+
+    // Execution ring burst
+    if (isExecution) {
+        particles.push({ x, y, vx: 0, vy: 0, life: 15, color: '#ffd700', size: 10, expanding: true, isWave: true });
+    }
+
+    floatingTexts.push({ x: x + (Math.random() - 0.5) * 30, y: y - 15, text: emojis[Math.floor(Math.random() * emojis.length)], vy: -3 - power, life: 40 + power * 10, size: 22 + power * 10 });
 }
 function spawnFloatingText(x, y, text, color) { floatingTexts.push({ x, y, text, color, vy: -2, life: 50, size: 18, isText: true }); }
 
@@ -1719,6 +2058,13 @@ function playerHit(reason) {
 // ==================== 更新 ====================
 function update() {
     if (gamePhase !== 'playing' || gameState.gameOver || gameState.isPaused) return;
+
+    // Hitstop: pause game briefly on impact
+    if (gameState.hitStop > 0) {
+        gameState.hitStop--;
+        return; // Skip this frame for impact freeze
+    }
+
     const ts = gameState.slowMo ? 0.3 : 1;
     if (cooldowns.slash > 0) cooldowns.slash--;
     if (cooldowns.sajiao > 0) cooldowns.sajiao--;
@@ -1879,6 +2225,13 @@ function update() {
             } else e.vx = (e.x < player.x ? 1 : -1) * e.speed * (e.taunted ? 3 : 1);
         }
 
+        // Enemy hit reaction updates
+        if (e.hitFlash > 0) e.hitFlash--;
+        if (e.hitStun > 0) {
+            e.hitStun--;
+            e.vx *= 0.8; // Friction during stun
+        }
+
         if (e.flying) { e.vy += 0.5 * ts; e.rotation += e.vx * 0.02 * ts; }
         e.x += e.vx * ts; e.y += e.vy * ts;
         if (e.y > canvas.height - 80) { e.y = canvas.height - 80; if (e.flying) { e.vy *= -0.5; e.vx *= 0.8; if (Math.abs(e.vy) < 2) enemies.splice(i, 1); } else e.vy = 0; }
@@ -1933,7 +2286,7 @@ function render() {
     // 弹幕球
     projectiles.forEach(p => { ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); });
     // 粒子
-    particles.forEach(p => { ctx.globalAlpha = p.life / 40; ctx.fillStyle = p.color; if (p.isWave) { ctx.strokeStyle = p.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.stroke(); } else if (p.isHeart) { ctx.font = p.size + 'px Arial'; ctx.fillText('💕', p.x, p.y); } else if (p.isAfterImage) { ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.size, p.size * 0.7, 0, 0, Math.PI * 2); ctx.fill(); } else { ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); } });
+    particles.forEach(p => { ctx.globalAlpha = p.life / 40; ctx.fillStyle = p.color; if (p.isFlash) { ctx.globalAlpha = p.life / 12; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); } else if (p.isWave) { ctx.strokeStyle = p.color; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.stroke(); } else if (p.isHeart) { ctx.font = p.size + 'px Arial'; ctx.fillText('💕', p.x, p.y); } else if (p.isAfterImage) { ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.size, p.size * 0.7, 0, 0, Math.PI * 2); ctx.fill(); } else { ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); } });
     ctx.globalAlpha = 1;
     // 道具
     items.forEach(item => { ctx.save(); ctx.translate(item.x, item.y + Math.sin(Date.now() / 200 + item.bobOffset) * 4); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill(); ctx.font = '26px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(item.emoji, 0, 0); ctx.restore(); });
@@ -1943,6 +2296,8 @@ function render() {
     enemies.forEach(e => {
         ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.rotation); ctx.scale(e.scale || 1, e.scale || 1);
         if (e.isExploding && Math.floor(Date.now() / 80) % 2 === 0) ctx.globalAlpha = 0.5;
+        // Hit flash effect - brighten when recently hit
+        const hasHitFlash = e.hitFlash > 0;
         // 精英怪外发光
         if (e.isElite && !e.flying) {
             ctx.shadowColor = '#ffd700';
@@ -1974,6 +2329,13 @@ function render() {
         if (e.isElite && !e.flying) { ctx.font = '16px Arial'; ctx.fillText('⭐', -8, -e.size / 2 - 10); }
         if (!e.flying) { ctx.fillStyle = e.isElite ? '#ffd700' : '#fff'; ctx.font = 'bold 10px Microsoft YaHei'; ctx.textAlign = 'center'; ctx.fillText(e.name, 0, e.size / 2 + 12); }
         if (e.currentHp < e.hp && !e.flying && !e.isBoss) { const barW = e.isElite ? 50 : 36; ctx.fillStyle = '#333'; ctx.fillRect(-barW/2, -e.size / 2 - 8, barW, 5); ctx.fillStyle = e.isElite ? '#ffd700' : '#e94560'; ctx.fillRect(-barW/2, -e.size / 2 - 8, barW * (e.currentHp / e.hp), 5); }
+        // Draw hit flash overlay
+        if (hasHitFlash) {
+            ctx.globalAlpha = e.hitFlash / 8 * 0.8;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(0, 0, e.size / 2 + 5, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 1;
+        }
         ctx.restore();
     });
     // 玩家
@@ -2025,12 +2387,15 @@ function endGame() {
         document.getElementById('statComment').textContent = '"' + comments[Math.floor(Math.random() * comments.length)] + '"';
         document.getElementById('finalScore').textContent = gameState.score;
         document.getElementById('deathReason').textContent = gameState.deathReason;
+        // Reset submit button for new game
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('submitStatus').textContent = '';
         document.getElementById('gameOver').style.display = 'block';
     }, 1200);
 }
 
 function resetGame() {
-    gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false };
+    gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0 };
     gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0, dash: 0 }, eventCount: 0, survivalTime: 0 };
     playerBuffs = { kickDamage: 1, kickRange: 80, kickKnockback: 15, kickPierce: false, slashCD: 120, slashWidth: 100, slashDouble: false, slashDamage: 5, sajiaoCD: 900, sajiaoBossDmg: 10, sajiaoInvincible: false, tauntDuration: 180, dashDistance: 25, dashDamage: 0, dashShockwave: false, invincibleTime: 90, comboKeep: 120, scoreMultiplier: 1, speedMult: 1, gamblerMode: false, extraChoice: false, bossDmgBonus: 1, speedBonus: 1 };
     selectedUpgrades = [];
@@ -2067,6 +2432,15 @@ function gameLoop() { update(); render(); requestAnimationFrame(gameLoop); }
 loadGame();
 initMobileControls();
 gameLoop();
+
+// Restore saved player name
+try {
+    const savedName = localStorage.getItem('dogGame_playerName');
+    if (savedName) document.getElementById('playerName').value = savedName;
+} catch(e) {}
+
+// 初始化 Supabase (已在 head 中加载)
+initSupabase();
 </script>
 </body>
 </html>
