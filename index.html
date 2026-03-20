@@ -1425,6 +1425,7 @@ function startWave(waveNum) {
 
 // 升级面板
 function showUpgradePanel() {
+    if (gameState.gameOver || player.isDead) return;
     playSound('upgrade');
     gameState.isPaused = true;
     const panel = document.getElementById('upgradePanel');
