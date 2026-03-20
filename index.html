@@ -78,6 +78,75 @@
         #tutorialScreen .back-btn { margin-top: 20px; padding: 12px 40px; font-size: 18px; background: #e94560; color: #fff; border: none; border-radius: 10px; }
         /* 游戏UI */
         #ui { position: absolute; top: 5px; left: 10px; color: #fff; font-size: min(18px, 4vw); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10; display: none; }
+        /* 玩家血条 */
+        #playerHealthBar {
+            position: absolute; top: 8px; left: 10px; z-index: 15;
+            background: rgba(0,0,0,0.7); border: 2px solid #e94560;
+            border-radius: 8px; padding: 6px 12px; display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        #playerHealthBar.damaged {
+            animation: hpShake 0.3s ease-out;
+        }
+        #playerHealthBar.low-health {
+            animation: lowHealthPulse 1s ease-in-out infinite;
+            border-color: #ff0000;
+        }
+        @keyframes hpShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-4px); }
+            40% { transform: translateX(4px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(2px); }
+        }
+        @keyframes lowHealthPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(255,0,0,0.5); }
+            50% { box-shadow: 0 0 20px rgba(255,0,0,0.8), 0 0 30px rgba(255,0,0,0.4); }
+        }
+        .hp-label {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+        }
+        .hp-icon { font-size: 18px; }
+        .hp-text {
+            font-size: 14px; font-weight: bold; color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        .hp-text .current { color: #4ade80; }
+        .hp-text.low .current { color: #ff4444; }
+        .hp-bar-container {
+            width: 140px; height: 16px; background: #222;
+            border-radius: 4px; overflow: hidden; position: relative;
+            border: 1px solid #444;
+        }
+        .hp-bar-chip {
+            position: absolute; top: 0; left: 0; height: 100%;
+            background: #ff6b6b; transition: width 0.5s ease-out 0.2s;
+        }
+        .hp-bar-fill {
+            position: absolute; top: 0; left: 0; height: 100%;
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+            transition: width 0.15s ease-out;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .hp-bar-fill.low {
+            background: linear-gradient(180deg, #ff6b6b 0%, #ef4444 50%, #dc2626 100%);
+        }
+        .hp-bar-fill.critical {
+            background: linear-gradient(180deg, #ff4444 0%, #dc2626 50%, #b91c1c 100%);
+            animation: criticalFlash 0.5s ease-in-out infinite;
+        }
+        @keyframes criticalFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .hp-segments {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; pointer-events: none;
+        }
+        .hp-segment {
+            flex: 1; border-right: 1px solid rgba(0,0,0,0.3);
+        }
+        .hp-segment:last-child { border-right: none; }
         /* 技能栏 */
         #skillBar {
             position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
@@ -219,6 +288,7 @@
         #sajiaoBtn { grid-column: 3; grid-row: 2; background: rgba(255,105,180,0.4); border-color: #ff69b4; }
         #dashBtn { grid-column: 1; grid-row: 1; background: rgba(96,165,250,0.4); }
         #itemBtn { grid-column: 3; grid-row: 1; background: rgba(74,222,128,0.4); border-color: #4ade80; }
+        #blockBtn { grid-column: 2; grid-row: 3; background: rgba(74,222,128,0.5); border-color: #4ade80; }
         /* 货币显示 */
         #currencyDisplay { position: absolute; top: 15px; right: 20px; color: #ffd700; font-size: 16px; z-index: 101; background: rgba(0,0,0,0.4); padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.3); }
         #rewardInfo { color: #4ade80; font-size: 14px; margin: 10px 0; }
@@ -296,30 +366,47 @@
             background: rgba(0,0,0,0.95); display: none; flex-direction: column;
             align-items: center; padding: 20px; z-index: 102; overflow-y: auto;
         }
-        #leaderboardScreen h2 { color: #ffd700; font-size: 28px; margin-bottom: 10px; }
-        .lb-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        #leaderboardScreen h2 { color: #ffd700; font-size: min(28px, 7vw); margin-bottom: 10px; }
+        .lb-tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
         .lb-tab {
-            padding: 10px 25px; background: rgba(255,255,255,0.1); border: 2px solid #444;
-            border-radius: 8px; color: #aaa; cursor: pointer; font-size: 14px; transition: all 0.15s;
+            padding: 10px 20px; background: rgba(255,255,255,0.1); border: 2px solid #444;
+            border-radius: 8px; color: #aaa; cursor: pointer; font-size: min(14px, 3.5vw); transition: all 0.15s;
         }
         .lb-tab:hover { border-color: #888; color: #fff; }
         .lb-tab.active { background: rgba(233,69,96,0.3); border-color: #e94560; color: #fff; }
-        .lb-list { width: 100%; max-width: 500px; }
+        .lb-list { width: 100%; max-width: 500px; padding: 0 5px; }
         .lb-header, .lb-row {
-            display: grid; grid-template-columns: 40px 1fr 70px 50px 50px 60px;
-            gap: 8px; padding: 10px 12px; align-items: center; font-size: 13px;
+            display: grid; grid-template-columns: 30px minmax(80px, 1fr) 60px 45px 45px 50px;
+            gap: 4px; padding: 8px 8px; align-items: center; font-size: min(13px, 3.2vw);
         }
-        .lb-header { color: #888; border-bottom: 1px solid #333; font-size: 11px; text-transform: uppercase; }
+        .lb-header { color: #888; border-bottom: 1px solid #333; font-size: min(10px, 2.5vw); text-transform: uppercase; }
         .lb-row { background: rgba(255,255,255,0.03); border-radius: 6px; margin-bottom: 6px; color: #fff; }
         .lb-row:nth-child(2) { background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); }
         .lb-row:nth-child(3) { background: rgba(192,192,192,0.1); }
         .lb-row:nth-child(4) { background: rgba(205,127,50,0.1); }
         .lb-rank { color: #ffd700; font-weight: bold; text-align: center; }
-        .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
         .lb-score { color: #4ade80; font-weight: bold; }
-        .lb-empty { color: #666; text-align: center; padding: 40px; }
+        .lb-kills, .lb-combo, .lb-time { text-align: center; }
+        .lb-empty { color: #666; text-align: center; padding: 40px; font-size: min(16px, 4vw); }
         .lb-loading { color: #888; text-align: center; padding: 40px; }
         #leaderboardScreen .back-btn { margin-top: 20px; }
+        /* 手机端排行榜优化 */
+        @media (max-width: 480px) {
+            .lb-header, .lb-row {
+                grid-template-columns: 28px 1fr 65px;
+                gap: 8px; padding: 12px 10px;
+            }
+            .lb-kills, .lb-combo, .lb-time { display: none; }
+            .lb-name { font-size: 14px; font-weight: 500; }
+            .lb-score { font-size: 15px; }
+            .lb-rank { font-size: 14px; }
+            #leaderboardScreen { padding: 15px 10px; }
+            #leaderboardScreen h2 { font-size: 24px; }
+            .lb-list { padding: 0 5px; }
+            .lb-row { padding: 14px 12px; margin-bottom: 8px; }
+            .lb-tab { padding: 12px 18px; font-size: 13px; }
+        }
         /* 游戏结束提交 */
         #submitSection { margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; }
         #submitSection input {
@@ -434,9 +521,9 @@
                     <div>#</div>
                     <div>玩家</div>
                     <div>分数</div>
-                    <div>击杀</div>
-                    <div>连击</div>
-                    <div>时间</div>
+                    <div class="lb-kills">击杀</div>
+                    <div class="lb-combo">连击</div>
+                    <div class="lb-time">时间</div>
                 </div>
                 <div id="lbContent">
                     <div class="lb-loading">加载中...</div>
@@ -452,7 +539,20 @@
         <!-- UI -->
         <div id="ui">
             <div>分数: <span id="score">0</span></div>
-            <div>❤️<span id="lives">3</span> ⏱️<span id="time">60</span></div>
+            <div style="display:none;">❤️<span id="lives">3</span></div>
+            <div>⏱️<span id="time">60</span></div>
+        </div>
+        <!-- 玩家血条 -->
+        <div id="playerHealthBar">
+            <div class="hp-label">
+                <span class="hp-icon">❤️</span>
+                <span class="hp-text"><span class="current" id="hpCurrent">3</span> / <span id="hpMax">3</span></span>
+            </div>
+            <div class="hp-bar-container">
+                <div class="hp-bar-chip" id="hpChip" style="width: 100%"></div>
+                <div class="hp-bar-fill" id="hpFill" style="width: 100%"></div>
+                <div class="hp-segments" id="hpSegments"></div>
+            </div>
         </div>
         <div id="mapName"></div>
         <button id="soundBtn">🔊</button>
@@ -502,7 +602,13 @@
                 <span class="skill-name">撒娇</span>
                 <div class="skill-cd" id="sajiaoCD"></div>
             </div>
-                    </div>
+            <div class="skill-slot ready" id="skillBlock">
+                <span class="skill-key">P</span>
+                <span class="skill-icon">🛡️</span>
+                <span class="skill-name">格挡</span>
+                <div class="skill-cd" id="blockCD"></div>
+            </div>
+        </div>
         <div id="combo"></div>
         <div id="danmaku"></div>
         <div id="event"></div>
@@ -554,6 +660,7 @@
             <div class="touch-btn" id="kickBtn">👊</div>
             <div class="touch-btn" id="slashBtn">⚔️<div class="cd-overlay" id="slashCDm" style="display:none"></div></div>
             <div class="touch-btn" id="sajiaoBtn">🥺<div class="cd-overlay" id="sajiaoCDm" style="display:none"></div></div>
+            <div class="touch-btn" id="blockBtn">🛡️<div class="cd-overlay" id="blockCDm" style="display:none"></div></div>
         </div>
     </div>
 <script>
@@ -561,7 +668,13 @@
 let saveData = {
     currency: 0, totalKills: 0, totalBossKills: 0, highScore: 0, gamesPlayed: 0,
     permUpgrades: { maxHp: 0, atkBonus: 0, speedBonus: 0, cdBonus: 0 },
-    achievements: {}, maxCombo: 0
+    achievements: {}, maxCombo: 0,
+    // 新增成就追踪
+    maxChain: 0,           // 最大连锁击杀
+    maxSurvivalTime: 0,    // 最长存活时间(秒)
+    totalCurrency: 0,      // 累计获得骨头币
+    perfectBossKills: 0,   // 满血击败Boss次数
+    maxNoHitTime: 0        // 最长无伤时间(秒)
 };
 
 function saveGame() {
@@ -617,25 +730,57 @@ async function submitScore() {
     }
 
     const nameInput = document.getElementById('playerName');
-    const name = nameInput.value.trim() || '无名狗';
+    const name = (nameInput.value.trim() || '无名狗').substring(0, 12);
     const btn = document.getElementById('submitBtn');
+    const newScore = gameState.score;
 
     btn.disabled = true;
     showSubmitStatus('提交中...', '');
 
     try {
-        const { error } = await supabase.from('leaderboard_scores').insert({
-            name: name.substring(0, 12),
-            mode: selectedMode,
-            score: gameState.score,
-            kills: gameStats.killCount,
-            max_combo: gameStats.maxCombo,
-            survival_time: selectedMode === 'endless' ? gameStats.survivalTime : Math.max(0, 60 - gameState.time)
-        });
+        // Check if player already has a score for this mode
+        const { data: existing } = await supabase
+            .from('leaderboard_scores')
+            .select('id, score')
+            .eq('name', name)
+            .eq('mode', selectedMode)
+            .limit(1);
 
-        if (error) throw error;
+        if (existing && existing.length > 0) {
+            const oldScore = existing[0].score;
+            if (newScore <= oldScore) {
+                showSubmitStatus(`未超越记录 (最高: ${oldScore})`, 'error');
+                btn.disabled = false;
+                return;
+            }
+            // Update existing record with higher score
+            const { error } = await supabase
+                .from('leaderboard_scores')
+                .update({
+                    score: newScore,
+                    kills: gameStats.killCount,
+                    max_combo: gameStats.maxCombo,
+                    survival_time: selectedMode === 'endless' ? gameStats.survivalTime : Math.max(0, 60 - gameState.time)
+                })
+                .eq('id', existing[0].id);
 
-        showSubmitStatus('提交成功! 🎉', 'success');
+            if (error) throw error;
+            showSubmitStatus(`新纪录! ${oldScore} → ${newScore} 🎉`, 'success');
+        } else {
+            // Insert new record
+            const { error } = await supabase.from('leaderboard_scores').insert({
+                name: name,
+                mode: selectedMode,
+                score: newScore,
+                kills: gameStats.killCount,
+                max_combo: gameStats.maxCombo,
+                survival_time: selectedMode === 'endless' ? gameStats.survivalTime : Math.max(0, 60 - gameState.time)
+            });
+
+            if (error) throw error;
+            showSubmitStatus('提交成功! 🎉', 'success');
+        }
+
         // Save name for next time
         try { localStorage.setItem('dogGame_playerName', name); } catch(e) {}
     } catch (e) {
@@ -686,9 +831,9 @@ async function loadLeaderboard(mode) {
                 <div class="lb-rank">${i + 1}</div>
                 <div class="lb-name">${escapeHtml(row.name)}</div>
                 <div class="lb-score">${row.score}</div>
-                <div>${row.kills}</div>
-                <div>${row.max_combo}</div>
-                <div>${row.survival_time}s</div>
+                <div class="lb-kills">${row.kills}</div>
+                <div class="lb-combo">${row.max_combo}</div>
+                <div class="lb-time">${row.survival_time}s</div>
             </div>
         `).join('');
     } catch (e) {
@@ -724,14 +869,103 @@ function updateCurrencyDisplay() {
     if (totalKills) totalKills.textContent = saveData.totalKills || 0;
 }
 
+// === 玩家血条系统 ===
+let maxPlayerLives = 3;
+let lastDisplayedLives = 3;
+
+function initPlayerHealthBar() {
+    maxPlayerLives = gameState.lives;
+    lastDisplayedLives = gameState.lives;
+    updatePlayerHealthBar(false);
+    buildHpSegments();
+}
+
+function buildHpSegments() {
+    const container = document.getElementById('hpSegments');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 0; i < maxPlayerLives; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'hp-segment';
+        container.appendChild(seg);
+    }
+}
+
+function updatePlayerHealthBar(animate = true) {
+    const current = gameState.lives;
+    const max = maxPlayerLives;
+    const percent = Math.max(0, (current / max) * 100);
+
+    // Update text
+    document.getElementById('hpCurrent').textContent = current;
+    document.getElementById('hpMax').textContent = max;
+    document.getElementById('lives').textContent = current;
+
+    // Update fill bar
+    const fill = document.getElementById('hpFill');
+    const chip = document.getElementById('hpChip');
+    const hpText = document.querySelector('.hp-text');
+    const hpBar = document.getElementById('playerHealthBar');
+
+    fill.style.width = percent + '%';
+
+    // Chip bar (delayed damage indicator)
+    if (animate && current < lastDisplayedLives) {
+        // Keep chip at old value briefly
+        setTimeout(() => {
+            chip.style.width = percent + '%';
+        }, 200);
+    } else {
+        chip.style.width = percent + '%';
+    }
+
+    // Low health states
+    fill.classList.remove('low', 'critical');
+    hpText.classList.remove('low');
+    hpBar.classList.remove('low-health');
+
+    if (current <= 1) {
+        fill.classList.add('critical');
+        hpText.classList.add('low');
+        hpBar.classList.add('low-health');
+    } else if (current <= 2) {
+        fill.classList.add('low');
+        hpText.classList.add('low');
+        hpBar.classList.add('low-health');
+    }
+
+    // Damage animation
+    if (animate && current < lastDisplayedLives) {
+        hpBar.classList.remove('damaged');
+        void hpBar.offsetWidth; // Force reflow
+        hpBar.classList.add('damaged');
+    }
+
+    lastDisplayedLives = current;
+}
+
+function showPlayerHealthBar() {
+    document.getElementById('playerHealthBar').style.display = 'block';
+}
+
+function hidePlayerHealthBar() {
+    document.getElementById('playerHealthBar').style.display = 'none';
+}
+
 function earnCurrency() {
     const earned = gameStats.killCount * 2 + gameStats.bossKilled * 50 + Math.floor((selectedMode === 'endless' ? gameStats.survivalTime : 60 - gameState.time) / 10) * 5;
     saveData.currency += earned;
+    saveData.totalCurrency += earned; // 累计获得骨头币
     saveData.totalKills += gameStats.killCount;
     saveData.totalBossKills += gameStats.bossKilled;
     saveData.gamesPlayed++;
     if (gameState.score > saveData.highScore) saveData.highScore = gameState.score;
     if (gameStats.maxCombo > saveData.maxCombo) saveData.maxCombo = gameStats.maxCombo;
+    // 记录最长存活时间
+    const survivalTime = selectedMode === 'endless' ? gameStats.survivalTime : 60 - gameState.time;
+    if (survivalTime > saveData.maxSurvivalTime) saveData.maxSurvivalTime = survivalTime;
+    // 记录最长无伤时间(游戏结束时也要检查)
+    if (gameStats.noHitTimer > saveData.maxNoHitTime) saveData.maxNoHitTime = gameStats.noHitTimer;
     checkAchievements();
     saveGame();
     updateCurrencyDisplay();
@@ -924,7 +1158,7 @@ const mapThemes = [
 let currentMap = 0;
 
 // 统计
-let gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0, dash: 0 }, eventCount: 0 };
+let gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0, dash: 0 }, eventCount: 0, noHitTimer: 0 };
 
 // 状态
 let gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死了', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0 };
@@ -934,7 +1168,7 @@ function triggerHitStop(frames) {
     gameState.hitStop = Math.max(gameState.hitStop, frames);
 }
 const HIT_STOP = { LIGHT: 2, MEDIUM: 4, HEAVY: 6, EXECUTION: 8 };
-let cooldowns = { slash: 0, sajiao: 0, taunt: 0, dash: 0 };
+let cooldowns = { slash: 0, sajiao: 0, taunt: 0, dash: 0, block: 0 };
 
 // 强化
 let playerBuffs = { kickDamage: 1, kickRange: 80, kickKnockback: 15, kickPierce: false, kickStun: false, kickLifesteal: false, slashCD: 120, slashWidth: 100, slashDouble: false, slashDamage: 5, sajiaoCD: 900, sajiaoBossDmg: 10, sajiaoInvincible: false, sajiaoHeal: false, sajiaoFear: false, tauntDuration: 180, dashDistance: 25, dashDamage: 0, dashShockwave: false, dashIframes: 20, dashChain: false, invincibleTime: 90, comboKeep: 120, scoreMultiplier: 1, speedMult: 1, gamblerMode: false, extraChoice: false, bossDmgBonus: 1, speedBonus: 1, damageReduce: 0, regenRate: 0 };
@@ -948,7 +1182,7 @@ const upgradePool = [
     { id: 'sajiaoBoss', name: '破防', icon: '💔', desc: 'Boss+10', apply: () => playerBuffs.sajiaoBossDmg += 10 },
     { id: 'dashDist', name: '闪电冲', icon: '💨', desc: '+50%', apply: () => playerBuffs.dashDistance *= 1.5 },
     { id: 'dashWave', name: '冲击波', icon: '💥', desc: '震波', apply: () => playerBuffs.dashShockwave = true },
-    { id: 'extraLife', name: '续命', icon: '❤️', desc: '+1命', apply: () => { gameState.lives++; document.getElementById('lives').textContent = gameState.lives; } },
+    { id: 'extraLife', name: '续命', icon: '❤️', desc: '+1命', apply: () => { gameState.lives++; maxPlayerLives = Math.max(maxPlayerLives, gameState.lives); buildHpSegments(); updatePlayerHealthBar(false); } },
     { id: 'scoreX', name: '双倍乐', icon: '💰', desc: 'x1.5分', apply: () => playerBuffs.scoreMultiplier *= 1.5 },
     // 踢击流 (3个)
     { id: 'kickPierce', name: '穿透腿', icon: '🔱', desc: '踢穿敌人', apply: () => playerBuffs.kickPierce = true },
@@ -976,12 +1210,68 @@ let waveState = { current: 0, totalWaves: 10, waveTimer: 0, inWave: false, enemi
 
 // === 成就系统 ===
 const achievements = [
+    // 击杀成就
     { id: 'kill100', name: '初级杀手', desc: '累计击杀100敌人', icon: '💀', reward: 50, check: () => saveData.totalKills >= 100 },
     { id: 'kill500', name: '屠夫', desc: '累计击杀500敌人', icon: '☠️', reward: 200, check: () => saveData.totalKills >= 500 },
+    { id: 'kill1000', name: '千人斩', desc: '累计击杀1000敌人', icon: '⚔️', reward: 500, check: () => saveData.totalKills >= 1000 },
+    { id: 'kill2500', name: '修罗', desc: '累计击杀2500敌人', icon: '👹', reward: 1000, check: () => saveData.totalKills >= 2500 },
+    { id: 'kill5000', name: '死神', desc: '累计击杀5000敌人', icon: '💀', reward: 2000, check: () => saveData.totalKills >= 5000 },
+    { id: 'kill10000', name: '灭世者', desc: '累计击杀10000敌人', icon: '🌑', reward: 5000, check: () => saveData.totalKills >= 10000 },
+
+    // Boss成就
     { id: 'boss5', name: 'Boss猎人', desc: '累计击杀5个Boss', icon: '👑', reward: 100, check: () => saveData.totalBossKills >= 5 },
+    { id: 'boss15', name: 'Boss克星', desc: '累计击杀15个Boss', icon: '🏆', reward: 300, check: () => saveData.totalBossKills >= 15 },
+    { id: 'boss30', name: 'Boss终结者', desc: '累计击杀30个Boss', icon: '💎', reward: 800, check: () => saveData.totalBossKills >= 30 },
+    { id: 'boss50', name: 'Boss屠夫', desc: '累计击杀50个Boss', icon: '🔱', reward: 1500, check: () => saveData.totalBossKills >= 50 },
+    { id: 'boss100', name: 'Boss噩梦', desc: '累计击杀100个Boss', icon: '👿', reward: 3000, check: () => saveData.totalBossKills >= 100 },
+
+    // 连击成就
     { id: 'combo10', name: '连击新手', desc: '达成10连击', icon: '🔥', reward: 30, check: () => saveData.maxCombo >= 10 },
+    { id: 'combo20', name: '连击达人', desc: '达成20连击', icon: '🔥', reward: 80, check: () => saveData.maxCombo >= 20 },
+    { id: 'combo35', name: '连击大师', desc: '达成35连击', icon: '💥', reward: 200, check: () => saveData.maxCombo >= 35 },
+    { id: 'combo50', name: '连击宗师', desc: '达成50连击', icon: '⚡', reward: 500, check: () => saveData.maxCombo >= 50 },
+    { id: 'combo75', name: '连击传说', desc: '达成75连击', icon: '🌟', reward: 1000, check: () => saveData.maxCombo >= 75 },
+    { id: 'combo100', name: '连击之神', desc: '达成100连击', icon: '✨', reward: 2000, check: () => saveData.maxCombo >= 100 },
+
+    // 分数成就
     { id: 'score10k', name: '万分狗', desc: '单局得分超10000', icon: '⭐', reward: 80, check: () => saveData.highScore >= 10000 },
-    { id: 'play10', name: '常客', desc: '游玩10局', icon: '🎮', reward: 50, check: () => saveData.gamesPlayed >= 10 }
+    { id: 'score25k', name: '分数猎人', desc: '单局得分超25000', icon: '⭐', reward: 200, check: () => saveData.highScore >= 25000 },
+    { id: 'score50k', name: '高分选手', desc: '单局得分超50000', icon: '🌟', reward: 500, check: () => saveData.highScore >= 50000 },
+    { id: 'score100k', name: '十万大关', desc: '单局得分超100000', icon: '💫', reward: 1000, check: () => saveData.highScore >= 100000 },
+    { id: 'score250k', name: '分数大师', desc: '单局得分超250000', icon: '🏅', reward: 2500, check: () => saveData.highScore >= 250000 },
+    { id: 'score500k', name: '分数传说', desc: '单局得分超500000', icon: '🎖️', reward: 5000, check: () => saveData.highScore >= 500000 },
+    { id: 'score1m', name: '百万富翁', desc: '单局得分超1000000', icon: '👑', reward: 10000, check: () => saveData.highScore >= 1000000 },
+
+    // 游玩次数成就
+    { id: 'play10', name: '常客', desc: '游玩10局', icon: '🎮', reward: 50, check: () => saveData.gamesPlayed >= 10 },
+    { id: 'play25', name: '老玩家', desc: '游玩25局', icon: '🎮', reward: 150, check: () => saveData.gamesPlayed >= 25 },
+    { id: 'play50', name: '资深玩家', desc: '游玩50局', icon: '🕹️', reward: 300, check: () => saveData.gamesPlayed >= 50 },
+    { id: 'play100', name: '骨灰级', desc: '游玩100局', icon: '🏆', reward: 600, check: () => saveData.gamesPlayed >= 100 },
+    { id: 'play200', name: '肝帝', desc: '游玩200局', icon: '💪', reward: 1200, check: () => saveData.gamesPlayed >= 200 },
+    { id: 'play500', name: '不朽传说', desc: '游玩500局', icon: '🌟', reward: 3000, check: () => saveData.gamesPlayed >= 500 },
+
+    // 连锁成就
+    { id: 'chain3', name: '台球新手', desc: '单次连锁击杀3人', icon: '🎱', reward: 50, check: () => saveData.maxChain >= 3 },
+    { id: 'chain5', name: '台球高手', desc: '单次连锁击杀5人', icon: '🎱', reward: 150, check: () => saveData.maxChain >= 5 },
+    { id: 'chain8', name: '人体保龄球', desc: '单次连锁击杀8人', icon: '🎳', reward: 400, check: () => saveData.maxChain >= 8 },
+    { id: 'chain12', name: '连锁大师', desc: '单次连锁击杀12人', icon: '💥', reward: 800, check: () => saveData.maxChain >= 12 },
+    { id: 'chain15', name: '多米诺', desc: '单次连锁击杀15人', icon: '🔗', reward: 1500, check: () => saveData.maxChain >= 15 },
+
+    // 存活时间成就
+    { id: 'survive60', name: '一分钟', desc: '单局存活超过60秒', icon: '⏱️', reward: 30, check: () => saveData.maxSurvivalTime >= 60 },
+    { id: 'survive180', name: '三分钟', desc: '单局存活超过180秒', icon: '⏰', reward: 100, check: () => saveData.maxSurvivalTime >= 180 },
+    { id: 'survive300', name: '五分钟', desc: '单局存活超过300秒', icon: '🕐', reward: 250, check: () => saveData.maxSurvivalTime >= 300 },
+    { id: 'survive600', name: '十分钟', desc: '单局存活超过600秒', icon: '🕰️', reward: 600, check: () => saveData.maxSurvivalTime >= 600 },
+    { id: 'survive900', name: '持久战', desc: '单局存活超过900秒', icon: '⌛', reward: 1200, check: () => saveData.maxSurvivalTime >= 900 },
+
+    // 特殊成就
+    { id: 'currency1000', name: '小康之家', desc: '累计获得1000骨头币', icon: '🦴', reward: 100, check: () => saveData.totalCurrency >= 1000 },
+    { id: 'currency5000', name: '富甲一方', desc: '累计获得5000骨头币', icon: '💰', reward: 300, check: () => saveData.totalCurrency >= 5000 },
+    { id: 'currency20000', name: '骨头大亨', desc: '累计获得20000骨头币', icon: '💎', reward: 1000, check: () => saveData.totalCurrency >= 20000 },
+    { id: 'perfectBoss', name: '完美击杀', desc: '满血击败Boss', icon: '✨', reward: 500, check: () => saveData.perfectBossKills >= 1 },
+    { id: 'perfectBoss5', name: '完美主义', desc: '满血击败5个Boss', icon: '🌟', reward: 1500, check: () => saveData.perfectBossKills >= 5 },
+    { id: 'noHit30', name: '无伤30秒', desc: '30秒内不受伤害', icon: '🛡️', reward: 200, check: () => saveData.maxNoHitTime >= 30 },
+    { id: 'noHit60', name: '无伤60秒', desc: '60秒内不受伤害', icon: '🛡️', reward: 500, check: () => saveData.maxNoHitTime >= 60 }
 ];
 
 function checkAchievements() {
@@ -1010,10 +1300,10 @@ function hideAchieve() { document.getElementById('achieveScreen').style.display 
 
 // === 商店系统 ===
 const shopItems = [
-    { id: 'maxHp', name: '生命上限', icon: '❤️', maxLv: 2, costs: [100, 250], desc: '+1命' },
-    { id: 'atkBonus', name: '攻击加成', icon: '⚔️', maxLv: 5, costs: [50,100,200,350,500], desc: '+10%伤害' },
-    { id: 'speedBonus', name: '移速加成', icon: '👟', maxLv: 5, costs: [40,80,150,250,400], desc: '+5%移速' },
-    { id: 'cdBonus', name: 'CD缩减', icon: '⏱️', maxLv: 5, costs: [60,120,220,380,600], desc: '-5%CD' }
+    { id: 'maxHp', name: '生命上限', icon: '❤️', maxLv: 30, costs: [100,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250,250], desc: '+1命' },
+    { id: 'atkBonus', name: '攻击加成', icon: '⚔️', maxLv: 30, costs: [50,100,200,350,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500], desc: '+10%伤害' },
+    { id: 'speedBonus', name: '移速加成', icon: '👟', maxLv: 30, costs: [40,80,150,250,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400,400], desc: '+5%移速' },
+    { id: 'cdBonus', name: 'CD缩减', icon: '⏱️', maxLv: 30, costs: [60,120,220,380,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600], desc: '-5%CD' }
 ];
 
 function showShop() {
@@ -1082,6 +1372,10 @@ function selectTalent(talent) {
     selectedTalent = talent;
     document.getElementById('talentScreen').style.display = 'none';
     talent.apply();
+    // Update health bar after talent changes lives
+    maxPlayerLives = Math.max(maxPlayerLives, gameState.lives);
+    buildHpSegments();
+    updatePlayerHealthBar(false);
     spawnFloatingText(player.x, player.y - 60, talent.icon + ' ' + talent.name, '#ffd700');
     gameState.isPaused = false;
 }
@@ -1092,7 +1386,7 @@ const relicTypes = [
     { id: 'star', name: '幸运星', icon: '💫', desc: '升级多1选项', apply: () => playerBuffs.extraChoice = true },
     { id: 'crown', name: '王冠', icon: '👑', desc: 'Boss伤害+50%', apply: () => playerBuffs.bossDmgBonus = 1.5 },
     { id: 'boot', name: '疾风靴', icon: '👢', desc: '移速+20%', apply: () => playerBuffs.speedBonus = 1.2 },
-    { id: 'heart', name: '生命宝石', icon: '💎', desc: '+1命', apply: () => { gameState.lives++; document.getElementById('lives').textContent = gameState.lives; } }
+    { id: 'heart', name: '生命宝石', icon: '💎', desc: '+1命', apply: () => { gameState.lives++; maxPlayerLives = Math.max(maxPlayerLives, gameState.lives); buildHpSegments(); updatePlayerHealthBar(false); } }
 ];
 
 function spawnRelic(x, y) {
@@ -1129,7 +1423,7 @@ function updateRelicBar() {
 }
 
 // 玩家
-let player = { x: 100, y: 400, vx: 0, vy: 0, onGround: false, facingRight: true, kicking: false, kickTimer: 0, slashing: false, slashTimer: 0, item: null, scale: 1, isDead: false, dashing: false, dashTimer: 0, invincible: false, invincibleTimer: 0, currentState: 'idle', visible: true };
+let player = { x: 100, y: 400, vx: 0, vy: 0, onGround: false, facingRight: true, kicking: false, kickTimer: 0, slashing: false, slashTimer: 0, item: null, scale: 1, isDead: false, dashing: false, dashTimer: 0, invincible: false, invincibleTimer: 0, currentState: 'idle', visible: true, blocking: false, blockTimer: 0 };
 
 // 数组
 let slashEffects = [], enemies = [], particles = [], floatingTexts = [], items = [], meteors = [], lightnings = [], projectiles = [];
@@ -1229,6 +1523,7 @@ function initMobileControls() {
     setupTouchBtn('sajiaoBtn', () => performSajiao());
     setupTouchBtn('dashBtn', () => performDash());
     setupTouchBtn('itemBtn', () => useItem());
+    setupTouchBtn('blockBtn', () => performBlock());
 }
 
 function setupTouchBtn(id, action) {
@@ -1258,6 +1553,7 @@ document.addEventListener('keydown', e => {
     if (e.code === 'KeyI') performTaunt();
     if (e.code === 'KeyO') performDash();
     if (e.code === 'KeyL') useItem();
+    if (e.code === 'KeyP') performBlock();
 });
 document.addEventListener('keyup', e => { keys[e.code] = false; });
 
@@ -1321,10 +1617,12 @@ function startGame() {
     document.getElementById('pauseBtn').style.display = 'block';
     document.getElementById('soundBtn').style.display = 'block';
     document.getElementById('mapName').textContent = '📍 ' + mapThemes[currentMap].name;
+    showPlayerHealthBar();
     if (isMobile) document.getElementById('mobileControls').style.display = 'flex';
     else document.getElementById('skillBar').style.display = 'flex';
     resetGame();
     applyPermUpgrades();
+    initPlayerHealthBar();
     gameState.isPaused = true;
     showTalentScreen();
     startTimers();
@@ -1336,6 +1634,7 @@ function backToMenu() {
     document.getElementById('gameOver').style.display = 'none';
     document.getElementById('ui').style.display = 'none';
     document.getElementById('bossHealthBar').style.display = 'none';
+    hidePlayerHealthBar();
     document.getElementById('mapName').style.display = 'none';
     document.getElementById('pauseBtn').style.display = 'none';
     document.getElementById('soundBtn').style.display = 'none';
@@ -1381,6 +1680,7 @@ function startTimers() {
     timeInterval = setInterval(() => {
         if (gamePhase !== 'playing' || gameState.isPaused) return;
         gameStats.survivalTime++;
+        gameStats.noHitTimer++; // 无伤计时器
         if (selectedMode === 'endless') {
             gameState.time = gameStats.survivalTime;
             document.getElementById('time').textContent = gameStats.survivalTime + 's';
@@ -1461,6 +1761,7 @@ function updateCooldownUI() {
     // 手机端CD显示
     const slashCDm = document.getElementById('slashCDm');
     const sajiaoCDm = document.getElementById('sajiaoCDm');
+    const blockCDm = document.getElementById('blockCDm');
     if (slashCDm) {
         if (cooldowns.slash > 0) { slashCDm.style.display = 'flex'; slashCDm.textContent = Math.ceil(cooldowns.slash / 60); }
         else slashCDm.style.display = 'none';
@@ -1469,12 +1770,17 @@ function updateCooldownUI() {
         if (cooldowns.sajiao > 0) { sajiaoCDm.style.display = 'flex'; sajiaoCDm.textContent = Math.ceil(cooldowns.sajiao / 60); }
         else sajiaoCDm.style.display = 'none';
     }
+    if (blockCDm) {
+        if (cooldowns.block > 0) { blockCDm.style.display = 'flex'; blockCDm.textContent = Math.ceil(cooldowns.block / 60); }
+        else blockCDm.style.display = 'none';
+    }
 
     // PC端技能栏CD显示
     const skills = [
         { id: 'skillSlash', cdId: 'slashCD', cd: cooldowns.slash },
         { id: 'skillSajiao', cdId: 'sajiaoCD', cd: cooldowns.sajiao },
-        { id: 'skillDash', cdId: 'dashCD', cd: cooldowns.dash }
+        { id: 'skillDash', cdId: 'dashCD', cd: cooldowns.dash },
+        { id: 'skillBlock', cdId: 'blockCD', cd: cooldowns.block }
     ];
     skills.forEach(s => {
         const slot = document.getElementById(s.id);
@@ -1561,7 +1867,7 @@ function performSajiao() {
         }
         if (playerBuffs.sajiaoHeal && gameState.lives < 5) {
             gameState.lives++;
-            document.getElementById('lives').textContent = gameState.lives;
+            updatePlayerHealthBar(false);
             spawnFloatingText(player.x, player.y - 100, '+1❤️', '#ff69b4');
         }
     }, 400);
@@ -1587,6 +1893,17 @@ function performDash() {
     if (playerBuffs.dashDamage > 0) enemies.forEach(e => { if (!e.flying && Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < 80) dealDamageToEnemy(e, playerBuffs.dashDamage); });
     for (let i = 0; i < 3; i++) setTimeout(() => particles.push({ x: player.x, y: player.y, vx: 0, vy: 0, life: 15, color: 'rgba(255,255,255,0.5)', size: 30, isAfterImage: true }), i * 30);
     if (playerBuffs.dashShockwave) setTimeout(() => { enemies.forEach(e => { if (!e.flying && Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < 120) { e.vx += (e.x > player.x ? 12 : -12); e.vy = -8; } }); gameState.screenShake = 8; }, 200);
+}
+
+function performBlock() {
+    if (cooldowns.block > 0 || player.blocking || player.isDead || player.kicking || player.slashing || player.dashing) return;
+    playSound('dash'); // 使用冲刺音效
+    player.blocking = true;
+    player.blockTimer = 45; // 格挡持续45帧 (约0.75秒)
+    player.currentState = 'block';
+    player.vx = 0; // 格挡时停止移动
+    // 格挡特效
+    spawnFloatingText(player.x, player.y - 60, '🛡️格挡!', '#4ade80');
 }
 
 function performKick() {
@@ -1633,7 +1950,7 @@ function performKick() {
 
                 if (playerBuffs.kickLifesteal && gameState.lives < 5 && Math.random() < 0.3) {
                     gameState.lives++;
-                    document.getElementById('lives').textContent = gameState.lives;
+                    updatePlayerHealthBar(false);
                     spawnFloatingText(player.x, player.y - 60, '+1❤️', '#ff4444');
                 }
             } else {
@@ -1832,6 +2149,12 @@ function handleEnemyKill(e) {
         gameStats.bossKilled++;
         document.getElementById('bossHealthBar').style.display = 'none';
         showEvent('👑 Boss击败!');
+        // 满血击败Boss成就追踪
+        if (gameState.lives >= maxPlayerLives) {
+            saveData.perfectBossKills++;
+            saveGame();
+            showEvent('✨ 完美击杀!');
+        }
         // Big celebration
         for (let i = 0; i < 60; i++) particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20, life: 60, color: ['#ffd700', '#ff69b4', '#00ffff'][i % 3], size: 6 });
         spawnRelic(e.x, e.y); // Guaranteed relic from boss
@@ -1857,6 +2180,27 @@ function checkChainCollision() {
             const dx = enemies[j].x - enemies[i].x, dy = enemies[j].y - enemies[i].y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < (enemies[i].size + enemies[j].size) / 2) {
+                // Boss不会被连锁秒杀，而是受到伤害
+                if (enemies[j].isBoss) {
+                    const chainDmg = 5 + chainCount * 2; // 连锁伤害
+                    enemies[j].currentHp -= chainDmg;
+                    spawnHitEffect(enemies[j].x, enemies[j].y, 3, true);
+                    spawnFloatingText(enemies[j].x, enemies[j].y - 30, '-' + chainDmg, '#ffd700');
+                    gameState.screenShake = 12;
+                    playSound('impact');
+                    // 更新Boss血条
+                    const hpPercent = Math.max(0, (enemies[j].currentHp / enemies[j].hp) * 100);
+                    document.getElementById('bossHpFill').style.width = hpPercent + '%';
+                    // Boss死亡检查
+                    if (enemies[j].currentHp <= 0 && !enemies[j].flying) {
+                        enemies[j].flying = true;
+                        enemies[j].vx = (Math.random() - 0.5) * 15;
+                        enemies[j].vy = -12;
+                        handleEnemyKill(enemies[j]);
+                    }
+                    continue; // Boss不参与连锁传递
+                }
+
                 chainCount++;
                 enemies[j].flying = true;
                 enemies[j].currentHp = 0;
@@ -1907,6 +2251,11 @@ function checkChainCollision() {
         gameState.slowMo = true;
         gameState.slowMoTimer = 15;
         document.getElementById('slowmo').style.opacity = 0.25;
+    }
+    // 记录最大连锁
+    if (chainCount > 0 && chainCount > saveData.maxChain) {
+        saveData.maxChain = chainCount;
+        saveGame();
     }
 }
 
@@ -2034,7 +2383,7 @@ function updateDangerSpike() {
         spawnFloatingText(player.x, player.y - 60, '+500 危机奖励!', '#4ade80');
         if (gameState.lives < 5 && Math.random() < 0.3) {
             gameState.lives++;
-            document.getElementById('lives').textContent = gameState.lives;
+            updatePlayerHealthBar(false);
             spawnFloatingText(player.x, player.y - 80, '+1❤️', '#ff69b4');
         }
     }
@@ -2042,6 +2391,20 @@ function updateDangerSpike() {
 
 function playerHit(reason) {
     if (player.invincible || player.isDead) return;
+    // 格挡：完全免疫伤害
+    if (player.blocking) {
+        playSound('combo');
+        spawnFloatingText(player.x, player.y - 40, '🛡️完美格挡!', '#ffd700');
+        gameState.screenShake = 8;
+        // 格挡成功给予短暂无敌
+        player.invincible = true;
+        player.invincibleTimer = 20;
+        // 格挡成功后进入冷却
+        cooldowns.block = 180; // 3秒冷却
+        player.blocking = false;
+        player.blockTimer = 0;
+        return;
+    }
     // 减伤效果：有概率完全免伤
     if (playerBuffs.damageReduce > 0 && Math.random() < playerBuffs.damageReduce) {
         playSound('dash');
@@ -2049,9 +2412,16 @@ function playerHit(reason) {
         player.invincible = true; player.invincibleTimer = 30;
         return;
     }
+    // 记录最长无伤时间
+    if (gameStats.noHitTimer > saveData.maxNoHitTime) {
+        saveData.maxNoHitTime = gameStats.noHitTimer;
+        saveGame();
+    }
+    gameStats.noHitTimer = 0; // 重置无伤计时器
     playSound('hit');
     gameState.lives--; gameState.deathReason = reason;
     document.getElementById('lives').textContent = gameState.lives;
+    updatePlayerHealthBar(true);
     if (gameState.lives <= 0) { player.isDead = true; player.currentState = 'dead'; endGame(); }
     else { player.invincible = true; player.invincibleTimer = Math.floor(playerBuffs.invincibleTime); gameState.screenShake = 15; spawnFloatingText(player.x, player.y - 40, '受伤!', '#e94560'); }
 }
@@ -2077,7 +2447,7 @@ function update() {
         gameState.regenTimer++;
         if (gameState.regenTimer >= 600 && gameState.lives < 5) { // 约10秒回1血
             gameState.lives++;
-            document.getElementById('lives').textContent = gameState.lives;
+            updatePlayerHealthBar(false);
             spawnFloatingText(player.x, player.y - 60, '🌿+1❤️', '#4ade80');
             gameState.regenTimer = 0;
         }
@@ -2086,7 +2456,7 @@ function update() {
     updateDangerSpike();
 
     // 玩家移动（键盘+触屏）
-    if (!player.isDead && !player.dashing) {
+    if (!player.isDead && !player.dashing && !player.blocking) {
         let moveX = 0;
         if (keys['ArrowLeft'] || keys['KeyA']) moveX = -1;
         else if (keys['ArrowRight'] || keys['KeyD']) moveX = 1;
@@ -2103,6 +2473,16 @@ function update() {
     if (player.invincibleTimer > 0) { player.invincibleTimer--; if (player.invincibleTimer === 0) player.invincible = false; }
     if (player.kickTimer > 0) { player.kickTimer--; if (player.kickTimer === 0) { player.kicking = false; if (!player.isDead && player.currentState === 'kick') player.currentState = 'idle'; } }
     if (player.slashTimer > 0) { player.slashTimer--; if (player.slashTimer === 0) { player.slashing = false; if (!player.isDead && player.currentState === 'slash') player.currentState = 'idle'; } }
+    // 格挡计时器
+    if (player.blockTimer > 0) {
+        player.blockTimer--;
+        player.vx = 0; // 格挡时不能移动
+        if (player.blockTimer === 0) {
+            player.blocking = false;
+            cooldowns.block = 180; // 格挡结束进入冷却
+            if (!player.isDead) player.currentState = 'idle';
+        }
+    }
 
     if (!player.isDead) {
         player.vy += 0.8 * ts; player.x += player.vx * ts; player.y += player.vy * ts;
@@ -2345,6 +2725,7 @@ function render() {
         if (player.invincible && Math.floor(Date.now() / 50) % 2 === 0) ctx.globalAlpha = 0.5;
         let img = images.main;
         if (player.isDead) img = images.dead;
+        else if (player.blocking) img = images.main; // 格挡用默认图
         else if (player.slashing) img = images.attack;
         else if (player.currentState === 'sajiao') img = images.sajiao;
         else if (player.kicking) img = images.kick;
@@ -2353,6 +2734,22 @@ function render() {
         if (img.complete && img.naturalWidth > 0) { const w = img.width * scale, h = img.height * scale; ctx.drawImage(img, -w / 2, -h / 2 - 18, w, h); }
         else { ctx.fillStyle = '#d4a574'; ctx.beginPath(); ctx.ellipse(0, 0, 28 * player.scale, 22 * player.scale, 0, 0, Math.PI * 2); ctx.fill(); }
         if (player.item) { ctx.scale(player.facingRight ? 1 : -1, 1); ctx.font = '26px Arial'; ctx.fillText(player.item.emoji, -45, -55); }
+        // 格挡护盾效果
+        if (player.blocking) {
+            ctx.scale(player.facingRight ? -1 : 1, 1); // 取消翻转
+            ctx.strokeStyle = '#4ade80';
+            ctx.lineWidth = 3;
+            ctx.globalAlpha = 0.6 + Math.sin(Date.now() / 100) * 0.3;
+            ctx.beginPath();
+            ctx.arc(0, -20, 50, 0, Math.PI * 2);
+            ctx.stroke();
+            // 内圈
+            ctx.globalAlpha = 0.3;
+            ctx.fillStyle = '#4ade80';
+            ctx.beginPath();
+            ctx.arc(0, -20, 45, 0, Math.PI * 2);
+            ctx.fill();
+        }
         ctx.restore();
     }
     // 飘字
@@ -2366,6 +2763,7 @@ function endGame() {
     playSound('gameover');
     gameState.gameOver = true; player.isDead = true; player.currentState = 'dead';
     document.getElementById('deathImage').style.opacity = 1;
+    hidePlayerHealthBar();
     if (isMobile) document.getElementById('mobileControls').style.display = 'none';
     setTimeout(() => {
         earnCurrency();
@@ -2397,13 +2795,13 @@ function endGame() {
 
 function resetGame() {
     gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0 };
-    gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0, dash: 0 }, eventCount: 0, survivalTime: 0 };
+    gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0, dash: 0 }, eventCount: 0, survivalTime: 0, noHitTimer: 0 };
     playerBuffs = { kickDamage: 1, kickRange: 80, kickKnockback: 15, kickPierce: false, slashCD: 120, slashWidth: 100, slashDouble: false, slashDamage: 5, sajiaoCD: 900, sajiaoBossDmg: 10, sajiaoInvincible: false, tauntDuration: 180, dashDistance: 25, dashDamage: 0, dashShockwave: false, invincibleTime: 90, comboKeep: 120, scoreMultiplier: 1, speedMult: 1, gamblerMode: false, extraChoice: false, bossDmgBonus: 1, speedBonus: 1 };
     selectedUpgrades = [];
     selectedTalent = null;
     playerRelics = [];
-    cooldowns = { slash: 0, sajiao: 0, taunt: 0, dash: 0 };
-    player = { x: 100, y: 400, vx: 0, vy: 0, onGround: false, facingRight: true, kicking: false, kickTimer: 0, slashing: false, slashTimer: 0, item: null, scale: 1, isDead: false, dashing: false, dashTimer: 0, invincible: false, invincibleTimer: 0, currentState: 'idle', visible: true };
+    cooldowns = { slash: 0, sajiao: 0, taunt: 0, dash: 0, block: 0 };
+    player = { x: 100, y: 400, vx: 0, vy: 0, onGround: false, facingRight: true, kicking: false, kickTimer: 0, slashing: false, slashTimer: 0, item: null, scale: 1, isDead: false, dashing: false, dashTimer: 0, invincible: false, invincibleTimer: 0, currentState: 'idle', visible: true, blocking: false, blockTimer: 0 };
     enemies = []; particles = []; floatingTexts = []; items = []; meteors = []; lightnings = []; slashEffects = []; projectiles = [];
     document.getElementById('lives').textContent = 3; document.getElementById('time').textContent = 60;
     document.getElementById('slowmo').style.opacity = 0; document.getElementById('deathImage').style.opacity = 0;
@@ -2420,6 +2818,8 @@ function restartGame() {
     document.getElementById('mapName').textContent = '📍 ' + mapThemes[currentMap].name;
     resetGame();
     applyPermUpgrades();
+    showPlayerHealthBar();
+    initPlayerHealthBar();
     gameState.isPaused = true;
     showTalentScreen();
     startTimers();
