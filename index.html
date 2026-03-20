@@ -61,6 +61,35 @@
         #tutorialScreen .back-btn { margin-top: 20px; padding: 12px 40px; font-size: 18px; background: #e94560; color: #fff; border: none; border-radius: 10px; }
         /* 游戏UI */
         #ui { position: absolute; top: 5px; left: 10px; color: #fff; font-size: min(18px, 4vw); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10; display: none; }
+        /* 技能栏 */
+        #skillBar {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            display: none; gap: 8px; z-index: 10; background: rgba(0,0,0,0.5);
+            padding: 8px 12px; border-radius: 10px; border: 2px solid #e94560;
+        }
+        .skill-slot {
+            width: 50px; height: 50px; position: relative;
+            background: rgba(0,0,0,0.6); border: 2px solid #fff;
+            border-radius: 8px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .skill-slot.ready { border-color: #4ade80; }
+        .skill-slot.on-cd { border-color: #666; }
+        .skill-slot .skill-icon { font-size: 22px; }
+        .skill-slot .skill-key {
+            position: absolute; top: -8px; right: -5px;
+            background: #e94560; color: #fff; font-size: 10px;
+            padding: 1px 4px; border-radius: 3px; font-weight: bold;
+        }
+        .skill-slot .skill-cd {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); border-radius: 6px;
+            display: none; align-items: center; justify-content: center;
+            font-size: 18px; color: #ffd700; font-weight: bold;
+        }
+        .skill-slot .skill-name {
+            font-size: 9px; color: #aaa; margin-top: 2px;
+        }
         #skills { display: none; }
         #combo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: min(50px, 10vw); font-weight: bold; color: #ffd700; text-shadow: 3px 3px 0 #e94560; opacity: 0; pointer-events: none; z-index: 20; }
         #instructions { display: none; }
@@ -328,6 +357,38 @@
             <div class="bar-bg"><div class="bar-fill" id="bossHpFill" style="width:100%"></div></div>
         </div>
         <div id="skills"></div>
+        <!-- 技能栏 -->
+        <div id="skillBar">
+            <div class="skill-slot ready" id="skillKick">
+                <span class="skill-key">J</span>
+                <span class="skill-icon">👊</span>
+                <span class="skill-name">踢击</span>
+            </div>
+            <div class="skill-slot ready" id="skillSlash">
+                <span class="skill-key">K</span>
+                <span class="skill-icon">⚔️</span>
+                <span class="skill-name">剑气</span>
+                <div class="skill-cd" id="slashCD"></div>
+            </div>
+            <div class="skill-slot ready" id="skillDash">
+                <span class="skill-key">O</span>
+                <span class="skill-icon">💨</span>
+                <span class="skill-name">冲刺</span>
+                <div class="skill-cd" id="dashCD"></div>
+            </div>
+            <div class="skill-slot ready" id="skillSajiao">
+                <span class="skill-key">U</span>
+                <span class="skill-icon">🥺</span>
+                <span class="skill-name">撒娇</span>
+                <div class="skill-cd" id="sajiaoCD"></div>
+            </div>
+            <div class="skill-slot ready" id="skillTaunt">
+                <span class="skill-key">I</span>
+                <span class="skill-icon">📢</span>
+                <span class="skill-name">嘲讽</span>
+                <div class="skill-cd" id="tauntCD"></div>
+            </div>
+        </div>
         <div id="combo"></div>
         <div id="danmaku"></div>
         <div id="event"></div>
@@ -810,6 +871,7 @@ function startGame() {
     document.getElementById('pauseBtn').style.display = 'block';
     document.getElementById('mapName').textContent = '📍 ' + mapThemes[currentMap].name;
     if (isMobile) document.getElementById('mobileControls').style.display = 'flex';
+    else document.getElementById('skillBar').style.display = 'flex';
     resetGame();
     applyPermUpgrades();
     gameState.isPaused = true;
@@ -826,6 +888,7 @@ function backToMenu() {
     document.getElementById('mapName').style.display = 'none';
     document.getElementById('pauseBtn').style.display = 'none';
     document.getElementById('exitConfirm').style.display = 'none';
+    document.getElementById('skillBar').style.display = 'none';
     document.getElementById('mobileControls').style.display = 'none';
     document.getElementById('modeSelect').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'block';
@@ -941,12 +1004,41 @@ function selectUpgrade(upg) {
 
 // CD显示
 function updateCooldownUI() {
-    const slashCD = document.getElementById('slashCDm');
-    const sajiaoCD = document.getElementById('sajiaoCDm');
-    if (cooldowns.slash > 0) { slashCD.style.display = 'flex'; slashCD.textContent = Math.ceil(cooldowns.slash / 60); }
-    else slashCD.style.display = 'none';
-    if (cooldowns.sajiao > 0) { sajiaoCD.style.display = 'flex'; sajiaoCD.textContent = Math.ceil(cooldowns.sajiao / 60); }
-    else sajiaoCD.style.display = 'none';
+    // 手机端CD显示
+    const slashCDm = document.getElementById('slashCDm');
+    const sajiaoCDm = document.getElementById('sajiaoCDm');
+    if (slashCDm) {
+        if (cooldowns.slash > 0) { slashCDm.style.display = 'flex'; slashCDm.textContent = Math.ceil(cooldowns.slash / 60); }
+        else slashCDm.style.display = 'none';
+    }
+    if (sajiaoCDm) {
+        if (cooldowns.sajiao > 0) { sajiaoCDm.style.display = 'flex'; sajiaoCDm.textContent = Math.ceil(cooldowns.sajiao / 60); }
+        else sajiaoCDm.style.display = 'none';
+    }
+
+    // PC端技能栏CD显示
+    const skills = [
+        { id: 'skillSlash', cdId: 'slashCD', cd: cooldowns.slash },
+        { id: 'skillSajiao', cdId: 'sajiaoCD', cd: cooldowns.sajiao },
+        { id: 'skillTaunt', cdId: 'tauntCD', cd: cooldowns.taunt },
+        { id: 'skillDash', cdId: 'dashCD', cd: cooldowns.dash }
+    ];
+    skills.forEach(s => {
+        const slot = document.getElementById(s.id);
+        const cdEl = document.getElementById(s.cdId);
+        if (slot && cdEl) {
+            if (s.cd > 0) {
+                slot.classList.remove('ready');
+                slot.classList.add('on-cd');
+                cdEl.style.display = 'flex';
+                cdEl.textContent = Math.ceil(s.cd / 60);
+            } else {
+                slot.classList.remove('on-cd');
+                slot.classList.add('ready');
+                cdEl.style.display = 'none';
+            }
+        }
+    });
 }
 
 // ==================== 技能 ====================
