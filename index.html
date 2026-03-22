@@ -2163,6 +2163,10 @@ const relicState = {
     voidRifts: [],             // 虚空裂痕位置
 };
 
+// === 面板状态管理 (防止升级面板覆盖宝箱面板) ===
+let chestPanelActive = false;   // 宝箱选择面板是否显示中
+let pendingUpgrade = false;     // 是否有待处理的升级
+
 // === 史诗遗物定义 (行为改变型) ===
 const epicRelics = [
     {
@@ -2530,6 +2534,7 @@ function applyChestLoot(loot, x, y) {
 
 function showChestPickPanel(chest) {
     gameState.isPaused = true;
+    chestPanelActive = true;  // 标记宝箱面板激活
     const panel = document.getElementById('upgradePanel');
     const optionsDiv = document.getElementById('upgradeOptions');
     const config = chest.config;
@@ -2588,6 +2593,15 @@ function showChestPickPanel(chest) {
 
             // 添加到已获得遗物列表并触发演出
             addAcquiredRelic(relic, tier);
+
+            // 宝箱面板关闭，检查是否有待处理的升级
+            chestPanelActive = false;
+            if (pendingUpgrade) {
+                pendingUpgrade = false;
+                setTimeout(() => showKuosaoUpgradePanel(), 100);
+            } else {
+                gameState.isPaused = false;
+            }
         };
 
         optionsDiv.appendChild(card);
@@ -2618,6 +2632,13 @@ function triggerRandomEvolution() {
 // === 割草模式升级面板 (包含武器系统) ===
 function showKuosaoUpgradePanel() {
     if (gameState.gameOver || player.isDead) return;
+
+    // 如果宝箱面板正在显示，延迟升级面板
+    if (chestPanelActive) {
+        pendingUpgrade = true;
+        return;
+    }
+
     gameState.isPaused = true;
     const panel = document.getElementById('upgradePanel');
     const optionsDiv = document.getElementById('upgradeOptions');
@@ -3038,8 +3059,8 @@ function updateCurrencyDisplay() {
 }
 
 // === 玩家血条系统 ===
-let maxPlayerLives = 3;
-let lastDisplayedLives = 3;
+let maxPlayerLives = 20;
+let lastDisplayedLives = 20;
 
 function initPlayerHealthBar() {
     maxPlayerLives = gameState.lives;
@@ -3866,7 +3887,7 @@ function getSafeRandomPosition(margin = 60, radius = 15, maxTries = 10) {
 let gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0 }, eventCount: 0, noHitTimer: 0 };
 
 // 状态
-let gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死了', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0 };
+let gameState = { score: 0, lives: 20, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死了', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0 };
 
 // === HITSTOP SYSTEM ===
 function triggerHitStop(frames) {
@@ -4692,7 +4713,7 @@ function applyMetaProgressToRun() {
     const xpBonus = 1 + (p.xpNose || 0) * 0.05;
     const magnetBonus = 1 + (p.magnetCollar || 0) * 0.12;
 
-    maxPlayerLives = 3 + extraLives;
+    maxPlayerLives = 20 + extraLives;
     gameState.lives = maxPlayerLives;
     playerBuffs.globalAttackMult = attackBonus;
     playerBuffs.kickDamage = 1 * attackBonus;
@@ -8938,7 +8959,7 @@ function getBuildTag() {
 }
 
 function resetGame() {
-    gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0, phoenixUsed: false };
+    gameState = { score: 0, lives: 20, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0, phoenixUsed: false };
     gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0 }, eventCount: 0, survivalTime: 0, noHitTimer: 0, bonusBones: 0, bonusGoldTags: 0 };
     playerBuffs = { kickDamage: 1, kickRange: 80, kickKnockback: 15, kickPierce: false, slashCD: 120, slashWidth: 100, slashDouble: false, slashDamage: 5, sajiaoCD: 900, sajiaoBossDmg: 10, sajiaoInvincible: false, tauntDuration: 180, invincibleTime: 90, comboKeep: 120, scoreMultiplier: 1, speedMult: 1, gamblerMode: false, extraChoice: false, bossDmgBonus: 1, speedBonus: 1, xpMagnetRange: 50, xpMultiplier: 1, critChance: 0, critMultiplier: 1.55, globalAttackMult: 1, boneRewardBonus: 0, oneTimeRevive: 0, bossHealOnKill: 0, lowHpGuard: 0, rareUpgradeChance: 0, extraEliteBones: 0, dangerRewardBonus: 0, relicDropBonus: 0, openingBuff: 0, goldenSkin: false, unlockGoldenEvent: false, extraBossBones: 0 };
     selectedUpgrades = [];
@@ -8980,6 +9001,8 @@ function resetGame() {
     // === 重置割草模式系统 ===
     gemPool.reset();
     chests = [];
+    chestPanelActive = false;  // 重置宝箱面板状态
+    pendingUpgrade = false;    // 重置待处理升级
     playerXP.reset();
     evolvedSkills = [];
     pendingEvolution = null;
@@ -9014,7 +9037,7 @@ function resetGame() {
     const xpLevel = document.getElementById('xpLevel');
     if (xpLevel) xpLevel.remove();
 
-    document.getElementById('lives').textContent = 3; document.getElementById('time').textContent = 60;
+    document.getElementById('lives').textContent = 20; document.getElementById('time').textContent = 60;
     document.getElementById('slowmo').style.opacity = 0; document.getElementById('deathImage').style.opacity = 0;
     document.getElementById('bossHealthBar').style.display = 'none'; document.getElementById('upgradePanel').style.display = 'none';
     updateRelicBar();
