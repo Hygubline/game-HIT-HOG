@@ -1012,9 +1012,9 @@
 // === 割草模式配置 ===
 const KUOSAO_MODE = {
     enabled: true,                    // 是否启用割草模式
-    spawnInterval: 800,               // 敌人生成间隔 (ms) - 降低频率
-    maxEnemies: 40,                   // 最大敌人数量 - 减少上限
-    batchSpawnSize: 2,                // 每次批量生成敌人数 - 减少批量
+    spawnInterval: 600,               // B1: 敌人生成间隔 (ms) - 提高初始压力
+    maxEnemies: 50,                   // B1: 最大敌人数量 - 提高上限
+    batchSpawnSize: 3,                // B1: 每次批量生成敌人数 - 增加批量
     autoAttackEnabled: true,          // 自动攻击
     xpEnabled: true,                  // 经验值系统
     evolutionEnabled: true            // 武器进化系统
@@ -1205,16 +1205,17 @@ let playerXP = {
 };
 
 // === 武器系统 ===
+// B3: 武器伤害调整 - 提高基础伤害
 const weaponDefinitions = {
     knife: {
         name: '飞刀', icon: '🗡️', desc: '向最近敌人投掷飞刀',
         maxLevel: 8,
         baseInterval: 1500,
-        baseDamage: 5,
+        baseDamage: 7,
         baseCount: 1,
         levelBonus: (lv) => ({
-            interval: 1500 - lv * 80,
-            damage: 5 + lv * 2,
+            interval: 1500 - lv * 90,
+            damage: 7 + lv * 3,
             count: 1 + Math.floor(lv / 3),
             pierce: lv >= 5 ? 1 : 0
         })
@@ -1223,24 +1224,24 @@ const weaponDefinitions = {
         name: '火球', icon: '🔥', desc: '发射爆炸火球',
         maxLevel: 8,
         baseInterval: 3000,
-        baseDamage: 15,
+        baseDamage: 20,
         baseCount: 1,
         levelBonus: (lv) => ({
-            interval: 3000 - lv * 150,
-            damage: 15 + lv * 5,
+            interval: 3000 - lv * 180,
+            damage: 20 + lv * 6,
             count: 1 + Math.floor(lv / 4),
-            radius: 60 + lv * 10
+            radius: 70 + lv * 12
         })
     },
     lightning: {
         name: '闪电', icon: '⚡', desc: '随机雷击附近敌人',
         maxLevel: 8,
         baseInterval: 2500,
-        baseDamage: 8,
+        baseDamage: 12,
         baseCount: 1,
         levelBonus: (lv) => ({
-            interval: 2500 - lv * 120,
-            damage: 8 + lv * 3,
+            interval: 2500 - lv * 140,
+            damage: 12 + lv * 4,
             count: 1 + Math.floor(lv / 2),
             chain: lv >= 6 ? 2 : 0
         })
@@ -1262,13 +1263,13 @@ const weaponDefinitions = {
         name: '冰锥', icon: '❄️', desc: '发射减速冰锥',
         maxLevel: 8,
         baseInterval: 2200,
-        baseDamage: 4,
+        baseDamage: 6,
         baseCount: 3,
         levelBonus: (lv) => ({
-            interval: 2200 - lv * 100,
-            damage: 4 + lv * 2,
+            interval: 2200 - lv * 110,
+            damage: 6 + lv * 2,
             count: 3 + lv,
-            slow: 0.3 + lv * 0.05
+            slow: 0.35 + lv * 0.05
         })
     },
     aura: {
@@ -4172,18 +4173,18 @@ const tauntQuotes = ['来打我！', '就这？', '你急了？', '汪汪！'];
 const bossNames = ['狗中之王', '八重宿敌', '峡谷霸主'];
 const bossQuotes = ['真正的高手来了！', '宿敌登场！', '狗王现身！'];
 
-// 敌人 - 新版小怪（幽灵怪、眼球怪、鬼火怪、黑雾怪）
+// B4: 敌人血量调整 - 提高基础血量增加挑战
 const enemyTypes = [
-    { name: '幽灵', color: '#88ccff', hp: 2, speed: 1.2, size: 45, points: 100, role: 'normal', img: 'ghostEnemy', imgScale: 0.12 },
-    { name: '游魂', color: '#aaddff', hp: 3, speed: 1.5, size: 50, points: 200, role: 'normal', img: 'ghostEnemy', imgScale: 0.14 },
-    { name: '怨灵', color: '#66bbff', hp: 4, speed: 1.8, size: 55, points: 300, role: 'normal', img: 'ghostEnemy', imgScale: 0.16 }
+    { name: '幽灵', color: '#88ccff', hp: 3, speed: 1.3, size: 45, points: 100, role: 'normal', img: 'ghostEnemy', imgScale: 0.12 },
+    { name: '游魂', color: '#aaddff', hp: 5, speed: 1.5, size: 50, points: 200, role: 'normal', img: 'ghostEnemy', imgScale: 0.14 },
+    { name: '怨灵', color: '#66bbff', hp: 7, speed: 1.8, size: 55, points: 300, role: 'normal', img: 'ghostEnemy', imgScale: 0.16 }
 ];
-// Special enemies - 新版特殊敌人
+// B4: 特殊敌人血量调整
 const specialEnemyTypes = [
-    { name: '鬼火', color: '#ff6644', hp: 2, speed: 0.5, size: 45, points: 250, role: 'charger', chargeSpeed: 12, chargeDelay: 40, img: 'fireEnemy', imgScale: 0.12, spawnWeight: 3 },
-    { name: '邪眼', color: '#aa44ff', hp: 3, speed: 0.7, size: 50, points: 300, role: 'shooter', shootCD: 90, keepDistance: 220, img: 'eyeEnemy', imgScale: 0.13, spawnWeight: 2 },
-    { name: '黑雾', color: '#333366', hp: 6, speed: 0.5, size: 65, points: 400, role: 'tank', damageReduction: 0.35, img: 'fogEnemy', imgScale: 0.15, spawnWeight: 0.5 },
-    { name: '幽焰', color: '#ffaa00', hp: 1, speed: 2.8, size: 38, points: 200, role: 'bomber', explodeTimer: 45, explodeRadius: 110, img: 'fireEnemy', imgScale: 0.10, spawnWeight: 2 }
+    { name: '鬼火', color: '#ff6644', hp: 4, speed: 0.6, size: 45, points: 250, role: 'charger', chargeSpeed: 13, chargeDelay: 35, img: 'fireEnemy', imgScale: 0.12, spawnWeight: 3 },
+    { name: '邪眼', color: '#aa44ff', hp: 5, speed: 0.8, size: 50, points: 300, role: 'shooter', shootCD: 80, keepDistance: 200, img: 'eyeEnemy', imgScale: 0.13, spawnWeight: 2 },
+    { name: '黑雾', color: '#333366', hp: 10, speed: 0.5, size: 65, points: 400, role: 'tank', damageReduction: 0.4, img: 'fogEnemy', imgScale: 0.15, spawnWeight: 0.5 },
+    { name: '幽焰', color: '#ffaa00', hp: 2, speed: 2.8, size: 38, points: 200, role: 'bomber', explodeTimer: 40, explodeRadius: 120, img: 'fireEnemy', imgScale: 0.10, spawnWeight: 2 }
 ];
 const itemTypes = [
     { name: '西瓜', emoji: '🍉', effect: 'melee', damage: 3, color: '#22c55e' },
@@ -4210,11 +4211,12 @@ let multiKillCount = 0;
 let multiKillTimer = 0;
 const multiKillTexts = ['', '', 'DOUBLE KILL!', 'TRIPLE KILL!', 'QUAD KILL!', 'PENTA KILL!', 'MEGA KILL!'];
 
-// === 无尽模式阶段系统 ===
+// === 无尽模式阶段系统 (B2: 重调早期难度) ===
 const endlessPhaseConfig = [
-    { time: 0, name: '热身阶段', desc: '适应战场', chargerWeight: 1, shooterWeight: 0.5, bomberWeight: 0.5, tankWeight: 0.2, eliteChance: 0.05, spawnRate: 1.0 },
-    { time: 60, name: '冲锋来袭', desc: '冲锋怪增多', chargerWeight: 3, shooterWeight: 1, bomberWeight: 0.5, tankWeight: 0.3, eliteChance: 0.08, spawnRate: 1.2 },
-    { time: 120, name: '火力压制', desc: '嘴炮怪加入', chargerWeight: 2, shooterWeight: 3, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.12, spawnRate: 1.5 },
+    { time: 0, name: '狗潮涌动', desc: '战斗开始', chargerWeight: 2, shooterWeight: 0.5, bomberWeight: 0.5, tankWeight: 0.3, eliteChance: 0.08, spawnRate: 1.3 },
+    { time: 30, name: '压力测试', desc: '射手加入', chargerWeight: 2, shooterWeight: 2, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.12, spawnRate: 1.5 },
+    { time: 60, name: '冲锋来袭', desc: '冲锋怪狂潮', chargerWeight: 4, shooterWeight: 2, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.15, spawnRate: 1.8 },
+    { time: 120, name: '火力压制', desc: '嘴炮怪增多', chargerWeight: 3, shooterWeight: 4, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 2.0 },
     { time: 180, name: '混编危机', desc: '敌人混编出现', chargerWeight: 2, shooterWeight: 2, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 1.8 },
     { time: 240, name: '精英入侵', desc: '精英怪频繁', chargerWeight: 3, shooterWeight: 3, bomberWeight: 2, tankWeight: 2, eliteChance: 0.25, spawnRate: 2.0 },
     { time: 300, name: '地狱难度', desc: '全面强化', chargerWeight: 4, shooterWeight: 4, bomberWeight: 3, tankWeight: 3, eliteChance: 0.35, spawnRate: 2.3 },
@@ -5741,6 +5743,15 @@ function showCombo(c) {
     el.style.textShadow = `0 0 ${10 + c}px ${colors[colorIdx]}`;
     el.style.opacity = 1;
     setTimeout(() => { el.style.opacity = 0; el.style.transform = 'scale(1)'; }, duration);
+}
+// A5: 多杀提示
+function showMultiKill(text, count) {
+    playSound('combo');
+    const colors = ['#ffd700', '#ff6b6b', '#ff00ff', '#00ffff', '#ff0000'];
+    const color = colors[Math.min(count - 2, colors.length - 1)];
+    spawnFloatingText(player.x, player.y - 80, text, color, { size: 24 + count * 4, isCrit: true, life: 80 });
+    gameState.screenShake = Math.min(5 + count * 3, 20);
+    if (count >= 4) { gameState.slowMo = true; gameState.slowMoTimer = 15; document.getElementById('slowmo').style.opacity = 0.3; }
 }
 function spawnHitEffect(x, y, power, isExecution = false) {
     // 限制粒子总数，防止卡顿
