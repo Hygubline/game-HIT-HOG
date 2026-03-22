@@ -590,9 +590,197 @@
         .talent-card .name { color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 5px; }
         .talent-card .buff { color: #4ade80; font-size: 12px; }
         .talent-card .debuff { color: #e94560; font-size: 12px; }
-        /* 遗物 */
-        #relicBar { position: absolute; top: 30px; left: 10px; display: none; z-index: 10; }
-        #relicBar .relic { display: inline-block; font-size: 24px; margin-right: 5px; background: rgba(0,0,0,0.5); border: 2px solid #ffd700; border-radius: 8px; padding: 3px 6px; }
+        /* ==================== 遗物系统 - 增强版 ==================== */
+        /* 遗物栏 - 左侧常驻 */
+        #relicBar {
+            position: absolute; top: 55px; left: 10px; display: none; z-index: 10;
+            display: flex; flex-direction: column; gap: 6px; max-height: 400px;
+        }
+        #relicBar .relic-slot {
+            position: relative; width: 48px; height: 48px;
+            background: rgba(0,0,0,0.7); border: 2px solid #555;
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        #relicBar .relic-slot:hover { transform: scale(1.15); z-index: 20; border-color: #ffd700; }
+        #relicBar .relic-slot.epic { border-color: #ab47bc; box-shadow: 0 0 8px rgba(171,71,188,0.5); }
+        #relicBar .relic-slot.legendary { border-color: #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.6); }
+        #relicBar .relic-slot .relic-icon { font-size: 28px; }
+        /* 触发高亮 */
+        #relicBar .relic-slot.triggered {
+            animation: relicTrigger 0.5s ease-out;
+            border-color: #fff !important;
+            box-shadow: 0 0 20px #fff, 0 0 40px currentColor !important;
+        }
+        @keyframes relicTrigger {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        /* 层数显示 */
+        #relicBar .relic-slot .stack-count {
+            position: absolute; bottom: -4px; right: -4px;
+            background: #e94560; color: #fff; font-size: 11px; font-weight: bold;
+            min-width: 18px; height: 18px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #000;
+        }
+        /* 冷却覆盖 */
+        #relicBar .relic-slot .cooldown-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px; font-weight: bold;
+        }
+        /* 就绪指示 */
+        #relicBar .relic-slot.ready {
+            animation: relicReady 1s ease-in-out infinite;
+        }
+        @keyframes relicReady {
+            0%, 100% { box-shadow: 0 0 10px #4ade80; }
+            50% { box-shadow: 0 0 25px #4ade80, 0 0 40px #4ade80; }
+        }
+        /* 悬浮详情 */
+        #relicTooltip {
+            position: absolute; left: 70px; top: 0;
+            background: rgba(0,0,0,0.95); border: 2px solid #ffd700;
+            border-radius: 12px; padding: 12px 16px; min-width: 200px; max-width: 280px;
+            z-index: 100; pointer-events: none; opacity: 0;
+            transition: opacity 0.15s ease; display: none;
+        }
+        #relicTooltip.visible { opacity: 1; display: block; }
+        #relicTooltip .tooltip-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        #relicTooltip .tooltip-icon { font-size: 32px; }
+        #relicTooltip .tooltip-name { color: #ffd700; font-size: 16px; font-weight: bold; }
+        #relicTooltip .tooltip-tier { font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+        #relicTooltip .tooltip-tier.epic { background: #ab47bc; color: #fff; }
+        #relicTooltip .tooltip-tier.legendary { background: #ffd700; color: #000; }
+        #relicTooltip .tooltip-desc { color: #ccc; font-size: 13px; line-height: 1.4; margin-bottom: 8px; }
+        #relicTooltip .tooltip-playstyle { color: #888; font-size: 11px; }
+        #relicTooltip .tooltip-status { color: #4ade80; font-size: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #333; }
+
+        /* ==================== 遗物获得演出 ==================== */
+        #relicAcquireOverlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0); z-index: 200; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        #relicAcquireOverlay.active { opacity: 1; pointer-events: auto; }
+        #relicAcquireOverlay.epic-bg { background: radial-gradient(circle, rgba(171,71,188,0.3) 0%, rgba(0,0,0,0.9) 70%); }
+        #relicAcquireOverlay.legendary-bg { background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(0,0,0,0.95) 70%); }
+
+        .relic-acquire-content {
+            text-align: center; transform: scale(0.5); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #relicAcquireOverlay.active .relic-acquire-content {
+            transform: scale(1); opacity: 1;
+        }
+        .relic-acquire-icon {
+            font-size: 100px; margin-bottom: 20px;
+            filter: drop-shadow(0 0 30px currentColor);
+            animation: acquireIconPulse 1s ease-in-out infinite;
+        }
+        @keyframes acquireIconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .relic-acquire-title {
+            font-size: 36px; font-weight: bold; margin-bottom: 10px;
+            text-shadow: 0 0 20px currentColor, 2px 2px 4px #000;
+        }
+        .relic-acquire-title.epic { color: #ab47bc; }
+        .relic-acquire-title.legendary { color: #ffd700; }
+        .relic-acquire-name {
+            font-size: 28px; color: #fff; margin-bottom: 15px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .relic-acquire-desc {
+            font-size: 16px; color: #ccc; max-width: 400px; margin: 0 auto 20px;
+            line-height: 1.5;
+        }
+        .relic-acquire-playstyle {
+            font-size: 14px; color: #888; margin-bottom: 25px;
+        }
+        .relic-acquire-hint {
+            font-size: 14px; color: #666;
+            animation: hintBlink 1s ease-in-out infinite;
+        }
+        @keyframes hintBlink {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        /* 光芒粒子 */
+        .acquire-particles {
+            position: absolute; top: 50%; left: 50%; width: 0; height: 0;
+        }
+        .acquire-particle {
+            position: absolute; width: 8px; height: 8px; border-radius: 50%;
+            animation: particleFly 1.5s ease-out forwards;
+        }
+        @keyframes particleFly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* ==================== 胜利动画 ==================== */
+        #victoryOverlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0); z-index: 250;
+            display: none; align-items: center; justify-content: center;
+            flex-direction: column;
+        }
+        #victoryOverlay.active {
+            display: flex;
+            animation: victoryFadeIn 0.5s ease-out forwards;
+        }
+        @keyframes victoryFadeIn {
+            0% { background: rgba(0,0,0,0); }
+            100% { background: rgba(0,0,0,0.85); }
+        }
+        #victoryOverlay .victory-image {
+            max-width: 80%; max-height: 60%;
+            animation: victoryImagePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            filter: drop-shadow(0 0 30px rgba(255,215,0,0.8));
+        }
+        @keyframes victoryImagePop {
+            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        #victoryOverlay .victory-title {
+            font-size: 48px; font-weight: bold; color: #ffd700;
+            text-shadow: 0 0 30px rgba(255,215,0,0.8), 3px 3px 0 #000;
+            margin-top: 20px; animation: victoryTitleGlow 1.5s ease-in-out infinite;
+        }
+        @keyframes victoryTitleGlow {
+            0%, 100% { text-shadow: 0 0 30px rgba(255,215,0,0.8), 3px 3px 0 #000; }
+            50% { text-shadow: 0 0 50px rgba(255,215,0,1), 0 0 80px rgba(255,215,0,0.5), 3px 3px 0 #000; }
+        }
+        #victoryOverlay .victory-stats {
+            color: #fff; font-size: 18px; margin-top: 15px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        #victoryOverlay .victory-hint {
+            color: #888; font-size: 14px; margin-top: 30px;
+            animation: hintBlink 1s ease-in-out infinite;
+        }
+        /* 胜利粒子 */
+        .victory-particles {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; overflow: hidden;
+        }
+        .victory-confetti {
+            position: absolute; width: 10px; height: 10px;
+            animation: confettiFall 3s linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* 旧版遗物拾取（兼容） */
         #relicPickup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); border: 3px solid #ffd700; border-radius: 15px; padding: 20px; text-align: center; display: none; z-index: 55; }
         #relicPickup h3 { color: #ffd700; font-size: 20px; margin-bottom: 10px; }
         #relicPickup .relic-icon { font-size: 48px; }
@@ -927,7 +1115,39 @@
             <button id="confirmExitBtn">退出</button>
             <button id="cancelExitBtn">继续游戏</button>
         </div>
+        <!-- 遗物栏 - 增强版 -->
         <div id="relicBar"></div>
+        <div id="relicTooltip">
+            <div class="tooltip-header">
+                <span class="tooltip-icon"></span>
+                <span class="tooltip-name"></span>
+            </div>
+            <span class="tooltip-tier"></span>
+            <div class="tooltip-desc"></div>
+            <div class="tooltip-playstyle"></div>
+            <div class="tooltip-status"></div>
+        </div>
+        <!-- 遗物获得演出 -->
+        <div id="relicAcquireOverlay">
+            <div class="acquire-particles"></div>
+            <div class="relic-acquire-content">
+                <div class="relic-acquire-icon"></div>
+                <div class="relic-acquire-title"></div>
+                <div class="relic-acquire-name"></div>
+                <div class="relic-acquire-desc"></div>
+                <div class="relic-acquire-playstyle"></div>
+                <div class="relic-acquire-hint">点击任意位置继续</div>
+            </div>
+        </div>
+        <!-- 胜利动画 -->
+        <div id="victoryOverlay">
+            <div class="victory-particles"></div>
+            <img class="victory-image" src="" alt="胜利">
+            <div class="victory-title">🎉 胜利! 🎉</div>
+            <div class="victory-stats"></div>
+            <div class="victory-hint">点击继续</div>
+        </div>
+        <!-- 旧版遗物拾取（兼容） -->
         <div id="relicPickup">
             <h3>🎁 获得遗物!</h3>
             <div class="relic-icon" id="relicIcon"></div>
@@ -1795,8 +2015,11 @@ function updateAutoAttack() {
     const nearbyEnemies = enemies.filter(e => !e.flying && Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < 150).length;
 
     // 自动踢击 - 近距离
+    // 狂战之心攻速加成 (血量≤2时+50%攻速)
+    const berserkerSpeedMult = (playerBuffs.berserkerHeart && gameState.lives <= 2) ? 0.67 : 1;
+
     if (autoAttackConfig.kick.enabled && nearestDist < 100) {
-        if (now - autoAttackConfig.kick.lastTime > autoAttackConfig.kick.interval) {
+        if (now - autoAttackConfig.kick.lastTime > autoAttackConfig.kick.interval * berserkerSpeedMult) {
             if (!player.kicking && !player.slashing && !player.blocking) {
                 performKick();
                 autoAttackConfig.kick.lastTime = now;
@@ -1806,7 +2029,7 @@ function updateAutoAttack() {
 
     // 自动剑气 - 中距离
     if (autoAttackConfig.slash.enabled && nearestDist < 300) {
-        if (now - autoAttackConfig.slash.lastTime > autoAttackConfig.slash.interval) {
+        if (now - autoAttackConfig.slash.lastTime > autoAttackConfig.slash.interval * berserkerSpeedMult) {
             if (cooldowns.slash <= 0 && !player.blocking) {
                 performSlash();
                 autoAttackConfig.slash.lastTime = now;
@@ -1911,25 +2134,279 @@ function confirmEvolution() {
     gameState.isPaused = false;
 }
 
-// === 宝箱系统 ===
-const chestTypes = [
-    { type: 'normal', color: '#8b4513', chance: 0.01, rewards: { coins: [10, 30] } },
-    { type: 'rare', color: '#4fc3f7', chance: 0.005, rewards: { coins: [50, 100] } },
-    { type: 'epic', color: '#ab47bc', chance: 0.002, rewards: { relic: true } },
-    { type: 'evolution', color: '#ffd700', chance: 0, rewards: { evolution: true } }  // Boss掉落
+// === 遗物状态追踪系统 ===
+const relicState = {
+    // 吸血獠牙
+    vampireHitCount: 0,        // 连续命中同一目标次数
+    vampireLastTarget: null,   // 上次命中目标
+    // 狂战之心
+    berserkerActive: false,    // 狂战状态
+    berserkerPulseTimer: 0,    // 脉冲动画
+    // 霜心
+    frostStacks: new Map(),    // 敌人冰霜层数
+    // 雷霆之怒
+    thunderStacks: 0,          // 受伤闪电叠层
+    // 影分身
+    shadowCombo: 0,            // 残影连击
+    // 时间扭曲
+    attackCombo: 0,            // 普攻连段
+    // 黄金猎手
+    killStreak: 0,             // 连杀数
+    killStreakTimer: 0,        // 连杀计时
+    // 毁灭者
+    doomChargeTimer: 0,        // 毁灭充能
+    doomReady: false,          // 毁灭一击就绪
+    // 灵魂收割者
+    souls: 0,                  // 灵魂数量
+    soulStormReady: false,     // 灵魂风暴就绪
+    // 虚空行者
+    voidRifts: [],             // 虚空裂痕位置
+};
+
+// === 史诗遗物定义 (行为改变型) ===
+const epicRelics = [
+    {
+        id: 'vampireFang',
+        name: '嗜血獠牙',
+        icon: '🧛',
+        desc: '连续攻击同一目标时吸血概率递增，击杀残血敌人必定回血',
+        playstyle: '低血狂战流/吸血续航',
+        effect: () => { playerBuffs.vampireFang = true; },
+        // 机制: 连击同一目标时10%→20%→30%回血，击杀30%血以下敌人必回1血
+    },
+    {
+        id: 'berserkerHeart',
+        name: '狂战之心',
+        icon: '💢',
+        desc: '血量≤2时进入狂战状态：伤害+80%，攻速+50%，角色发红光',
+        playstyle: '低血狂战流',
+        effect: () => { playerBuffs.berserkerHeart = true; },
+        // 机制: 低血时触发明显视觉变化+大幅强化
+    },
+    {
+        id: 'frostCore',
+        name: '霜魂之心',
+        icon: '❄️',
+        desc: '攻击叠加冰霜层数(最多5层)，满层时冻结敌人并触发冰爆',
+        playstyle: '控制流',
+        effect: () => { playerBuffs.frostCore = true; },
+        // 机制: 叠层控制，满层冻结+冰爆伤害
+    },
+    {
+        id: 'thunderGod',
+        name: '雷霆之怒',
+        icon: '⚡',
+        desc: '受伤时召唤连锁闪电打击周围敌人，连续受伤增加闪电数量',
+        playstyle: '低血狂战流/反打流',
+        effect: () => { playerBuffs.thunderGod = true; relicState.thunderStacks = 0; },
+        // 机制: 受伤反打，连续受伤效果叠加
+    },
+    {
+        id: 'shadowClone',
+        name: '幻影残像',
+        icon: '👥',
+        desc: '攻击召唤残影同步攻击，连续触发5次后召唤强化残影造成范围斩',
+        playstyle: '暴击流/连击流',
+        effect: () => { playerBuffs.shadowClone = true; relicState.shadowCombo = 0; },
+        // 机制: 有节奏高潮的残影系统
+    },
+    {
+        id: 'explosiveFinish',
+        name: '爆裂终结者',
+        icon: '💥',
+        desc: '击杀敌人爆炸，若敌人处于异常状态(减速/冻结)，爆炸范围和伤害翻倍',
+        playstyle: '击杀爆炸流',
+        effect: () => { playerBuffs.explosiveFinish = true; },
+        // 机制: 与异常状态联动的击杀爆炸
+    },
+    {
+        id: 'timeWarp',
+        name: '时空裂隙',
+        icon: '⏰',
+        desc: '每10次攻击后，下一次攻击重置所有武器冷却并造成双倍伤害',
+        playstyle: '连击流',
+        effect: () => { playerBuffs.timeWarp = true; relicState.attackCombo = 0; },
+        // 机制: 普攻连段返还冷却
+    },
+    {
+        id: 'goldHunter',
+        name: '赏金猎人',
+        icon: '💰',
+        desc: '连杀越高奖励越多(2连+50%/5连+150%/10连+300%)，精英必掉稀有宝箱',
+        playstyle: '资源流',
+        effect: () => { playerBuffs.goldHunter = true; relicState.killStreak = 0; },
+        // 机制: 连杀奖励递增
+    }
 ];
+
+// === 传奇遗物定义 (质变型) ===
+const legendaryRelics = [
+    {
+        id: 'weaponSlot',
+        name: '军火大亨',
+        icon: '🎰',
+        desc: '解锁第4武器槽，并立即获得一把随机Lv3武器',
+        playstyle: '全能流',
+        effect: () => {
+            playerBuffs.extraWeaponSlot = true;
+            // 立即赠送随机武器
+            const weapons = Object.keys(weaponDefinitions);
+            const available = weapons.filter(id => !playerWeapons[id]);
+            if (available.length > 0) {
+                const weaponId = available[Math.floor(Math.random() * available.length)];
+                playerWeapons[weaponId] = { level: 3, lastTime: 0 };
+                const def = weaponDefinitions[weaponId];
+                showBigEvent('🎁 附赠武器!', def.icon + def.name + ' Lv3', '#ffd700');
+            }
+        }
+    },
+    {
+        id: 'finalForm',
+        name: '终极形态',
+        icon: '👑',
+        desc: '所有武器获得专属强化：伤害+50%，射程+30%，额外效果触发率翻倍',
+        playstyle: '全能流',
+        effect: () => {
+            playerBuffs.finalForm = true;
+            playerBuffs.globalAttackMult *= 1.5;
+            // 每把武器都获得强化标记
+            Object.keys(playerWeapons).forEach(id => {
+                playerWeapons[id].enhanced = true;
+                playerWeapons[id].level = Math.min(playerWeapons[id].level + 1, 8);
+            });
+            showBigEvent('👑 全武器强化!', '所有武器已进入终极形态', '#ffd700');
+        }
+    },
+    {
+        id: 'phoenix',
+        name: '不死凤凰',
+        icon: '🔥',
+        desc: '死亡时满血复活并触发全屏火焰爆发，清空屏幕敌人(本局限一次)',
+        playstyle: '低血狂战流',
+        effect: () => { playerBuffs.phoenixRevive = true; }
+        // 机制: 复活时触发清屏级爆发
+    },
+    {
+        id: 'divineWrath',
+        name: '神罚天降',
+        icon: '✨',
+        desc: '暴击时召唤神罚光束从天而降，对目标及周围造成巨额伤害',
+        playstyle: '暴击流',
+        effect: () => {
+            playerBuffs.divineWrath = true;
+            playerBuffs.critChance = (playerBuffs.critChance || 0) + 0.15;
+        }
+        // 机制: 暴击触发神罚光束
+    },
+    {
+        id: 'doomSlayer',
+        name: '毁灭使者',
+        icon: '☠️',
+        desc: '每5秒充能一次毁灭打击，下次攻击造成500%伤害并产生冲击波',
+        playstyle: '爆发流',
+        effect: () => {
+            playerBuffs.doomSlayer = true;
+            relicState.doomChargeTimer = 0;
+            relicState.doomReady = false;
+        }
+        // 机制: 周期性超强一击
+    },
+    {
+        id: 'evolution',
+        name: '武器觉醒',
+        icon: '⚗️',
+        desc: '随机一把武器觉醒至终极形态，获得专属传说特性和满级',
+        playstyle: '全能流',
+        effect: () => {
+            const weapons = Object.keys(playerWeapons);
+            if (weapons.length > 0) {
+                const weaponId = weapons[Math.floor(Math.random() * weapons.length)];
+                playerWeapons[weaponId].level = 8;
+                playerWeapons[weaponId].awakened = true;
+                const def = weaponDefinitions[weaponId];
+                showBigEvent('⚗️ 武器觉醒!', def.icon + def.name + ' 觉醒为传说形态!', '#ffd700');
+                // 觉醒武器获得特殊效果
+                playerBuffs.awakenedWeapon = weaponId;
+            }
+        }
+    },
+    {
+        id: 'voidWalker',
+        name: '虚空漫步者',
+        icon: '🌀',
+        desc: '移速+40%，穿越敌人时留下虚空裂痕，裂痕2秒后爆炸吸引并伤害敌人',
+        playstyle: '冲刺位移流',
+        effect: () => {
+            playerBuffs.voidWalker = true;
+            playerBuffs.speedMult *= 1.4;
+            relicState.voidRifts = [];
+        }
+        // 机制: 穿透+裂痕爆炸
+    },
+    {
+        id: 'soulReaper',
+        name: '灵魂收割者',
+        icon: '💀',
+        desc: '击杀收集灵魂，满20个灵魂自动释放灵魂风暴：范围伤害+回满血+短暂无敌',
+        playstyle: '击杀爆炸流',
+        effect: () => {
+            playerBuffs.soulReaper = true;
+            relicState.souls = 0;
+        }
+        // 机制: 灵魂收集→灵魂风暴
+    }
+];
+
+// === 宝箱系统 (4级分层) ===
+const chestConfig = {
+    normal: {
+        name: '木箱', color: '#8b4513', img: 'chestNormal', imgScale: 0.08,
+        openText: ['补给到货!', '小有收获~', '资源+1'],
+        lootTable: [
+            { type: 'coins', weight: 30, amount: [20, 50] },
+            { type: 'heal', weight: 25, amount: 1 },
+            { type: 'xp', weight: 25, amount: [10, 30] },
+            { type: 'tempBuff', weight: 15, buff: 'speed', duration: 300, value: 1.3 },
+            { type: 'tempBuff', weight: 5, buff: 'invincible', duration: 120, value: true }
+        ]
+    },
+    rare: {
+        name: '稀有箱', color: '#4fc3f7', img: 'chestRare', imgScale: 0.10,
+        openText: ['稀有奖励!', '强化获得!', '实力提升!'],
+        lootTable: [
+            { type: 'weaponUpgrade', weight: 25 },
+            { type: 'statBoost', weight: 20, stat: 'critChance', value: 0.05 },
+            { type: 'statBoost', weight: 20, stat: 'attackSpeed', value: 0.15 },
+            { type: 'statBoost', weight: 15, stat: 'damage', value: 0.2 },
+            { type: 'cooldownReduce', weight: 10, value: 0.15 },
+            { type: 'xpMagnet', weight: 10, value: 30 }
+        ]
+    },
+    epic: {
+        name: '史诗箱', color: '#ab47bc', img: 'chestEpic', imgScale: 0.12,
+        openText: ['史诗发现!', '命运抉择!', '流派核心!'],
+        isPick3: true,
+        relicPool: epicRelics
+    },
+    boss: {
+        name: 'Boss宝箱', color: '#ffd700', img: 'chestBoss', imgScale: 0.14,
+        openText: ['传奇降临!', '质变时刻!', '终极强化!'],
+        isPick3: true,
+        relicPool: legendaryRelics
+    }
+};
 
 let chests = [];
 
 function spawnChest(x, y, type = 'normal') {
-    const chestType = chestTypes.find(c => c.type === type) || chestTypes[0];
+    const config = chestConfig[type] || chestConfig.normal;
     chests.push({
         x, y,
-        type: chestType.type,
-        color: chestType.color,
-        rewards: chestType.rewards,
+        type: type,
+        config: config,
         bobOffset: Math.random() * Math.PI * 2,
-        opened: false
+        opened: false,
+        spawnTime: Date.now()
     });
 }
 
@@ -1937,37 +2414,205 @@ function openChest(chest) {
     if (chest.opened) return;
     chest.opened = true;
 
+    const config = chest.config;
     playSound('chest');
 
-    if (chest.rewards.coins) {
-        const amount = chest.rewards.coins[0] + Math.floor(Math.random() * (chest.rewards.coins[1] - chest.rewards.coins[0]));
-        gameState.score += amount * 10;
-        spawnFloatingText(chest.x, chest.y - 30, '+' + amount + '金币', '#ffd700');
+    // 开箱文案
+    const text = config.openText[Math.floor(Math.random() * config.openText.length)];
+    showBigEvent(config.name, text, config.color);
+
+    // 3选1面板 (史诗和Boss箱)
+    if (config.isPick3) {
+        showChestPickPanel(chest);
+        return;
     }
 
-    if (chest.rewards.relic) {
-        spawnRelic(chest.x, chest.y);
-    }
-
-    if (chest.rewards.evolution && pendingEvolution) {
-        showEvolutionPanel(pendingEvolution);
-    }
+    // 普通/稀有箱直接掉落
+    const loot = rollChestLoot(config.lootTable);
+    applyChestLoot(loot, chest.x, chest.y);
 
     // 移除宝箱
+    removeChest(chest);
+}
+
+function rollChestLoot(lootTable) {
+    const totalWeight = lootTable.reduce((sum, item) => sum + item.weight, 0);
+    let roll = Math.random() * totalWeight;
+    for (const item of lootTable) {
+        roll -= item.weight;
+        if (roll <= 0) return item;
+    }
+    return lootTable[0];
+}
+
+function applyChestLoot(loot, x, y) {
+    switch (loot.type) {
+        case 'coins':
+            const coins = loot.amount[0] + Math.floor(Math.random() * (loot.amount[1] - loot.amount[0]));
+            gameState.score += coins * 10;
+            gameStats.bonusBones += Math.floor(coins / 10);
+            spawnFloatingText(x, y - 30, '+' + coins + '💰', '#ffd700');
+            break;
+        case 'heal':
+            if (gameState.lives < maxPlayerLives) {
+                gameState.lives = Math.min(gameState.lives + loot.amount, maxPlayerLives);
+                updatePlayerHealthBar(false);
+                spawnFloatingText(x, y - 30, '+' + loot.amount + '❤️', '#ff6b6b');
+            } else {
+                gameState.score += 500;
+                spawnFloatingText(x, y - 30, '满血! +500分', '#4ade80');
+            }
+            break;
+        case 'xp':
+            const xp = loot.amount[0] + Math.floor(Math.random() * (loot.amount[1] - loot.amount[0]));
+            playerXP.addXP(xp);
+            spawnFloatingText(x, y - 30, '+' + xp + ' XP', '#4fc3f7');
+            break;
+        case 'tempBuff':
+            if (loot.buff === 'speed') {
+                playerBuffs.speedMult *= loot.value;
+                setTimeout(() => { playerBuffs.speedMult /= loot.value; }, loot.duration * 16);
+                spawnFloatingText(x, y - 30, '⚡加速5秒!', '#ffff00');
+            } else if (loot.buff === 'invincible') {
+                player.invincible = true;
+                player.invincibleTimer = loot.duration;
+                spawnFloatingText(x, y - 30, '🛡️无敌2秒!', '#4ade80');
+            }
+            break;
+        case 'weaponUpgrade':
+            const weapons = Object.keys(playerWeapons);
+            if (weapons.length > 0) {
+                const weaponId = weapons[Math.floor(Math.random() * weapons.length)];
+                if (playerWeapons[weaponId].level < 8) {
+                    playerWeapons[weaponId].level++;
+                    const def = weaponDefinitions[weaponId];
+                    spawnFloatingText(x, y - 30, def.icon + ' 升级!', '#ff6600');
+                } else {
+                    gameState.score += 1000;
+                    spawnFloatingText(x, y - 30, '已满级 +1000分', '#ffd700');
+                }
+            }
+            break;
+        case 'statBoost':
+            if (loot.stat === 'critChance') {
+                playerBuffs.critChance = (playerBuffs.critChance || 0) + loot.value;
+                spawnFloatingText(x, y - 30, '暴击+5%!', '#ff4444');
+            } else if (loot.stat === 'attackSpeed') {
+                // 减少武器间隔
+                Object.keys(playerWeapons).forEach(id => {
+                    const def = weaponDefinitions[id];
+                    if (def.baseInterval) def.baseInterval *= (1 - loot.value);
+                });
+                spawnFloatingText(x, y - 30, '攻速+15%!', '#ffaa00');
+            } else if (loot.stat === 'damage') {
+                playerBuffs.globalAttackMult = (playerBuffs.globalAttackMult || 1) * (1 + loot.value);
+                spawnFloatingText(x, y - 30, '伤害+20%!', '#ff6b6b');
+            }
+            break;
+        case 'cooldownReduce':
+            playerBuffs.cdReduce = (playerBuffs.cdReduce || 1) * (1 - loot.value);
+            spawnFloatingText(x, y - 30, '冷却-15%!', '#4fc3f7');
+            break;
+        case 'xpMagnet':
+            playerBuffs.xpMagnetRange = (playerBuffs.xpMagnetRange || 50) + loot.value;
+            spawnFloatingText(x, y - 30, '🧲拾取+30!', '#9370db');
+            break;
+    }
+
+    // 粒子效果
+    for (let i = 0; i < 8; i++) {
+        particles.push({
+            x, y, vx: (Math.random() - 0.5) * 8, vy: -Math.random() * 6,
+            life: 25, color: '#ffd700', size: 4
+        });
+    }
+}
+
+function showChestPickPanel(chest) {
+    gameState.isPaused = true;
+    const panel = document.getElementById('upgradePanel');
+    const optionsDiv = document.getElementById('upgradeOptions');
+    const config = chest.config;
+
+    panel.querySelector('h2').textContent = config.name + ' - 三选一!';
+    panel.querySelector('h2').style.color = config.color;
+    optionsDiv.innerHTML = '';
+
+    // 使用relicPool(史诗/Boss箱)或lootTable(其他)
+    const pool = config.relicPool || config.lootTable;
+
+    // 过滤已拥有的遗物
+    const available = pool.filter(item => {
+        if (item.id && playerBuffs[item.id]) return false; // 已拥有的遗物
+        return true;
+    });
+
+    // 随机选3个不重复的奖励
+    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    const picks = shuffled.slice(0, 3);
+
+    picks.forEach(relic => {
+        const card = document.createElement('div');
+        card.className = 'upgrade-card';
+        card.style.borderColor = config.color;
+        card.style.background = `linear-gradient(135deg, rgba(0,0,0,0.8), ${config.color}33)`;
+
+        // 显示遗物信息，包括流派提示
+        const playstyleHint = relic.playstyle ? `<div style="color:#888;font-size:10px;margin-top:4px">💡 ${relic.playstyle}</div>` : '';
+        card.innerHTML = `
+            <div class="icon" style="font-size:36px">${relic.icon}</div>
+            <div class="name" style="color:${config.color}">${relic.name}</div>
+            <div class="desc">${relic.desc}</div>
+            ${playstyleHint}
+        `;
+
+        card.onmouseenter = () => { playSound('pickup'); card.style.transform = 'scale(1.08)'; };
+        card.onmouseleave = () => { card.style.transform = 'scale(1)'; };
+        card.onclick = () => {
+            // 执行遗物效果
+            relic.effect();
+
+            // 记录已获得的遗物
+            if (relic.id) playerBuffs[relic.id] = true;
+
+            // 关闭选择面板
+            panel.style.display = 'none';
+            panel.querySelector('h2').textContent = '🎁 选择强化!';
+            panel.querySelector('h2').style.color = '';
+
+            // 移除宝箱
+            removeChest(chest);
+
+            // 确定遗物稀有度
+            const tier = chest.type === 'boss' ? 'legendary' : 'epic';
+
+            // 添加到已获得遗物列表并触发演出
+            addAcquiredRelic(relic, tier);
+        };
+
+        optionsDiv.appendChild(card);
+    });
+
+    panel.style.display = 'flex';
+}
+
+function removeChest(chest) {
     const idx = chests.indexOf(chest);
     if (idx > -1) chests.splice(idx, 1);
+}
 
-    // 减少宝箱粒子
-    if (particles.length < 20) {
-        for (let i = 0; i < 4; i++) {
-            particles.push({
-                x: chest.x, y: chest.y,
-                vx: (Math.random() - 0.5) * 5,
-                vy: -Math.random() * 4,
-                life: 15, color: chest.color, size: 3
-            });
-        }
+function triggerRandomEvolution() {
+    const weapons = Object.keys(playerWeapons);
+    if (weapons.length === 0) {
+        gameState.score += 3000;
+        spawnFloatingText(player.x, player.y - 60, '无武器可进化 +3000分', '#ffd700');
+        return;
     }
+    const weaponId = weapons[Math.floor(Math.random() * weapons.length)];
+    playerWeapons[weaponId].level = 8;
+    playerWeapons[weaponId].evolved = true;
+    const def = weaponDefinitions[weaponId];
+    showBigEvent('⚗️ 武器进化!', def.icon + def.name + ' 已进化至满级!', '#ffd700');
 }
 
 // === 割草模式升级面板 (包含武器系统) ===
@@ -2913,6 +3558,16 @@ images.sajiao.src = 'sajiao.png'; images.kick.src = 'kick.png'; images.dash.src 
 images.newmap.src = 'newmap.png';
 images.monster1.src = 'moster1.png'; images.monster2.src = 'moster2.png'; images.monster3.src = 'moster3.png'; images.monster4.src = 'moster4.png';
 images.ghostEnemy.src = '幽灵怪.png'; images.eyeEnemy.src = '眼球怪.png'; images.fireEnemy.src = '鬼火怪.png'; images.fogEnemy.src = '黑雾怪.png';
+
+// === 宝箱图片 ===
+images.chestNormal = new Image(); images.chestNormal.src = '木箱.png';
+images.chestRare = new Image(); images.chestRare.src = '初级箱子.png';
+images.chestEpic = new Image(); images.chestEpic.src = '中级箱子.png';
+images.chestBoss = new Image(); images.chestBoss.src = 'Boss 箱子.png';
+
+// === 胜利动画图片 ===
+images.victory1 = new Image(); images.victory1.src = '胜利结算.png';
+images.victory2 = new Image(); images.victory2.src = '胜利结算2.png';
 
 // === 跑步动画 (5帧) ===
 const runFrames = [];
@@ -4150,10 +4805,255 @@ function confirmRelic() {
     gameState.isPaused = false;
 }
 
+// === 增强版遗物栏系统 ===
+// 已获得的遗物数据（用于UI和状态追踪）
+let acquiredRelics = [];
+
 function updateRelicBar() {
     const bar = document.getElementById('relicBar');
-    bar.innerHTML = playerRelics.map(r => `<span class="relic" title="${r.name}">${r.icon}</span>`).join('');
-    bar.style.display = playerRelics.length > 0 ? 'block' : 'none';
+    if (acquiredRelics.length === 0 && playerRelics.length === 0) {
+        bar.style.display = 'none';
+        return;
+    }
+
+    // 合并旧系统和新系统的遗物
+    const allRelics = [...playerRelics, ...acquiredRelics];
+
+    bar.innerHTML = allRelics.map((r, i) => {
+        const tierClass = r.tier === 'legendary' ? 'legendary' : (r.tier === 'epic' ? 'epic' : '');
+        const readyClass = getRelicReadyState(r) ? 'ready' : '';
+        const stackCount = getRelicStackCount(r);
+        const cooldownPercent = getRelicCooldownPercent(r);
+
+        let extraHTML = '';
+        if (stackCount > 0) {
+            extraHTML += `<span class="stack-count">${stackCount}</span>`;
+        }
+        if (cooldownPercent > 0 && cooldownPercent < 100) {
+            extraHTML += `<span class="cooldown-overlay">${Math.floor(cooldownPercent)}%</span>`;
+        }
+
+        return `<div class="relic-slot ${tierClass} ${readyClass}" data-relic-index="${i}" data-relic-id="${r.id || r.name}">
+            <span class="relic-icon">${r.icon}</span>
+            ${extraHTML}
+        </div>`;
+    }).join('');
+
+    bar.style.display = 'flex';
+
+    // 绑定悬浮事件
+    bar.querySelectorAll('.relic-slot').forEach(slot => {
+        slot.addEventListener('mouseenter', showRelicTooltip);
+        slot.addEventListener('mouseleave', hideRelicTooltip);
+    });
+}
+
+function getRelicStackCount(relic) {
+    if (!relic.id) return 0;
+    switch (relic.id) {
+        case 'soulReaper': return relicState.souls;
+        case 'shadowClone': return relicState.shadowCombo;
+        case 'timeWarp': return relicState.attackCombo;
+        case 'goldHunter': return relicState.killStreak;
+        default: return 0;
+    }
+}
+
+function getRelicCooldownPercent(relic) {
+    if (!relic.id) return 0;
+    switch (relic.id) {
+        case 'doomSlayer':
+            if (relicState.doomReady) return 100;
+            return Math.floor((relicState.doomChargeTimer / 300) * 100);
+        default: return 0;
+    }
+}
+
+function getRelicReadyState(relic) {
+    if (!relic.id) return false;
+    switch (relic.id) {
+        case 'doomSlayer': return relicState.doomReady;
+        case 'soulReaper': return relicState.souls >= 20;
+        case 'berserkerHeart': return gameState.lives <= 2;
+        default: return false;
+    }
+}
+
+function showRelicTooltip(e) {
+    const slot = e.currentTarget;
+    const index = parseInt(slot.dataset.relicIndex);
+    const allRelics = [...playerRelics, ...acquiredRelics];
+    const relic = allRelics[index];
+    if (!relic) return;
+
+    const tooltip = document.getElementById('relicTooltip');
+    tooltip.querySelector('.tooltip-icon').textContent = relic.icon;
+    tooltip.querySelector('.tooltip-name').textContent = relic.name;
+
+    const tierEl = tooltip.querySelector('.tooltip-tier');
+    if (relic.tier === 'legendary') {
+        tierEl.textContent = '传奇';
+        tierEl.className = 'tooltip-tier legendary';
+    } else if (relic.tier === 'epic') {
+        tierEl.textContent = '史诗';
+        tierEl.className = 'tooltip-tier epic';
+    } else {
+        tierEl.textContent = '普通';
+        tierEl.className = 'tooltip-tier';
+    }
+
+    tooltip.querySelector('.tooltip-desc').textContent = relic.desc;
+    tooltip.querySelector('.tooltip-playstyle').textContent = relic.playstyle ? `💡 ${relic.playstyle}` : '';
+
+    // 状态信息
+    let statusText = '';
+    if (relic.id === 'doomSlayer') {
+        statusText = relicState.doomReady ? '⚡ 已就绪!' : `充能中: ${Math.floor((relicState.doomChargeTimer / 300) * 100)}%`;
+    } else if (relic.id === 'soulReaper') {
+        statusText = `灵魂: ${relicState.souls}/20`;
+    } else if (relic.id === 'berserkerHeart') {
+        statusText = gameState.lives <= 2 ? '💢 狂战激活中!' : '血量≤2时激活';
+    } else if (relic.id === 'timeWarp') {
+        statusText = `连击: ${relicState.attackCombo}/10`;
+    } else if (relic.id === 'shadowClone') {
+        statusText = `残影: ${relicState.shadowCombo}/5`;
+    }
+    tooltip.querySelector('.tooltip-status').textContent = statusText;
+
+    // 定位
+    const slotRect = slot.getBoundingClientRect();
+    const barRect = document.getElementById('relicBar').getBoundingClientRect();
+    tooltip.style.top = (slot.offsetTop) + 'px';
+
+    tooltip.classList.add('visible');
+}
+
+function hideRelicTooltip() {
+    document.getElementById('relicTooltip').classList.remove('visible');
+}
+
+// === 遗物触发高亮 ===
+function triggerRelicHighlight(relicId) {
+    const bar = document.getElementById('relicBar');
+    const slot = bar.querySelector(`[data-relic-id="${relicId}"]`);
+    if (slot) {
+        slot.classList.remove('triggered');
+        void slot.offsetWidth; // 强制重绘
+        slot.classList.add('triggered');
+        setTimeout(() => slot.classList.remove('triggered'), 500);
+    }
+}
+
+// === 遗物获得演出系统 ===
+function showRelicAcquireAnimation(relic, tier = 'epic') {
+    const overlay = document.getElementById('relicAcquireOverlay');
+    const content = overlay.querySelector('.relic-acquire-content');
+    const particles = overlay.querySelector('.acquire-particles');
+
+    // 设置内容
+    overlay.querySelector('.relic-acquire-icon').textContent = relic.icon;
+    overlay.querySelector('.relic-acquire-icon').style.color = tier === 'legendary' ? '#ffd700' : '#ab47bc';
+
+    const titleEl = overlay.querySelector('.relic-acquire-title');
+    titleEl.textContent = tier === 'legendary' ? '⭐ 传奇遗物 ⭐' : '✨ 史诗遗物 ✨';
+    titleEl.className = `relic-acquire-title ${tier}`;
+
+    overlay.querySelector('.relic-acquire-name').textContent = relic.name;
+    overlay.querySelector('.relic-acquire-desc').textContent = relic.desc;
+    overlay.querySelector('.relic-acquire-playstyle').textContent = relic.playstyle ? `💡 适合: ${relic.playstyle}` : '';
+
+    // 设置背景
+    overlay.className = 'active';
+    overlay.classList.add(tier === 'legendary' ? 'legendary-bg' : 'epic-bg');
+
+    // 生成粒子
+    particles.innerHTML = '';
+    const particleCount = tier === 'legendary' ? 30 : 20;
+    const particleColor = tier === 'legendary' ? '#ffd700' : '#ab47bc';
+    for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'acquire-particle';
+        p.style.background = particleColor;
+        const angle = (i / particleCount) * Math.PI * 2;
+        const distance = 150 + Math.random() * 100;
+        p.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+        p.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+        p.style.animationDelay = `${Math.random() * 0.3}s`;
+        particles.appendChild(p);
+    }
+
+    // 暂停游戏
+    gameState.isPaused = true;
+
+    // 屏幕震动
+    gameState.screenShake = tier === 'legendary' ? 25 : 15;
+
+    // 播放音效
+    playSound('upgrade');
+
+    // 触发时停
+    gameState.hitStop = tier === 'legendary' ? 30 : 20;
+
+    // 点击关闭
+    const closeHandler = () => {
+        overlay.classList.remove('active', 'legendary-bg', 'epic-bg');
+        gameState.isPaused = false;
+        overlay.removeEventListener('click', closeHandler);
+    };
+
+    // 延迟后才能点击关闭
+    setTimeout(() => {
+        overlay.addEventListener('click', closeHandler);
+    }, 500);
+
+    // 自动关闭（3秒）
+    setTimeout(() => {
+        if (overlay.classList.contains('active')) {
+            closeHandler();
+        }
+    }, 3000);
+}
+
+// === 简化版遗物获得（普通/稀有） ===
+function showSimpleRelicAcquire(relic) {
+    // 短暂时停
+    gameState.hitStop = 8;
+    gameState.screenShake = 8;
+
+    // 弹出动画
+    spawnFloatingText(player.x, player.y - 80, relic.icon + ' ' + relic.name, '#ffd700', { size: 28, isCrit: true, life: 80 });
+
+    // 光环粒子
+    for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        particles.push({
+            x: player.x, y: player.y,
+            vx: Math.cos(angle) * 5,
+            vy: Math.sin(angle) * 5,
+            life: 30, color: '#ffd700', size: 4
+        });
+    }
+
+    playSound('pickup');
+}
+
+// === 将遗物添加到已获得列表 ===
+function addAcquiredRelic(relic, tier = 'epic') {
+    const relicData = {
+        ...relic,
+        tier,
+        acquiredAt: Date.now()
+    };
+    acquiredRelics.push(relicData);
+
+    // 根据稀有度显示不同演出
+    if (tier === 'legendary' || tier === 'epic') {
+        showRelicAcquireAnimation(relic, tier);
+    } else {
+        showSimpleRelicAcquire(relic);
+    }
+
+    updateRelicBar();
 }
 
 // 玩家
@@ -4695,7 +5595,16 @@ function startTimers() {
                 if (gameState.time === 45 && !gameState.upgradeShown15) { gameState.upgradeShown15 = true; showUpgradePanel(); }
                 if (gameState.time === 30 && !gameState.upgradeShown30) { gameState.upgradeShown30 = true; showUpgradePanel(); }
                 if (gameState.time === 15 && !gameState.upgradeShown45) { gameState.upgradeShown45 = true; showUpgradePanel(); }
-                if (gameState.time === 0) { gameState.deathReason = '时间到了'; endGame(); }
+                if (gameState.time === 0) {
+                    // 急速模式：时间到 = 胜利！
+                    if (selectedMode !== 'endless') {
+                        showVictory();
+                    } else {
+                        // 无尽模式理论上不会有时间到（只有死亡）
+                        gameState.deathReason = '时间到了';
+                        endGame();
+                    }
+                }
             }
         }
     }, 1000);
@@ -5149,6 +6058,52 @@ function dealDamageToEnemy(e, dmg, hitType = 'normal') {
     if (playerBuffs.lastStand && gameState.lives === 1) {
         d *= 2;
     }
+    // 狂战之心(旧)：血量越低伤害越高
+    if (playerBuffs.berserkerMode) {
+        const hpRatio = gameState.lives / maxPlayerLives;
+        const berserkerMult = 1 + (1 - hpRatio);
+        d *= berserkerMult;
+    }
+
+    // === 新遗物系统 - 狂战之心 ===
+    // 血量≤2时进入狂战状态：伤害+80%
+    if (playerBuffs.berserkerHeart && gameState.lives <= 2) {
+        d *= 1.8;
+        relicState.berserkerActive = true;
+    } else {
+        relicState.berserkerActive = false;
+    }
+
+    // === 毁灭使者：充能完成后下次攻击造成500%伤害 ===
+    if (playerBuffs.doomSlayer && relicState.doomReady) {
+        d *= 5;
+        relicState.doomReady = false;
+        relicState.doomChargeTimer = 0;
+        showBigEvent('☠️ 毁灭一击!', '500%伤害!', '#ff0000');
+        gameState.screenShake = 20;
+        triggerRelicHighlight('doomSlayer'); // 触发高亮
+        // 冲击波效果
+        enemies.forEach(nearby => {
+            if (nearby !== e && !nearby.flying) {
+                const dist = Math.sqrt((nearby.x - e.x) ** 2 + (nearby.y - e.y) ** 2);
+                if (dist < 120) {
+                    nearby.currentHp -= d * 0.3;
+                    nearby.hitFlash = 12;
+                    if (nearby.currentHp <= 0 && !nearby.flying) {
+                        nearby.flying = true;
+                        nearby.vx = (nearby.x - e.x) * 0.1;
+                        nearby.vy = -15;
+                        handleEnemyKill(nearby);
+                    }
+                }
+            }
+        });
+        for (let i = 0; i < 15; i++) {
+            particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 25, color: '#ff0000', size: 6 });
+        }
+        playSound('impact');
+    }
+
     // 幸运8：暴击秒杀
     if (playerBuffs.critKillChance && Math.random() < playerBuffs.critKillChance && !e.isBoss) {
         e.currentHp = 0;
@@ -5161,8 +6116,166 @@ function dealDamageToEnemy(e, dmg, hitType = 'normal') {
         wasCrit = true;
     }
 
+    // === 神罚天降：暴击时召唤神罚光束 ===
+    if (wasCrit && playerBuffs.divineWrath) {
+        triggerRelicHighlight('divineWrath'); // 触发高亮
+        const beamDmg = d * 2;
+        // 神罚光束视觉效果
+        for (let i = 0; i < 20; i++) {
+            particles.push({
+                x: e.x, y: e.y - 200 + i * 10,
+                vx: 0, vy: 10,
+                life: 15, color: '#ffd700', size: 4
+            });
+        }
+        // 范围伤害
+        enemies.forEach(nearby => {
+            if (!nearby.flying) {
+                const dist = Math.sqrt((nearby.x - e.x) ** 2 + (nearby.y - e.y) ** 2);
+                if (dist < 80) {
+                    nearby.currentHp -= beamDmg;
+                    nearby.hitFlash = 12;
+                    spawnFloatingText(nearby.x, nearby.y - 20, '✨', '#ffd700');
+                    if (nearby.currentHp <= 0 && !nearby.flying) {
+                        nearby.flying = true;
+                        nearby.vx = (Math.random() - 0.5) * 10;
+                        nearby.vy = -12;
+                        handleEnemyKill(nearby);
+                    }
+                }
+            }
+        });
+        playSound('impact');
+        spawnFloatingText(e.x, e.y - 80, '✨神罚!', '#ffd700');
+    }
+
     if (e.role === 'tank') d *= 0.5;
     e.currentHp -= d;
+
+    // === 新遗物系统 - 吸血獠牙 ===
+    // 连续攻击同一目标时吸血概率递增
+    if (playerBuffs.vampireFang && gameState.lives < maxPlayerLives) {
+        if (relicState.vampireLastTarget === e) {
+            relicState.vampireHitCount++;
+        } else {
+            relicState.vampireLastTarget = e;
+            relicState.vampireHitCount = 1;
+        }
+        const healChance = Math.min(relicState.vampireHitCount * 0.1, 0.5); // 10%→50%
+        if (Math.random() < healChance) {
+            gameState.lives++;
+            updatePlayerHealthBar(false);
+            spawnFloatingText(player.x, player.y - 50, '🧛+1❤️', '#ff6b6b');
+            triggerRelicHighlight('vampireFang'); // 触发高亮
+        }
+    }
+
+    // === 霜魂之心：攻击叠加冰霜层数 ===
+    if (playerBuffs.frostCore && !e.flying) {
+        const stacks = (relicState.frostStacks.get(e) || 0) + 1;
+        relicState.frostStacks.set(e, stacks);
+        e.slowed = 0.3 + stacks * 0.1; // 每层+10%减速
+        e.slowTimer = 120;
+
+        if (stacks >= 5) {
+            // 满层冻结并冰爆
+            e.frozen = true;
+            e.frozenTimer = 90;
+            e.slowed = 0;
+            relicState.frostStacks.set(e, 0);
+            spawnFloatingText(e.x, e.y - 40, '❄️冰冻!', '#00bfff');
+            triggerRelicHighlight('frostCore'); // 触发高亮
+            // 冰爆伤害
+            enemies.forEach(nearby => {
+                if (nearby !== e && !nearby.flying) {
+                    const dist = Math.sqrt((nearby.x - e.x) ** 2 + (nearby.y - e.y) ** 2);
+                    if (dist < 100) {
+                        nearby.currentHp -= 15;
+                        nearby.hitFlash = 8;
+                        relicState.frostStacks.set(nearby, (relicState.frostStacks.get(nearby) || 0) + 2);
+                        spawnFloatingText(nearby.x, nearby.y - 20, '❄️', '#00bfff');
+                        if (nearby.currentHp <= 0 && !nearby.flying) {
+                            nearby.flying = true;
+                            nearby.vx = (Math.random() - 0.5) * 8;
+                            nearby.vy = -10;
+                            handleEnemyKill(nearby);
+                        }
+                    }
+                }
+            });
+            for (let i = 0; i < 10; i++) {
+                particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 20, color: '#00bfff', size: 4 });
+            }
+        } else {
+            spawnFloatingText(e.x + 15, e.y - 20, `❄️x${stacks}`, '#87ceeb');
+        }
+    }
+
+    // === 幻影残像：攻击召唤残影 ===
+    if (playerBuffs.shadowClone && !e.flying) {
+        relicState.shadowCombo++;
+        // 普通残影攻击
+        setTimeout(() => {
+            if (!e.flying && e.currentHp > 0) {
+                const shadowDmg = d * 0.4;
+                e.currentHp -= shadowDmg;
+                spawnFloatingText(e.x + 20, e.y - 30, '👥', '#9370db');
+                if (e.currentHp <= 0 && !e.flying) {
+                    e.flying = true;
+                    e.vx = (Math.random() - 0.5) * 10;
+                    e.vy = -10;
+                    handleEnemyKill(e);
+                }
+            }
+        }, 100);
+
+        // 5连后释放强化残影范围斩
+        if (relicState.shadowCombo >= 5) {
+            relicState.shadowCombo = 0;
+            showBigEvent('👥 幻影斩!', '范围攻击!', '#9370db');
+            triggerRelicHighlight('shadowClone'); // 触发高亮
+            enemies.forEach(nearby => {
+                if (!nearby.flying) {
+                    const dist = Math.sqrt((nearby.x - player.x) ** 2 + (nearby.y - player.y) ** 2);
+                    if (dist < 150) {
+                        const aoeD = d * 1.5;
+                        nearby.currentHp -= aoeD;
+                        nearby.hitFlash = 10;
+                        spawnFloatingText(nearby.x, nearby.y - 30, '👥💥', '#9370db');
+                        if (nearby.currentHp <= 0 && !nearby.flying) {
+                            nearby.flying = true;
+                            nearby.vx = (nearby.x - player.x) * 0.1;
+                            nearby.vy = -12;
+                            handleEnemyKill(nearby);
+                        }
+                    }
+                }
+            });
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                particles.push({ x: player.x, y: player.y, vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8, life: 20, color: '#9370db', size: 5 });
+            }
+            playSound('combo');
+        }
+    }
+
+    // === 时空裂隙：每10次攻击重置武器冷却 ===
+    if (playerBuffs.timeWarp) {
+        relicState.attackCombo++;
+        if (relicState.attackCombo >= 10) {
+            relicState.attackCombo = 0;
+            // 重置所有武器冷却
+            Object.values(playerWeapons).forEach(w => w.lastTime = 0);
+            d *= 2; // 下一次攻击双倍伤害
+            showBigEvent('⏰ 时空重置!', '武器冷却刷新!', '#00ffff');
+            triggerRelicHighlight('timeWarp'); // 触发高亮
+            spawnFloatingText(player.x, player.y - 60, '⏰ 2x伤害!', '#00ffff');
+            for (let i = 0; i < 8; i++) {
+                particles.push({ x: player.x, y: player.y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 25, color: '#00ffff', size: 4 });
+            }
+            playSound('upgrade');
+        }
+    }
 
     // 显示伤害数字（区分普通/暴击/处决）
     const isExecution = hitType === 'execution';
@@ -5479,6 +6592,155 @@ function handleEnemyKill(e) {
     // A5: 多杀计数
     multiKillCount++;
     multiKillTimer = 45; // 0.75秒窗口
+
+    // === 新遗物系统 ===
+
+    // 吸血獠牙：击杀残血敌人必回血
+    if (playerBuffs.vampireFang && gameState.lives < maxPlayerLives) {
+        // 残血敌人(30%以下)必定回血
+        if (e.currentHp <= e.hp * 0.3) {
+            gameState.lives++;
+            updatePlayerHealthBar(false);
+            spawnFloatingText(player.x, player.y - 50, '🧛处决回血!', '#ff6b6b');
+            triggerRelicHighlight('vampireFang'); // 触发高亮
+        }
+    }
+
+    // 爆裂终结者：击杀爆炸，异常状态敌人爆炸翻倍
+    if (playerBuffs.explosiveFinish) {
+        triggerRelicHighlight('explosiveFinish'); // 触发高亮
+        const hasAbnormal = e.slowed || e.frozen || e.slowTimer > 0;
+        const explosionRange = hasAbnormal ? 160 : 80;
+        const explosionDmg = hasAbnormal ? 20 : 8;
+        const explosionColor = hasAbnormal ? '#ff00ff' : '#ff6600';
+
+        enemies.forEach(nearby => {
+            if (nearby !== e && !nearby.flying) {
+                const dist = Math.sqrt((nearby.x - e.x) ** 2 + (nearby.y - e.y) ** 2);
+                if (dist < explosionRange) {
+                    nearby.currentHp -= explosionDmg;
+                    nearby.hitFlash = 10;
+                    spawnFloatingText(nearby.x, nearby.y - 20, hasAbnormal ? '💥💥' : '💥', explosionColor);
+                    if (nearby.currentHp <= 0 && !nearby.flying) {
+                        nearby.flying = true;
+                        nearby.vx = (nearby.x - e.x) * 0.15;
+                        nearby.vy = -12;
+                        handleEnemyKill(nearby);
+                    }
+                }
+            }
+        });
+
+        const particleCount = hasAbnormal ? 12 : 6;
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 0.5) * 12, life: 20, color: explosionColor, size: hasAbnormal ? 6 : 4 });
+        }
+        if (hasAbnormal) {
+            spawnFloatingText(e.x, e.y - 50, '💥异常爆破!', '#ff00ff');
+        }
+    }
+
+    // 黄金猎手：连杀奖励递增
+    if (playerBuffs.goldHunter) {
+        relicState.killStreak++;
+        relicState.killStreakTimer = 120; // 2秒窗口
+
+        let bonusMult = 1;
+        let streakText = '';
+        if (relicState.killStreak >= 10) {
+            bonusMult = 4; streakText = '💰10连杀! x4';
+        } else if (relicState.killStreak >= 5) {
+            bonusMult = 2.5; streakText = '💰5连杀! x2.5';
+        } else if (relicState.killStreak >= 2) {
+            bonusMult = 1.5; streakText = '💰连杀! x1.5';
+        }
+
+        if (bonusMult > 1) {
+            const bonusCoins = Math.floor(e.points * (bonusMult - 1) / 50);
+            gameState.score += bonusCoins * 50;
+            spawnFloatingText(e.x, e.y - 60, streakText, '#ffd700');
+            triggerRelicHighlight('goldHunter'); // 触发高亮
+        }
+
+        // 精英必掉稀有宝箱
+        if (e.isElite && KUOSAO_MODE.enabled) {
+            spawnChest(e.x, e.y, 'rare');
+            spawnFloatingText(e.x, e.y - 80, '💰稀有箱!', '#4fc3f7');
+        }
+    }
+
+    // 灵魂收割者：收集灵魂
+    if (playerBuffs.soulReaper) {
+        relicState.souls++;
+        spawnFloatingText(e.x, e.y - 30, '💀', '#9400d3');
+
+        // 满20个灵魂触发灵魂风暴
+        if (relicState.souls >= 20) {
+            relicState.souls = 0;
+            showBigEvent('💀 灵魂风暴!', '范围伤害+满血+无敌!', '#9400d3');
+            gameState.screenShake = 25;
+            triggerRelicHighlight('soulReaper'); // 触发高亮
+
+            // 范围伤害
+            enemies.forEach(nearby => {
+                if (!nearby.flying) {
+                    const dist = Math.sqrt((nearby.x - player.x) ** 2 + (nearby.y - player.y) ** 2);
+                    if (dist < 250) {
+                        nearby.currentHp -= 50;
+                        nearby.hitFlash = 15;
+                        spawnFloatingText(nearby.x, nearby.y - 20, '💀💀', '#9400d3');
+                        if (nearby.currentHp <= 0 && !nearby.flying) {
+                            nearby.flying = true;
+                            nearby.vx = (nearby.x - player.x) * 0.1;
+                            nearby.vy = -15;
+                            handleEnemyKill(nearby);
+                        }
+                    }
+                }
+            });
+
+            // 满血+无敌
+            gameState.lives = maxPlayerLives;
+            updatePlayerHealthBar(false);
+            player.invincible = true;
+            player.invincibleTimer = 180;
+
+            // 灵魂风暴粒子
+            for (let i = 0; i < 25; i++) {
+                const angle = (i / 25) * Math.PI * 2;
+                particles.push({ x: player.x, y: player.y, vx: Math.cos(angle) * 12, vy: Math.sin(angle) * 12, life: 30, color: '#9400d3', size: 6 });
+            }
+            playSound('combo');
+        }
+    }
+
+    // === 旧遗物效果(兼容) ===
+    // 爆裂终结(旧)：击杀敌人时爆炸
+    if (playerBuffs.killExplosion && !playerBuffs.explosiveFinish) {
+        enemies.forEach(nearby => {
+            if (nearby !== e && !nearby.flying) {
+                const dist = Math.sqrt((nearby.x - e.x) ** 2 + (nearby.y - e.y) ** 2);
+                if (dist < 80) {
+                    dealDamageToEnemy(nearby, 5);
+                    spawnFloatingText(nearby.x, nearby.y - 20, '💥', '#ff6600');
+                }
+            }
+        });
+        for (let i = 0; i < 6; i++) {
+            particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8, life: 15, color: '#ff6600', size: 4 });
+        }
+    }
+    // 灵魂收割者(旧)：击杀回血
+    if (playerBuffs.killHeal && !playerBuffs.soulReaper && gameState.lives < maxPlayerLives) {
+        gameState.lives++;
+        updatePlayerHealthBar(false);
+        spawnFloatingText(player.x, player.y - 50, '💀+1❤️', '#4ade80');
+    }
+    // 黄金猎手(旧)：双倍奖励
+    if (playerBuffs.doubleReward && !playerBuffs.goldHunter) {
+        gameStats.bonusBones += Math.floor(e.points / 100);
+    }
+
     gameStats.killCount++;
     gameState.combo++;
     if (gameState.combo > gameStats.maxCombo) gameStats.maxCombo = gameState.combo;
@@ -5506,14 +6768,22 @@ function handleEnemyKill(e) {
         }
     }
 
-    // 宝箱掉落 (割草模式)
+    // 宝箱掉落 (割草模式 - 4级分层) - 降低爆率
     if (KUOSAO_MODE.enabled) {
         if (e.isBoss) {
-            spawnChest(e.x, e.y, 'evolution');
-        } else if (Math.random() < 0.01) {
-            spawnChest(e.x, e.y, 'normal');
-        } else if (Math.random() < 0.003) {
-            spawnChest(e.x, e.y, 'rare');
+            // Boss必掉Boss箱
+            spawnChest(e.x, e.y, 'boss');
+        } else if (e.isElite) {
+            // 精英怪: 8%史诗箱, 15%稀有箱, 20%普通箱 (总43%)
+            const roll = Math.random();
+            if (roll < 0.08) spawnChest(e.x, e.y, 'epic');
+            else if (roll < 0.23) spawnChest(e.x, e.y, 'rare');
+            else if (roll < 0.43) spawnChest(e.x, e.y, 'normal');
+        } else {
+            // 普通怪: 0.8%普通箱, 0.1%稀有箱
+            const roll = Math.random();
+            if (roll < 0.001) spawnChest(e.x, e.y, 'rare');
+            else if (roll < 0.009) spawnChest(e.x, e.y, 'normal');
         }
     }
 
@@ -6012,10 +7282,131 @@ function playerHit(reason, killerInfo = null) {
         detailedDeathContext.damageType = killerInfo.damageType || 'contact';
     }
 
+    // 雷神庇护(旧)：受伤时反弹闪电
+    if (playerBuffs.thorns && !playerBuffs.thunderGod) {
+        enemies.forEach(e => {
+            const dist = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+            if (dist < 150 && !e.flying) {
+                dealDamageToEnemy(e, 10);
+                for (let j = 0; j < 5; j++) {
+                    particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 12, color: '#ffff00', size: 3 });
+                }
+            }
+        });
+        spawnFloatingText(player.x, player.y - 60, '⚡反击!', '#ffff00');
+    }
+
+    // === 雷霆之怒(新)：受伤时召唤连锁闪电，连续受伤增加闪电数量 ===
+    if (playerBuffs.thunderGod) {
+        triggerRelicHighlight('thunderGod'); // 触发高亮
+        relicState.thunderStacks = (relicState.thunderStacks || 0) + 1;
+        const lightningCount = Math.min(relicState.thunderStacks + 2, 8); // 3~8道闪电
+
+        // 找到最近的敌人作为闪电起点
+        const nearbyEnemies = enemies.filter(e => !e.flying).sort((a, b) => {
+            const distA = Math.sqrt((a.x - player.x) ** 2 + (a.y - player.y) ** 2);
+            const distB = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
+            return distA - distB;
+        }).slice(0, lightningCount);
+
+        let chainTargets = [...nearbyEnemies];
+        nearbyEnemies.forEach((target, i) => {
+            setTimeout(() => {
+                if (!target.flying) {
+                    const dmg = 15 + relicState.thunderStacks * 5;
+                    target.currentHp -= dmg;
+                    target.hitFlash = 10;
+                    spawnFloatingText(target.x, target.y - 20, '⚡', '#ffff00');
+
+                    // 闪电粒子连线
+                    const steps = 5;
+                    for (let s = 0; s < steps; s++) {
+                        const t = s / steps;
+                        particles.push({
+                            x: player.x + (target.x - player.x) * t + (Math.random() - 0.5) * 20,
+                            y: player.y + (target.y - player.y) * t + (Math.random() - 0.5) * 20,
+                            vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
+                            life: 15, color: '#ffff00', size: 4
+                        });
+                    }
+
+                    if (target.currentHp <= 0 && !target.flying) {
+                        target.flying = true;
+                        target.vx = (Math.random() - 0.5) * 10;
+                        target.vy = -12;
+                        handleEnemyKill(target);
+                    }
+                }
+            }, i * 50);
+        });
+
+        const stackText = relicState.thunderStacks > 1 ? ` x${relicState.thunderStacks}` : '';
+        spawnFloatingText(player.x, player.y - 60, `⚡连锁闪电!${stackText}`, '#ffff00');
+        gameState.screenShake = 10 + relicState.thunderStacks * 2;
+
+        // 5秒后重置叠层
+        setTimeout(() => {
+            if (relicState.thunderStacks > 0) relicState.thunderStacks = 0;
+        }, 5000);
+    }
+
     playSound('hit');
     gameState.lives--; gameState.deathReason = reason;
     document.getElementById('lives').textContent = gameState.lives;
     updatePlayerHealthBar(true);
+
+    // 不死凤凰(新)：死亡时满血复活+全屏火焰清屏
+    if (gameState.lives <= 0 && playerBuffs.phoenixRevive && !gameState.phoenixUsed) {
+        gameState.phoenixUsed = true;
+        gameState.lives = maxPlayerLives;
+        updatePlayerHealthBar(false);
+        player.invincible = true;
+        player.invincibleTimer = 240; // 4秒无敌
+        showBigEvent('🔥 不死凤凰!', '浴火重生 - 全屏清除!', '#ff6600');
+        gameState.screenShake = 35;
+        triggerRelicHighlight('phoenix'); // 触发高亮
+
+        // 全屏火焰爆发 - 清空所有敌人
+        enemies.forEach(e => {
+            if (!e.flying && !e.isBoss) {
+                e.currentHp = 0;
+                e.flying = true;
+                e.vx = (e.x - player.x) * 0.15;
+                e.vy = -15;
+                // 每个敌人产生火焰粒子
+                for (let j = 0; j < 5; j++) {
+                    particles.push({
+                        x: e.x, y: e.y,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: (Math.random() - 0.5) * 10 - 5,
+                        life: 25, color: ['#ff6600', '#ff0000', '#ffd700'][Math.floor(Math.random() * 3)], size: 5
+                    });
+                }
+                handleEnemyKill(e);
+            } else if (e.isBoss) {
+                // Boss受到大量伤害但不被秒杀
+                e.currentHp -= e.hp * 0.5;
+                e.hitFlash = 20;
+                spawnFloatingText(e.x, e.y - 50, '🔥50%伤害!', '#ff6600');
+            }
+        });
+
+        // 巨大火焰爆发粒子
+        for (let i = 0; i < 50; i++) {
+            const angle = (i / 50) * Math.PI * 2;
+            const speed = 8 + Math.random() * 8;
+            particles.push({
+                x: player.x, y: player.y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 40, color: ['#ff6600', '#ff0000', '#ffd700'][Math.floor(Math.random() * 3)], size: 6
+            });
+        }
+
+        playSound('combo');
+        return;
+    }
+
     if (gameState.lives <= 0) { player.isDead = true; player.currentState = 'dead'; endGame(); }
     else { player.invincible = true; player.invincibleTimer = Math.floor(playerBuffs.invincibleTime); gameState.screenShake = 15; spawnFloatingText(player.x, player.y - 40, '受伤!', '#e94560'); }
 }
@@ -6035,6 +7426,139 @@ function update() {
     if (cooldowns.sajiao > 0) cooldowns.sajiao--;
     if (cooldowns.taunt > 0) cooldowns.taunt--;
     if (cooldowns.slash > 0) cooldowns.slash--;
+
+    // === 遗物状态更新 ===
+    // 毁灭使者：每5秒充能一次
+    if (playerBuffs.doomSlayer && !relicState.doomReady) {
+        relicState.doomChargeTimer++;
+        if (relicState.doomChargeTimer >= 300) { // 5秒 = 300帧
+            relicState.doomReady = true;
+            relicState.doomChargeTimer = 0;
+            showBigEvent('☠️ 毁灭充能!', '下次攻击500%伤害!', '#ff0000');
+            spawnFloatingText(player.x, player.y - 70, '☠️充能完毕!', '#ff0000');
+            playSound('upgrade');
+        }
+    }
+
+    // 黄金猎手：连杀计时器
+    if (playerBuffs.goldHunter && relicState.killStreakTimer > 0) {
+        relicState.killStreakTimer--;
+        if (relicState.killStreakTimer <= 0) {
+            relicState.killStreak = 0;
+        }
+    }
+
+    // 狂战之心：低血量视觉效果
+    if (playerBuffs.berserkerHeart && gameState.lives <= 2) {
+        relicState.berserkerPulseTimer++;
+        if (relicState.berserkerPulseTimer >= 30) {
+            relicState.berserkerPulseTimer = 0;
+            // 红光脉冲粒子
+            for (let i = 0; i < 3; i++) {
+                particles.push({
+                    x: player.x + (Math.random() - 0.5) * 30,
+                    y: player.y + (Math.random() - 0.5) * 30,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: -2 - Math.random(),
+                    life: 20, color: '#ff0000', size: 4
+                });
+            }
+        }
+    }
+
+    // 虚空漫步者：穿越敌人时留下虚空裂痕
+    if (playerBuffs.voidWalker) {
+        enemies.forEach(e => {
+            if (!e.flying && !e.voidMarked) {
+                const dist = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+                if (dist < 40) {
+                    e.voidMarked = true;
+                    // 留下虚空裂痕
+                    relicState.voidRifts.push({
+                        x: e.x, y: e.y,
+                        timer: 120 // 2秒后爆炸
+                    });
+                    spawnFloatingText(e.x, e.y - 20, '🌀', '#9370db');
+                }
+            }
+        });
+
+        // 更新虚空裂痕
+        for (let i = relicState.voidRifts.length - 1; i >= 0; i--) {
+            const rift = relicState.voidRifts[i];
+            rift.timer--;
+            // 裂痕视觉
+            if (rift.timer % 20 === 0) {
+                particles.push({
+                    x: rift.x + (Math.random() - 0.5) * 30,
+                    y: rift.y + (Math.random() - 0.5) * 30,
+                    vx: 0, vy: -1,
+                    life: 15, color: '#9370db', size: 3
+                });
+            }
+
+            if (rift.timer <= 0) {
+                // 虚空爆炸
+                triggerRelicHighlight('voidWalker'); // 触发高亮
+                enemies.forEach(e => {
+                    if (!e.flying) {
+                        const dist = Math.sqrt((e.x - rift.x) ** 2 + (e.y - rift.y) ** 2);
+                        if (dist < 100) {
+                            // 吸引敌人
+                            e.x += (rift.x - e.x) * 0.3;
+                            e.y += (rift.y - e.y) * 0.3;
+                            // 造成伤害
+                            e.currentHp -= 25;
+                            e.hitFlash = 10;
+                            spawnFloatingText(e.x, e.y - 20, '🌀', '#9370db');
+                            if (e.currentHp <= 0 && !e.flying) {
+                                e.flying = true;
+                                e.vx = (Math.random() - 0.5) * 8;
+                                e.vy = -10;
+                                handleEnemyKill(e);
+                            }
+                        }
+                    }
+                });
+                // 爆炸粒子
+                for (let j = 0; j < 10; j++) {
+                    const angle = (j / 10) * Math.PI * 2;
+                    particles.push({
+                        x: rift.x, y: rift.y,
+                        vx: Math.cos(angle) * 6, vy: Math.sin(angle) * 6,
+                        life: 20, color: '#9370db', size: 5
+                    });
+                }
+                relicState.voidRifts.splice(i, 1);
+            }
+        }
+    }
+
+    // 霜魂之心：清理已死亡敌人的冰霜层数
+    if (playerBuffs.frostCore) {
+        relicState.frostStacks.forEach((stacks, enemy) => {
+            if (enemy.flying || enemy.currentHp <= 0) {
+                relicState.frostStacks.delete(enemy);
+            }
+            // 冻结状态更新
+            if (enemy.frozen && enemy.frozenTimer > 0) {
+                enemy.frozenTimer--;
+                if (enemy.frozenTimer <= 0) {
+                    enemy.frozen = false;
+                }
+            }
+        });
+    }
+
+    // === 定期更新遗物栏UI (每15帧) ===
+    if (!window.relicBarUpdateCounter) window.relicBarUpdateCounter = 0;
+    window.relicBarUpdateCounter++;
+    if (window.relicBarUpdateCounter >= 15) {
+        window.relicBarUpdateCounter = 0;
+        if (acquiredRelics.length > 0 || playerRelics.length > 0) {
+            updateRelicBar();
+        }
+    }
 
     // === 割草模式: 自动攻击 ===
     if (KUOSAO_MODE.enabled) {
@@ -6247,6 +7771,25 @@ function update() {
         // 定身处理
         if (e.stunTimer > 0) { e.stunTimer--; if (e.stunTimer === 0) e.stunned = false; }
         if (e.stunned) continue; // 定身时跳过AI
+
+        // 冰冻处理 (霜魂之心)
+        if (e.frozenTimer > 0) { e.frozenTimer--; if (e.frozenTimer === 0) e.frozen = false; }
+        if (e.frozen) {
+            // 冰冻时产生冰晶粒子
+            if (Math.random() < 0.1) {
+                particles.push({
+                    x: e.x + (Math.random() - 0.5) * e.size,
+                    y: e.y + (Math.random() - 0.5) * e.size,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: -1 - Math.random(),
+                    life: 15, color: '#00bfff', size: 3
+                });
+            }
+            continue; // 冰冻时跳过AI
+        }
+
+        // 减速处理
+        if (e.slowTimer > 0) { e.slowTimer--; if (e.slowTimer === 0) e.slowed = 0; }
 
         // Boss AI (多阶段)
         if (e.isBoss && !e.flying) {
@@ -6603,39 +8146,52 @@ function render() {
         });
     }
 
-    // === 割草模式: 宝箱 ===
+    // === 割草模式: 宝箱 (使用图片) ===
     if (KUOSAO_MODE.enabled) {
         chests.forEach(chest => {
             ctx.save();
-            ctx.translate(chest.x, chest.y + Math.sin(Date.now() / 300 + chest.bobOffset) * 5);
+            const bobY = Math.sin(Date.now() / 300 + chest.bobOffset) * 5;
+            ctx.translate(chest.x, chest.y + bobY);
 
-            // 发光
-            ctx.shadowColor = chest.color;
-            ctx.shadowBlur = 15;
+            const config = chest.config;
+            const chestImg = images[config.img];
 
-            // 宝箱主体
-            ctx.fillStyle = chest.color;
-            ctx.fillRect(-20, -15, 40, 30);
+            // 发光效果 (根据稀有度)
+            ctx.shadowColor = config.color;
+            ctx.shadowBlur = chest.type === 'boss' ? 25 : (chest.type === 'epic' ? 20 : (chest.type === 'rare' ? 15 : 10));
 
-            // 宝箱盖
-            ctx.fillStyle = chest.color;
-            ctx.beginPath();
-            ctx.moveTo(-22, -15);
-            ctx.lineTo(0, -25);
-            ctx.lineTo(22, -15);
-            ctx.closePath();
-            ctx.fill();
+            // 使用图片绘制
+            if (chestImg && chestImg.complete && chestImg.naturalWidth > 0) {
+                const scale = config.imgScale || 0.1;
+                const w = chestImg.width * scale;
+                const h = chestImg.height * scale;
+                ctx.drawImage(chestImg, -w / 2, -h / 2, w, h);
+            } else {
+                // 后备绘制
+                ctx.fillStyle = config.color;
+                ctx.fillRect(-20, -15, 40, 30);
+                ctx.beginPath();
+                ctx.moveTo(-22, -15); ctx.lineTo(0, -25); ctx.lineTo(22, -15);
+                ctx.closePath(); ctx.fill();
+            }
 
-            // 锁扣
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(-5, -5, 10, 10);
-
-            // 根据类型添加标识
-            ctx.font = '16px Arial';
+            // 宝箱类型标识
+            ctx.shadowBlur = 0;
+            ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            if (chest.type === 'epic') ctx.fillText('💎', 0, -30);
-            else if (chest.type === 'rare') ctx.fillText('✨', 0, -30);
-            else if (chest.type === 'evolution') ctx.fillText('⚡', 0, -30);
+            ctx.fillStyle = config.color;
+            const typeIcons = { normal: '📦', rare: '✨', epic: '💎', boss: '👑' };
+            ctx.fillText(typeIcons[chest.type] || '', 0, -35);
+
+            // Boss箱特殊光环动画
+            if (chest.type === 'boss') {
+                ctx.globalAlpha = 0.3 + Math.sin(Date.now() / 200) * 0.2;
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(0, 0, 40 + Math.sin(Date.now() / 150) * 5, 0, Math.PI * 2);
+                ctx.stroke();
+            }
 
             ctx.restore();
         });
@@ -6785,6 +8341,27 @@ function render() {
             ctx.shadowBlur = 0;
             ctx.scale(player.facingRight ? -1 : 1, 1);
         }
+        // 狂战之心红光效果 (血量≤2时)
+        if (playerBuffs.berserkerHeart && gameState.lives <= 2) {
+            ctx.scale(player.facingRight ? -1 : 1, 1);
+            const pulseIntensity = 0.5 + Math.sin(Date.now() / 150) * 0.3;
+            ctx.strokeStyle = `rgba(255, 0, 0, ${pulseIntensity})`;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 20 + Math.sin(Date.now() / 100) * 8;
+            ctx.beginPath();
+            ctx.arc(0, -18, 40, 0, Math.PI * 2);
+            ctx.stroke();
+            // 内部发光
+            ctx.globalAlpha = 0.15 + Math.sin(Date.now() / 150) * 0.1;
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(0, -18, 38, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            ctx.scale(player.facingRight ? -1 : 1, 1);
+        }
         if (player.item) { ctx.scale(player.facingRight ? 1 : -1, 1); ctx.font = '26px Arial'; ctx.fillText(player.item.emoji, -45, -55); }
         // 格挡护盾效果
         if (player.blocking) {
@@ -6907,6 +8484,81 @@ function render() {
 
         ctx.restore();
     }
+
+    // === 遗物状态UI ===
+    if (gamePhase === 'playing') {
+        ctx.save();
+        let statusY = 130; // 起始Y位置
+        const statusX = 15;
+        ctx.font = 'bold 14px Microsoft YaHei';
+        ctx.textAlign = 'left';
+
+        // 狂战之心状态
+        if (playerBuffs.berserkerHeart && gameState.lives <= 2) {
+            ctx.fillStyle = '#ff0000';
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 10;
+            ctx.fillText('💢 狂战激活! +80%伤害 +50%攻速', statusX, statusY);
+            ctx.shadowBlur = 0;
+            statusY += 20;
+        }
+
+        // 毁灭使者充能状态
+        if (playerBuffs.doomSlayer) {
+            if (relicState.doomReady) {
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 10;
+                ctx.fillText('☠️ 毁灭就绪! 下次攻击500%伤害', statusX, statusY);
+                ctx.shadowBlur = 0;
+            } else {
+                const chargePercent = Math.floor((relicState.doomChargeTimer / 300) * 100);
+                ctx.fillStyle = '#888';
+                ctx.fillText(`☠️ 毁灭充能: ${chargePercent}%`, statusX, statusY);
+            }
+            statusY += 20;
+        }
+
+        // 时空裂隙连击计数
+        if (playerBuffs.timeWarp) {
+            ctx.fillStyle = '#00ffff';
+            ctx.fillText(`⏰ 攻击连段: ${relicState.attackCombo}/10`, statusX, statusY);
+            statusY += 20;
+        }
+
+        // 幻影残像连击计数
+        if (playerBuffs.shadowClone) {
+            ctx.fillStyle = '#9370db';
+            ctx.fillText(`👥 残影连击: ${relicState.shadowCombo}/5`, statusX, statusY);
+            statusY += 20;
+        }
+
+        // 灵魂收割者计数
+        if (playerBuffs.soulReaper) {
+            ctx.fillStyle = '#9400d3';
+            ctx.fillText(`💀 灵魂: ${relicState.souls}/20`, statusX, statusY);
+            statusY += 20;
+        }
+
+        // 黄金猎手连杀
+        if (playerBuffs.goldHunter && relicState.killStreak > 0) {
+            let color = '#ffd700';
+            if (relicState.killStreak >= 10) color = '#ff0000';
+            else if (relicState.killStreak >= 5) color = '#ff6600';
+            ctx.fillStyle = color;
+            ctx.fillText(`💰 连杀: ${relicState.killStreak}`, statusX, statusY);
+            statusY += 20;
+        }
+
+        // 虚空裂痕数量
+        if (playerBuffs.voidWalker && relicState.voidRifts.length > 0) {
+            ctx.fillStyle = '#9370db';
+            ctx.fillText(`🌀 虚空裂痕: ${relicState.voidRifts.length}`, statusX, statusY);
+            statusY += 20;
+        }
+
+        ctx.restore();
+    }
 }
 
 // 调试开关
@@ -7019,6 +8671,123 @@ function endGame() {
 
         document.getElementById('gameOver').style.display = 'block';
     }, 1200);
+}
+
+// ==================== 胜利动画 (急速模式) ====================
+function showVictory() {
+    playSound('upgrade'); // 播放胜利音效
+    gameState.gameOver = true;
+    gameState.isPaused = true;
+    stopTimers();
+    hidePlayerHealthBar();
+    if (isMobile) document.getElementById('mobileControls').style.display = 'none';
+
+    const overlay = document.getElementById('victoryOverlay');
+    const victoryImg = overlay.querySelector('.victory-image');
+    const statsDiv = overlay.querySelector('.victory-stats');
+    const particlesDiv = overlay.querySelector('.victory-particles');
+
+    // 随机选择胜利图片
+    const victoryImages = [images.victory1, images.victory2];
+    const selectedImg = victoryImages[Math.floor(Math.random() * victoryImages.length)];
+    if (selectedImg && selectedImg.complete && selectedImg.naturalWidth > 0) {
+        victoryImg.src = selectedImg.src;
+    } else {
+        // 后备：尝试直接加载
+        victoryImg.src = Math.random() > 0.5 ? '胜利结算.png' : '胜利结算2.png';
+    }
+
+    // 显示统计
+    statsDiv.innerHTML = `
+        <div>🏆 得分: <span style="color:#ffd700;font-weight:bold">${formatScore(gameState.score)}</span></div>
+        <div>💀 击杀: ${gameStats.killCount} | 🔥 最高连击: ${gameStats.maxCombo} | 👑 Boss: ${gameStats.bossKilled}</div>
+    `;
+
+    // 生成彩色纸屑
+    particlesDiv.innerHTML = '';
+    const colors = ['#ffd700', '#ff6b6b', '#4ade80', '#4fc3f7', '#ab47bc', '#ff9800'];
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'victory-confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+        particlesDiv.appendChild(confetti);
+    }
+
+    // 显示胜利画面
+    overlay.classList.add('active');
+
+    // 屏幕震动
+    gameState.screenShake = 20;
+
+    // 点击继续到结算画面
+    const continueHandler = () => {
+        overlay.classList.remove('active');
+        overlay.removeEventListener('click', continueHandler);
+        // 延迟后显示正常结算（但标记为胜利）
+        showVictorySettlement();
+    };
+
+    setTimeout(() => {
+        overlay.addEventListener('click', continueHandler);
+    }, 1000);
+}
+
+function showVictorySettlement() {
+    // 调用正常的货币结算
+    earnCurrency();
+
+    // 填充结算数据
+    document.getElementById('statKills').textContent = gameStats.killCount;
+    document.getElementById('statMaxCombo').textContent = gameStats.maxCombo;
+    document.getElementById('statBoss').textContent = gameStats.bossKilled;
+    document.getElementById('statSurvival').textContent = '60s (通关)';
+    document.getElementById('deathDetail').textContent = '';
+    document.getElementById('statPhase').textContent = '🎉 速战模式通关!';
+    document.getElementById('statBuildTag').textContent = '';
+
+    // 胜利专属称号
+    let title = '时间管理大师';
+    if (gameStats.killCount >= 50) title = '速战之神';
+    else if (gameStats.bossKilled >= 2) title = 'Boss终结者';
+    else if (gameStats.maxCombo >= 10) title = '连击狂魔';
+    else if (gameStats.killCount >= 30) title = '高效杀手';
+    else if (gameStats.killCount < 10) title = '和平主义者';
+
+    document.getElementById('statTitle').textContent = '🏆 ' + title;
+
+    // 胜利评价
+    const comments = [
+        '恭喜通关！你真是太强了！',
+        '60秒？对你来说不过是热身！',
+        '敌人都被你打服了！',
+        '八重之犬，名不虚传！',
+        '这波操作，满分！',
+        '你的实力已经超越了我的想象！',
+        '速战速决，干净利落！',
+        '胜利属于有准备的狗！'
+    ];
+    document.getElementById('statComment').textContent = '"' + comments[Math.floor(Math.random() * comments.length)] + '"';
+
+    document.getElementById('finalScore').textContent = formatScore(gameState.score);
+    document.getElementById('deathReason').textContent = '🎉 胜利通关!';
+    document.getElementById('deathReason').style.color = '#4ade80';
+
+    // Reset submit button
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitStatus').textContent = '';
+
+    generateNextRunHook();
+    fetchRankComparison();
+
+    document.getElementById('gameOver').style.display = 'block';
+
+    // 恢复死因颜色
+    setTimeout(() => {
+        document.getElementById('deathReason').style.color = '';
+    }, 100);
 }
 
 // 获取排行榜排名对比
@@ -7169,7 +8938,7 @@ function getBuildTag() {
 }
 
 function resetGame() {
-    gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0 };
+    gameState = { score: 0, lives: 3, time: 60, combo: 0, comboTimer: 0, gameOver: false, screenShake: 0, slowMo: false, slowMoTimer: 0, lastHitSlowMo: false, globalScale: 1, deathReason: '被打死', bossSpawned45: false, bossSpawned30: false, upgradeShown15: false, upgradeShown30: false, upgradeShown45: false, isPaused: false, hitStop: 0, phoenixUsed: false };
     gameStats = { killCount: 0, maxCombo: 0, bossKilled: 0, skillUsage: { kick: 0, slash: 0, sajiao: 0, taunt: 0 }, eventCount: 0, survivalTime: 0, noHitTimer: 0, bonusBones: 0, bonusGoldTags: 0 };
     playerBuffs = { kickDamage: 1, kickRange: 80, kickKnockback: 15, kickPierce: false, slashCD: 120, slashWidth: 100, slashDouble: false, slashDamage: 5, sajiaoCD: 900, sajiaoBossDmg: 10, sajiaoInvincible: false, tauntDuration: 180, invincibleTime: 90, comboKeep: 120, scoreMultiplier: 1, speedMult: 1, gamblerMode: false, extraChoice: false, bossDmgBonus: 1, speedBonus: 1, xpMagnetRange: 50, xpMultiplier: 1, critChance: 0, critMultiplier: 1.55, globalAttackMult: 1, boneRewardBonus: 0, oneTimeRevive: 0, bossHealOnKill: 0, lowHpGuard: 0, rareUpgradeChance: 0, extraEliteBones: 0, dangerRewardBonus: 0, relicDropBonus: 0, openingBuff: 0, goldenSkin: false, unlockGoldenEvent: false, extraBossBones: 0 };
     selectedUpgrades = [];
@@ -7217,6 +8986,27 @@ function resetGame() {
     autoAttackConfig.kick.lastTime = 0;
     autoAttackConfig.slash.lastTime = 0;
     autoAttackConfig.sajiao.lastTime = 0;
+
+    // === 重置遗物状态 ===
+    relicState.vampireHitCount = 0;
+    relicState.vampireLastTarget = null;
+    relicState.berserkerActive = false;
+    relicState.berserkerPulseTimer = 0;
+    relicState.frostStacks.clear();
+    relicState.thunderStacks = 0;
+    relicState.shadowCombo = 0;
+    relicState.attackCombo = 0;
+    relicState.killStreak = 0;
+    relicState.killStreakTimer = 0;
+    relicState.doomChargeTimer = 0;
+    relicState.doomReady = false;
+    relicState.souls = 0;
+    relicState.soulStormReady = false;
+    relicState.voidRifts = [];
+
+    // === 重置已获得遗物列表 ===
+    acquiredRelics = [];
+    updateRelicBar();
 
     // 移除经验条
     const xpBar = document.getElementById('xpBar');
