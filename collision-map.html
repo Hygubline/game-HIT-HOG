@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collision Reference Map</title>
+    <style>
+        body { margin: 0; display: flex; flex-direction: column; align-items: center; background: #333; padding: 20px; }
+        canvas { border: 2px solid #fff; }
+        .legend { color: #fff; margin-top: 10px; font-family: monospace; }
+        .legend span { margin: 0 15px; }
+        button { margin-top: 10px; padding: 10px 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <canvas id="map" width="2700" height="1500"></canvas>
+    <div class="legend">
+        <span style="color:#22cc22">GREEN = Walkable</span>
+        <span style="color:#dd3333">RED = Blocked</span>
+        <span style="color:#3388dd">BLUE = Water</span>
+    </div>
+    <button onclick="saveImage()">Save as PNG</button>
+
+    <script>
+        const canvas = document.getElementById('map');
+        const ctx = canvas.getContext('2d');
+        const W = 2700, H = 1500;
+
+        // Colors
+        const GREEN = '#22aa22';  // Walkable
+        const RED = '#cc3333';    // Blocked
+        const BLUE = '#3377cc';   // Water
+
+        // Fill entire map with walkable (green)
+        ctx.fillStyle = GREEN;
+        ctx.fillRect(0, 0, W, H);
+
+        // === BLOCKED AREAS (RED) ===
+        ctx.fillStyle = RED;
+
+        // --- Outer edge / perimeter (trees, rocks, cave borders) ---
+        // Top edge
+        ctx.fillRect(0, 0, W, 180);
+
+        // Bottom edge
+        ctx.fillRect(0, H - 150, W, 150);
+
+        // Left edge
+        ctx.fillRect(0, 0, 200, H);
+
+        // Right edge
+        ctx.fillRect(W - 200, 0, 200, H);
+
+        // --- Top tree masses ---
+        ctx.fillRect(200, 100, 400, 200);
+        ctx.fillRect(700, 50, 300, 180);
+        ctx.fillRect(1700, 50, 400, 200);
+        ctx.fillRect(2100, 100, 400, 250);
+
+        // --- Bottom rocky/cave areas ---
+        // Bottom left rocks
+        ctx.fillRect(150, 1150, 300, 200);
+
+        // Bottom right cave/rocks
+        ctx.fillRect(2100, 1100, 450, 300);
+        ctx.fillRect(2250, 1000, 300, 150);
+
+        // --- Left side obstacles ---
+        ctx.fillRect(100, 400, 200, 250);
+        ctx.fillRect(150, 700, 180, 200);
+
+        // --- Right side obstacles ---
+        ctx.fillRect(2400, 400, 200, 200);
+        ctx.fillRect(2350, 650, 250, 200);
+        ctx.fillRect(2300, 900, 300, 150);
+
+        // --- Center fountain/monument ---
+        // Main fountain (ellipse)
+        ctx.beginPath();
+        ctx.ellipse(1350, 750, 120, 80, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Monument/statue behind fountain
+        ctx.fillRect(1300, 580, 100, 100);
+
+        // --- Buildings around center plaza ---
+        // Top-left building
+        ctx.fillRect(1050, 550, 100, 80);
+
+        // Top-right building
+        ctx.fillRect(1550, 550, 100, 80);
+
+        // Bottom-left building
+        ctx.fillRect(1050, 870, 100, 80);
+
+        // Bottom-right building
+        ctx.fillRect(1550, 870, 100, 80);
+
+        // Left building (on path)
+        ctx.fillRect(900, 700, 80, 100);
+
+        // Right building (on path)
+        ctx.fillRect(1720, 700, 80, 100);
+
+        // --- Stalls/crates on paths ---
+        // Top path stalls
+        ctx.fillRect(1250, 400, 60, 50);
+        ctx.fillRect(1390, 400, 60, 50);
+
+        // Bottom path stalls
+        ctx.fillRect(1250, 1050, 60, 50);
+        ctx.fillRect(1390, 1050, 60, 50);
+
+        // Left path obstacles
+        ctx.fillRect(600, 700, 50, 60);
+        ctx.fillRect(600, 780, 50, 60);
+
+        // Right path obstacles
+        ctx.fillRect(2050, 700, 50, 60);
+        ctx.fillRect(2050, 780, 50, 60);
+
+        // --- Scattered crates/structures ---
+        // Near bottom right
+        ctx.fillRect(1900, 950, 80, 60);
+        ctx.fillRect(2000, 900, 60, 80);
+
+        // Near bottom left (tent area)
+        ctx.fillRect(450, 1000, 70, 60);
+        ctx.fillRect(550, 950, 60, 70);
+
+        // Near top
+        ctx.fillRect(1100, 300, 60, 50);
+        ctx.fillRect(1540, 300, 60, 50);
+
+        // Left side wagon/cart
+        ctx.fillRect(350, 550, 80, 60);
+
+        // Right side crates
+        ctx.fillRect(2150, 550, 70, 70);
+        ctx.fillRect(2150, 650, 60, 60);
+
+        // === WATER (BLUE) ===
+        ctx.fillStyle = BLUE;
+
+        // Pond - bottom left
+        ctx.beginPath();
+        ctx.ellipse(400, 1150, 150, 100, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Small water in fountain center
+        ctx.beginPath();
+        ctx.ellipse(1350, 750, 60, 40, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // === Grid overlay for reference ===
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= W; x += 100) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, H);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= H; y += 100) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(W, y);
+            ctx.stroke();
+        }
+
+        // === Labels ===
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 24px monospace';
+        ctx.textAlign = 'center';
+
+        ctx.fillText('FOUNTAIN', 1350, 755);
+        ctx.fillText('POND', 400, 1155);
+        ctx.fillText('MONUMENT', 1350, 630);
+
+        ctx.font = '18px monospace';
+        ctx.fillText('World: 2700 x 1500', 1350, 50);
+
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'collision-reference.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

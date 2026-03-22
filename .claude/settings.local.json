@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del \"C:\\\\Users\\\\hy126\\\\Desktop\\\\game\\\\shop.html\")",
+      "Bash(powershell -Command:*)"
+    ]
+  }
+}
