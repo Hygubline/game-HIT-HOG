@@ -741,8 +741,11 @@
         }
         #victoryOverlay .victory-image {
             max-width: 80%; max-height: 60%;
-            animation: victoryImagePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
             filter: drop-shadow(0 0 30px rgba(255,215,0,0.8));
+        }
+        #victoryOverlay.active .victory-image {
+            animation: victoryImagePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
         @keyframes victoryImagePop {
             0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
