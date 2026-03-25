@@ -4,7 +4,9 @@
       "Bash(del \"C:\\\\Users\\\\hy126\\\\Desktop\\\\game\\\\shop.html\")",
       "Bash(powershell -Command:*)",
       "Bash(findstr:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(grep -v \"//\")",
+      "Bash(ls /c/Users/hy126/desktop/game/*.png)"
     ]
   }
 }

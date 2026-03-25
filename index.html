@@ -1163,7 +1163,7 @@
                     </div>
                 </div>
                 <div class="menu-right">
-                    <img class="dog-preview" src="main chararter.png" alt="八重之犬">
+                    <img class="dog-preview" src="images/character/main chararter.png" alt="八重之犬">
                 </div>
             </div>
         </div>
@@ -1368,7 +1368,7 @@
         <div id="event"></div>
         <div id="slowmo"></div>
         <div id="sajiaoOverlay"><div class="text">老年人撒娇</div><div class="subtext">受不了~ 💕</div></div>
-        <img id="deathImage" src="dead.png" alt="死亡">
+        <img id="deathImage" src="images/character/dead.png" alt="死亡">
         <div id="instructions"></div>
         <!-- 升级面板 -->
         <div id="upgradePanel">
@@ -3869,35 +3869,35 @@ function renderDamageVignette(ctx) {
 
 // 图片
 const images = { main: new Image(), attack: new Image(), dead: new Image(), sajiao: new Image(), kick: new Image(), dash: new Image(), newmap: new Image(), monster1: new Image(), monster2: new Image(), monster3: new Image(), monster4: new Image(), boss1: new Image(), boss2: new Image(), maserati: new Image(), maseratiDash: new Image(), idleBreath: new Image(), idleBlink: new Image(), idleGlasses: new Image(), idleSuit: new Image(), ghostEnemy: new Image(), eyeEnemy: new Image(), fireEnemy: new Image(), fogEnemy: new Image() };
-images.main.src = 'main chararter.png'; images.attack.src = 'atteck.png'; images.dead.src = 'dead.png';
-images.maserati.src = '人车.png'; images.maseratiDash.src = '发动.png';
-images.sajiao.src = 'sajiao.png'; images.kick.src = 'kick.png'; images.dash.src = '冲刺.png';
-images.newmap.src = 'newmap.png';
-images.monster1.src = 'moster1.png'; images.monster2.src = 'moster2.png'; images.monster3.src = 'moster3.png'; images.monster4.src = 'moster4.png';
-images.ghostEnemy.src = '幽灵怪.png'; images.eyeEnemy.src = '眼球怪.png'; images.fireEnemy.src = '鬼火怪.png'; images.fogEnemy.src = '黑雾怪.png';
+images.main.src = 'images/character/main chararter.png'; images.attack.src = 'images/character/atteck.png'; images.dead.src = 'images/character/dead.png';
+images.maserati.src = 'images/vehicle/人车.png'; images.maseratiDash.src = 'images/vehicle/发动.png';
+images.sajiao.src = 'images/character/sajiao.png'; images.kick.src = 'images/character/kick.png'; images.dash.src = 'images/character/冲刺.png';
+images.newmap.src = 'images/maps/newmap.png';
+images.monster1.src = 'images/monsters/moster1.png'; images.monster2.src = 'images/monsters/moster2.png'; images.monster3.src = 'images/monsters/moster3.png'; images.monster4.src = 'images/monsters/moster4.png';
+images.ghostEnemy.src = 'images/monsters/幽灵怪.png'; images.eyeEnemy.src = 'images/monsters/眼球怪.png'; images.fireEnemy.src = 'images/monsters/鬼火怪.png'; images.fogEnemy.src = 'images/monsters/黑雾怪.png';
 
 // === 宝箱图片 ===
-images.chestNormal = new Image(); images.chestNormal.src = '木箱.png';
-images.chestRare = new Image(); images.chestRare.src = '初级箱子.png';
-images.chestEpic = new Image(); images.chestEpic.src = '中级箱子.png';
-images.chestBoss = new Image(); images.chestBoss.src = 'Boss 箱子.png';
+images.chestNormal = new Image(); images.chestNormal.src = 'images/items/木箱.png';
+images.chestRare = new Image(); images.chestRare.src = 'images/items/初级箱子.png';
+images.chestEpic = new Image(); images.chestEpic.src = 'images/items/中级箱子.png';
+images.chestBoss = new Image(); images.chestBoss.src = 'images/items/Boss 箱子.png';
 
 // === 胜利动画图片 ===
-images.victory1 = new Image(); images.victory1.src = '胜利结算.png';
-images.victory2 = new Image(); images.victory2.src = '胜利结算2.png';
+images.victory1 = new Image(); images.victory1.src = 'images/ui/胜利结算.png';
+images.victory2 = new Image(); images.victory2.src = 'images/ui/胜利结算2.png';
 
 // === 跑步动画 (5帧) ===
 const runFrames = [];
 for (let i = 0; i < 5; i++) {
     runFrames[i] = new Image();
-    runFrames[i].src = i === 0 ? 'run.png' : `run${i + 1}.png`;
+    runFrames[i].src = i === 0 ? 'images/character/run.png' : `images/character/run${i + 1}.png`;
 }
 
 // === 死亡动画 (5帧) ===
 const deathFrames = [];
 for (let i = 0; i < 5; i++) {
     deathFrames[i] = new Image();
-    deathFrames[i].src = i === 0 ? 'death.png' : `death${i}.png`;
+    deathFrames[i].src = i === 0 ? 'images/character/death.png' : `images/character/death${i}.png`;
 }
 
 // === 武器效果图片 ===
@@ -3920,19 +3920,19 @@ const weaponImages = {
     boomerangTrail: new Image(),
     boomerangBreak: new Image()
 };
-weaponImages.knife.src = '小刀.png';
-weaponImages.knifeHit.src = '命中火花（小刀）.png';
-weaponImages.knifePierce.src = '穿透命中特效.png';
-weaponImages.fireball.src = '火球.png';
-weaponImages.fireballEffect.src = '火球特效.png';
-weaponImages.fireballExplosion.src = '爆炸圈（火球.png';
-weaponImages.fireballBurn.src = '灼烧地面.png';
-weaponImages.lightning.src = '闪电.png';
-weaponImages.lightningChain.src = '连锁闪电.png';
-weaponImages.lightningShock.src = '感电火花.png';
-weaponImages.boomerang.src = '回旋骨头.png';
-weaponImages.boomerangTrail.src = '回旋骨头旋转残影.png';
-weaponImages.boomerangBreak.src = '回旋骨头 碎裂.png';
+weaponImages.knife.src = 'images/effects/小刀.png';
+weaponImages.knifeHit.src = 'images/effects/命中火花（小刀）.png';
+weaponImages.knifePierce.src = 'images/effects/穿透命中特效.png';
+weaponImages.fireball.src = 'images/effects/火球.png';
+weaponImages.fireballEffect.src = 'images/effects/火球特效.png';
+weaponImages.fireballExplosion.src = 'images/effects/爆炸圈（火球.png';
+weaponImages.fireballBurn.src = 'images/effects/灼烧地面.png';
+weaponImages.lightning.src = 'images/effects/闪电.png';
+weaponImages.lightningChain.src = 'images/effects/连锁闪电.png';
+weaponImages.lightningShock.src = 'images/effects/感电火花.png';
+weaponImages.boomerang.src = 'images/effects/回旋骨头.png';
+weaponImages.boomerangTrail.src = 'images/effects/回旋骨头旋转残影.png';
+weaponImages.boomerangBreak.src = 'images/effects/回旋骨头 碎裂.png';
 
 // === 狂战之心图片 ===
 const berserkerImages = {
@@ -3941,12 +3941,12 @@ const berserkerImages = {
     // 爆发 (3帧序列，触发时显示)
     burst: [new Image(), new Image(), new Image()]
 };
-berserkerImages.aura[0].src = '狂战光环1.png';
-berserkerImages.aura[1].src = '狂战光环2.png';
-berserkerImages.aura[2].src = '狂战光环3.png';
-berserkerImages.burst[0].src = '狂战之心.png';
-berserkerImages.burst[1].src = '狂战之心2.png';
-berserkerImages.burst[2].src = '狂战之心3.png';
+berserkerImages.aura[0].src = 'images/effects/狂战光环1.png';
+berserkerImages.aura[1].src = 'images/effects/狂战光环2.png';
+berserkerImages.aura[2].src = 'images/effects/狂战光环3.png';
+berserkerImages.burst[0].src = 'images/effects/狂战之心.png';
+berserkerImages.burst[1].src = 'images/effects/狂战之心2.png';
+berserkerImages.burst[2].src = 'images/effects/狂战之心3.png';
 
 // === 狂战动画状态 ===
 const berserkerAnim = {
@@ -4011,12 +4011,12 @@ const playerAnim = {
     deathSpeed: 150,    // 死亡动画每帧150ms
     deathPlaying: false
 };
-images.boss1.src = 'boss1.png'; images.boss2.src = 'boss2.png';
+images.boss1.src = 'images/boss/boss1.png'; images.boss2.src = 'images/boss/boss2.png';
 // 待机动画图片
-images.idleBreath.src = '基础呼吸待机.png';
-images.idleBlink.src = '眨眼 + 耳朵抖动.png';
-images.idleGlasses.src = '推眼镜待机.png';
-images.idleSuit.src = '整理西装待机.png';
+images.idleBreath.src = 'images/character/基础呼吸待机.png';
+images.idleBlink.src = 'images/character/眨眼 + 耳朵抖动.png';
+images.idleGlasses.src = 'images/character/推眼镜待机.png';
+images.idleSuit.src = 'images/character/整理西装待机.png';
 
 // === 待机动画系统 ===
 const idleAnim = {
@@ -9328,7 +9328,7 @@ function showVictory() {
         victoryImg.src = selectedImg.src;
     } else {
         // 后备：尝试直接加载
-        victoryImg.src = Math.random() > 0.5 ? '胜利结算.png' : '胜利结算2.png';
+        victoryImg.src = Math.random() > 0.5 ? 'images/ui/胜利结算.png' : 'images/ui/胜利结算2.png';
     }
 
     // 显示统计
