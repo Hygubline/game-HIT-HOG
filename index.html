@@ -3934,6 +3934,73 @@ weaponImages.boomerang.src = '回旋骨头.png';
 weaponImages.boomerangTrail.src = '回旋骨头旋转残影.png';
 weaponImages.boomerangBreak.src = '回旋骨头 碎裂.png';
 
+// === 狂战之心图片 ===
+const berserkerImages = {
+    // 光环 (3帧循环，永久显示)
+    aura: [new Image(), new Image(), new Image()],
+    // 爆发 (3帧序列，触发时显示)
+    burst: [new Image(), new Image(), new Image()]
+};
+berserkerImages.aura[0].src = '狂战光环1.png';
+berserkerImages.aura[1].src = '狂战光环2.png';
+berserkerImages.aura[2].src = '狂战光环3.png';
+berserkerImages.burst[0].src = '狂战之心.png';
+berserkerImages.burst[1].src = '狂战之心2.png';
+berserkerImages.burst[2].src = '狂战之心3.png';
+
+// === 狂战动画状态 ===
+const berserkerAnim = {
+    // 光环动画 (持续循环)
+    auraFrame: 0,
+    auraTimer: 0,
+    auraSpeed: 150,      // 每帧150ms
+
+    // 爆发动画 (触发时播放一次)
+    burstActive: false,
+    burstFrame: 0,
+    burstTimer: 0,
+    burstSpeed: 100,     // 爆发每帧100ms
+
+    // 记录上一次的状态，用于检测触发
+    wasActivated: false
+};
+
+// 更新狂战动画
+function updateBerserkerAnimation(deltaTime) {
+    const isActive = playerBuffs.berserkerHeart && gameState.lives <= 2;
+
+    // 检测是否刚刚触发
+    if (isActive && !berserkerAnim.wasActivated) {
+        // 触发爆发动画
+        berserkerAnim.burstActive = true;
+        berserkerAnim.burstFrame = 0;
+        berserkerAnim.burstTimer = 0;
+    }
+    berserkerAnim.wasActivated = isActive;
+
+    if (!isActive) return;
+
+    // 更新光环动画 (循环)
+    berserkerAnim.auraTimer += deltaTime;
+    if (berserkerAnim.auraTimer >= berserkerAnim.auraSpeed) {
+        berserkerAnim.auraTimer = 0;
+        berserkerAnim.auraFrame = (berserkerAnim.auraFrame + 1) % 3;
+    }
+
+    // 更新爆发动画 (单次播放)
+    if (berserkerAnim.burstActive) {
+        berserkerAnim.burstTimer += deltaTime;
+        if (berserkerAnim.burstTimer >= berserkerAnim.burstSpeed) {
+            berserkerAnim.burstTimer = 0;
+            berserkerAnim.burstFrame++;
+            if (berserkerAnim.burstFrame >= 3) {
+                berserkerAnim.burstActive = false;
+                berserkerAnim.burstFrame = 0;
+            }
+        }
+    }
+}
+
 // === 跑步/死亡动画状态 ===
 const playerAnim = {
     runFrame: 0,
@@ -8100,6 +8167,9 @@ function update() {
     // === 受击视觉反馈更新 ===
     updateDamageVignette();
 
+    // === 狂战动画更新 ===
+    updateBerserkerAnimation(16);
+
     // === 动态教程条件检测 ===
     checkTutorialCondition();
 
@@ -8876,25 +8946,50 @@ function render() {
             ctx.shadowBlur = 0;
             ctx.scale(player.facingRight ? -1 : 1, 1);
         }
-        // 狂战之心红光效果 (血量≤2时)
+        // 狂战之心效果 (血量≤2时) - 使用图片动画
         if (playerBuffs.berserkerHeart && gameState.lives <= 2) {
             ctx.scale(player.facingRight ? -1 : 1, 1);
-            const pulseIntensity = 0.5 + Math.sin(Date.now() / 150) * 0.3;
-            ctx.strokeStyle = `rgba(255, 0, 0, ${pulseIntensity})`;
-            ctx.lineWidth = 4;
+
+            // 1. 永久光环动画 (3帧循环)
+            const auraImg = berserkerImages.aura[berserkerAnim.auraFrame];
+            if (auraImg && auraImg.complete && auraImg.naturalWidth > 0) {
+                const auraScale = player.scale * 0.25;  // 调整光环大小
+                const auraW = auraImg.width * auraScale;
+                const auraH = auraImg.height * auraScale;
+                // 添加脉动效果
+                const pulse = 1 + Math.sin(Date.now() / 200) * 0.08;
+                ctx.globalAlpha = 0.9;
+                ctx.drawImage(auraImg, -auraW * pulse / 2, -auraH * pulse / 2 - 18, auraW * pulse, auraH * pulse);
+                ctx.globalAlpha = 1;
+            }
+
+            // 2. 爆发动画 (触发时3帧序列)
+            if (berserkerAnim.burstActive) {
+                const burstImg = berserkerImages.burst[berserkerAnim.burstFrame];
+                if (burstImg && burstImg.complete && burstImg.naturalWidth > 0) {
+                    const burstScale = player.scale * 0.35;  // 爆发效果更大
+                    const burstW = burstImg.width * burstScale;
+                    const burstH = burstImg.height * burstScale;
+                    // 爆发时放大淡出
+                    const progress = berserkerAnim.burstFrame / 3;
+                    const expandScale = 1 + progress * 0.5;
+                    ctx.globalAlpha = 1 - progress * 0.3;
+                    ctx.drawImage(burstImg, -burstW * expandScale / 2, -burstH * expandScale / 2 - 18, burstW * expandScale, burstH * expandScale);
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            // 3. 保留红色发光边缘作为补充
+            const pulseIntensity = 0.3 + Math.sin(Date.now() / 150) * 0.2;
             ctx.shadowColor = '#ff0000';
-            ctx.shadowBlur = 20 + Math.sin(Date.now() / 100) * 8;
+            ctx.shadowBlur = 15 + Math.sin(Date.now() / 100) * 5;
+            ctx.strokeStyle = `rgba(255, 50, 50, ${pulseIntensity})`;
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(0, -18, 40, 0, Math.PI * 2);
+            ctx.arc(0, -18, 45, 0, Math.PI * 2);
             ctx.stroke();
-            // 内部发光
-            ctx.globalAlpha = 0.15 + Math.sin(Date.now() / 150) * 0.1;
-            ctx.fillStyle = '#ff0000';
-            ctx.beginPath();
-            ctx.arc(0, -18, 38, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1;
             ctx.shadowBlur = 0;
+
             ctx.scale(player.facingRight ? -1 : 1, 1);
         }
         if (player.item) { ctx.scale(player.facingRight ? 1 : -1, 1); ctx.font = '26px Arial'; ctx.fillText(player.item.emoji, -45, -55); }
@@ -9494,6 +9589,10 @@ function resetGame() {
     playerAnim.deathFrame = 0; playerAnim.deathTimer = 0;
     playerAnim.deathPlaying = false;
     idleAnim.currentAnim = 'breath';
+    // 重置狂战动画
+    berserkerAnim.auraFrame = 0; berserkerAnim.auraTimer = 0;
+    berserkerAnim.burstActive = false; berserkerAnim.burstFrame = 0;
+    berserkerAnim.burstTimer = 0; berserkerAnim.wasActivated = false;
     // 重置摄像机
     camera.x = player.x - canvas.width / 2;
     camera.y = player.y - canvas.height / 2;
