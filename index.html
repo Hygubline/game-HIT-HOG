@@ -139,19 +139,131 @@
             background: rgba(45,27,78,0.8); padding: 8px 14px; border-radius: 20px;
             border: 2px solid #6b4c9a; box-shadow: 0 0 15px rgba(107,76,154,0.3);
         }
-        /* 教程 */
+        /* ==================== 哈迪斯风格教程 ==================== */
         #tutorialScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none; flex-direction: column;
+            background: linear-gradient(180deg, rgba(26,15,46,0.98) 0%, rgba(10,6,18,0.98) 100%);
+            display: none; flex-direction: column;
             align-items: center; padding: 20px; z-index: 101; border-radius: 8px; overflow-y: auto;
         }
-        #tutorialScreen h2 { font-size: min(36px, 7vw); color: #e94560; margin-bottom: 15px; }
-        #tutorialScreen .tutorial-content { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 100%; }
-        #tutorialScreen .tutorial-section { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; border: 2px solid #e94560; flex: 1 1 180px; max-width: 250px; }
-        #tutorialScreen .tutorial-section h3 { color: #ffd700; margin-bottom: 10px; font-size: 16px; }
-        #tutorialScreen .key-item { display: flex; align-items: center; margin: 8px 0; color: #fff; font-size: 14px; }
-        #tutorialScreen .key { background: #e94560; padding: 3px 8px; border-radius: 5px; margin-right: 10px; font-weight: bold; font-size: 12px; }
-        #tutorialScreen .back-btn { margin-top: 20px; padding: 12px 40px; font-size: 18px; background: #e94560; color: #fff; border: none; border-radius: 10px; }
+        #tutorialScreen h2 {
+            font-size: min(36px, 7vw); color: #d4af37; margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(212,175,55,0.5), 2px 2px 0 #2d1b4e;
+            letter-spacing: 3px;
+        }
+        #tutorialScreen .tutorial-content { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 100%; }
+        #tutorialScreen .tutorial-section {
+            background: linear-gradient(145deg, rgba(45,27,78,0.8) 0%, rgba(26,15,46,0.9) 100%);
+            padding: 15px; border-radius: 10px; border: 2px solid #6b4c9a;
+            flex: 1 1 180px; max-width: 250px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(147,112,219,0.2);
+        }
+        #tutorialScreen .tutorial-section:hover { border-color: #9370db; box-shadow: 0 0 20px rgba(147,112,219,0.3); }
+        #tutorialScreen .tutorial-section h3 { color: #d4af37; margin-bottom: 10px; font-size: 16px; text-shadow: 0 0 8px rgba(212,175,55,0.3); }
+        #tutorialScreen .key-item { display: flex; align-items: center; margin: 8px 0; color: #e8d5b7; font-size: 13px; }
+        #tutorialScreen .key {
+            background: linear-gradient(135deg, #6b4c9a, #9370db); padding: 4px 10px;
+            border-radius: 5px; margin-right: 10px; font-weight: bold; font-size: 11px;
+            color: #fff; border: 1px solid #9370db; min-width: 36px; text-align: center;
+        }
+        #tutorialScreen .back-btn {
+            margin-top: 20px; padding: 12px 40px; font-size: 16px;
+            background: linear-gradient(135deg, #6b4c9a, #9370db); color: #fff;
+            border: 2px solid #9370db; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 1px;
+        }
+        #tutorialScreen .back-btn:hover {
+            background: linear-gradient(135deg, #9370db, #b19cd9);
+            box-shadow: 0 0 20px rgba(147,112,219,0.5);
+        }
+        /* ==================== 哈迪斯风格动态教程 ==================== */
+        #dynamicTutorial {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(26,15,46,0.95) 0%, rgba(10,6,18,0.95) 100%);
+            display: none; z-index: 150; flex-direction: column; align-items: center;
+            justify-content: center; padding: 20px;
+        }
+        #dynamicTutorial::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 30%, rgba(147,112,219,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .tutorial-step {
+            text-align: center; max-width: 400px; position: relative; z-index: 1;
+        }
+        .tutorial-step h3 {
+            color: #d4af37; font-size: 28px; margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(212,175,55,0.5), 2px 2px 0 #2d1b4e;
+            letter-spacing: 2px;
+        }
+        .tutorial-step p { color: #e8d5b7; font-size: 16px; line-height: 1.8; margin-bottom: 20px; }
+        .tutorial-key-highlight {
+            display: inline-block; background: linear-gradient(135deg, #6b4c9a, #9370db);
+            padding: 10px 20px; border-radius: 8px; font-size: 20px;
+            font-weight: bold; color: #fff; margin: 5px;
+            border: 2px solid #9370db;
+            animation: keyPulseHades 1.5s infinite;
+        }
+        @keyframes keyPulseHades {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(147,112,219,0.5); }
+            50% { transform: scale(1.08); box-shadow: 0 0 25px rgba(147,112,219,0.8), 0 0 40px rgba(212,175,55,0.3); }
+        }
+        .tutorial-progress {
+            display: flex; gap: 10px; margin-top: 25px;
+        }
+        .tutorial-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            background: rgba(107,76,154,0.5); border: 2px solid #6b4c9a;
+            transition: all 0.3s;
+        }
+        .tutorial-dot.active {
+            background: #d4af37; border-color: #ffd700;
+            transform: scale(1.3); box-shadow: 0 0 15px rgba(212,175,55,0.6);
+        }
+        .tutorial-dot.done { background: #9370db; border-color: #b19cd9; }
+        .tutorial-skip {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(45,27,78,0.6); border: 1px solid #6b4c9a;
+            color: #9370db; padding: 8px 16px; border-radius: 5px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tutorial-skip:hover { border-color: #9370db; color: #d4af37; }
+        /* ==================== 哈迪斯风格世界观介绍 ==================== */
+        #loreScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #0a0612 0%, #1a0f2e 50%, #0a0612 100%);
+            display: none; z-index: 200;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        #loreScreen::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(147,112,219,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .lore-text {
+            max-width: 600px; padding: 30px; text-align: center;
+            color: #a89cc8; font-size: 18px; line-height: 2.2;
+            opacity: 0; animation: loreFadeIn 2s forwards;
+            position: relative; z-index: 1;
+        }
+        @keyframes loreFadeIn {
+            to { opacity: 1; }
+        }
+        .lore-title {
+            color: #d4af37; font-size: 36px; margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(147,112,219,0.4);
+            letter-spacing: 6px; animation: loreTitleGlow 3s ease-in-out infinite;
+        }
+        @keyframes loreTitleGlow {
+            0%, 100% { text-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(147,112,219,0.4); }
+            50% { text-shadow: 0 0 40px rgba(212,175,55,0.9), 0 0 80px rgba(147,112,219,0.6); }
+        }
+        .lore-skip {
+            position: absolute; bottom: 30px;
+            color: #6b4c9a; font-size: 14px; cursor: pointer;
+            transition: color 0.2s;
+        }
+        .lore-skip:hover { color: #9370db; }
         /* 游戏UI */
         #ui { position: absolute; top: 75px; left: 10px; color: #fff; font-size: min(16px, 4vw); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10; display: none; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 8px; }
         /* 玩家血条 */
@@ -568,18 +680,57 @@
             30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
             100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
         }
-        /* 成就界面 */
-        #achieveScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; padding: 20px; z-index: 102; overflow-y: auto; }
-        #achieveScreen h2 { color: #a855f7; font-size: 28px; margin-bottom: 15px; }
-        .achieve-list { max-width: 400px; width: 100%; }
-        .achieve-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 2px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-        .achieve-item.unlocked { border-color: #a855f7; background: rgba(168,85,247,0.15); }
-        .achieve-item .icon { font-size: 28px; filter: grayscale(100%); }
-        .achieve-item.unlocked .icon { filter: none; }
+        /* ==================== 哈迪斯风格成就界面 ==================== */
+        #achieveScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(26,15,46,0.98) 0%, rgba(10,6,18,0.98) 100%);
+            display: none; flex-direction: column; align-items: center; padding: 20px; z-index: 102; overflow-y: auto;
+        }
+        #achieveScreen::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(147,112,219,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        #achieveScreen h2 {
+            color: #d4af37; font-size: 32px; margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(212,175,55,0.5), 2px 2px 0 #2d1b4e;
+            letter-spacing: 3px; position: relative; z-index: 1;
+        }
+        .achieve-list { max-width: 450px; width: 100%; position: relative; z-index: 1; }
+        .achieve-item {
+            display: flex; align-items: center; gap: 12px;
+            background: linear-gradient(145deg, rgba(45,27,78,0.6) 0%, rgba(26,15,46,0.8) 100%);
+            border: 2px solid #4a2c7a; border-radius: 10px; padding: 12px 15px; margin-bottom: 10px;
+            transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .achieve-item:hover { border-color: #6b4c9a; transform: translateX(5px); }
+        .achieve-item.unlocked {
+            border-color: #9370db; background: linear-gradient(145deg, rgba(74,44,122,0.7) 0%, rgba(45,27,78,0.9) 100%);
+            box-shadow: 0 0 15px rgba(147,112,219,0.3), 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .achieve-item .icon { font-size: 30px; filter: grayscale(100%) brightness(0.5); transition: all 0.3s; }
+        .achieve-item.unlocked .icon { filter: none; transform: scale(1.1); }
         .achieve-item .info { flex: 1; }
-        .achieve-item .name { color: #fff; font-size: 14px; font-weight: bold; }
-        .achieve-item .desc { color: #888; font-size: 12px; }
-        .achieve-item .reward { color: #ffd700; font-size: 12px; }
+        .achieve-item .name { color: #9370db; font-size: 14px; font-weight: bold; }
+        .achieve-item.unlocked .name { color: #d4af37; text-shadow: 0 0 8px rgba(212,175,55,0.3); }
+        .achieve-item .desc { color: #6b4c9a; font-size: 12px; margin-top: 2px; }
+        .achieve-item.unlocked .desc { color: #a89cc8; }
+        .achieve-item .reward {
+            color: #6b4c9a; font-size: 13px; font-weight: bold;
+            background: rgba(45,27,78,0.5); padding: 4px 10px; border-radius: 12px;
+            border: 1px solid #4a2c7a;
+        }
+        .achieve-item.unlocked .reward { color: #ffd700; border-color: #6b4c9a; }
+        .achieve-back-btn {
+            margin-top: 25px; padding: 12px 40px; font-size: 16px;
+            background: linear-gradient(135deg, #6b4c9a, #9370db); color: #fff;
+            border: 2px solid #9370db; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 1px; position: relative; z-index: 1;
+        }
+        .achieve-back-btn:hover {
+            background: linear-gradient(135deg, #9370db, #b19cd9);
+            box-shadow: 0 0 20px rgba(147,112,219,0.5);
+        }
         /* 天赋界面 */
         #talentScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 103; }
         #talentScreen h2 { color: #e94560; font-size: 28px; margin-bottom: 20px; }
@@ -790,38 +941,58 @@
         #relicPickup .relic-name { color: #fff; font-size: 18px; margin: 10px 0; }
         #relicPickup .relic-desc { color: #aaa; font-size: 14px; margin-bottom: 15px; }
         #relicPickup button { background: #ffd700; color: #000; border: none; padding: 10px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; }
-        /* ==================== 排行榜 ==================== */
+        /* ==================== 哈迪斯风格排行榜 ==================== */
         #leaderboardScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none; flex-direction: column;
+            background: linear-gradient(180deg, rgba(26,15,46,0.98) 0%, rgba(10,6,18,0.98) 100%);
+            display: none; flex-direction: column;
             align-items: center; padding: 20px; z-index: 102; overflow-y: auto;
         }
-        #leaderboardScreen h2 { color: #ffd700; font-size: min(28px, 7vw); margin-bottom: 10px; }
-        .lb-tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
-        .lb-tab {
-            padding: 10px 20px; background: rgba(255,255,255,0.1); border: 2px solid #444;
-            border-radius: 8px; color: #aaa; cursor: pointer; font-size: min(14px, 3.5vw); transition: all 0.15s;
+        #leaderboardScreen::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(147,112,219,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
-        .lb-tab:hover { border-color: #888; color: #fff; }
-        .lb-tab.active { background: rgba(233,69,96,0.3); border-color: #e94560; color: #fff; }
-        .lb-list { width: 100%; max-width: 500px; padding: 0 5px; }
+        #leaderboardScreen h2 {
+            color: #d4af37; font-size: min(28px, 7vw); margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(212,175,55,0.5), 2px 2px 0 #2d1b4e;
+            letter-spacing: 2px; position: relative; z-index: 1;
+        }
+        .lb-tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+        .lb-tab {
+            padding: 10px 20px; background: rgba(45,27,78,0.6); border: 2px solid #4a2c7a;
+            border-radius: 8px; color: #9370db; cursor: pointer; font-size: min(14px, 3.5vw); transition: all 0.2s;
+        }
+        .lb-tab:hover { border-color: #6b4c9a; color: #d4af37; }
+        .lb-tab.active { background: rgba(107,76,154,0.4); border-color: #9370db; color: #d4af37; box-shadow: 0 0 15px rgba(147,112,219,0.3); }
+        .lb-list { width: 100%; max-width: 500px; padding: 0 5px; position: relative; z-index: 1; }
         .lb-header, .lb-row {
             display: grid; grid-template-columns: 30px minmax(80px, 1fr) 60px 45px 45px 50px;
             gap: 4px; padding: 8px 8px; align-items: center; font-size: min(13px, 3.2vw);
         }
-        .lb-header { color: #888; border-bottom: 1px solid #333; font-size: min(10px, 2.5vw); text-transform: uppercase; }
-        .lb-row { background: rgba(255,255,255,0.03); border-radius: 6px; margin-bottom: 6px; color: #fff; }
-        .lb-row:nth-child(2) { background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); }
-        .lb-row:nth-child(3) { background: rgba(192,192,192,0.1); }
-        .lb-row:nth-child(4) { background: rgba(205,127,50,0.1); }
-        .lb-row.is-player { background: rgba(74,222,128,0.2); border: 1px solid rgba(74,222,128,0.5); }
-        .lb-rank { color: #ffd700; font-weight: bold; text-align: center; }
-        .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-        .lb-score { color: #4ade80; font-weight: bold; }
-        .lb-kills, .lb-combo, .lb-time { text-align: center; }
-        .lb-empty { color: #666; text-align: center; padding: 40px; font-size: min(16px, 4vw); }
-        .lb-loading { color: #888; text-align: center; padding: 40px; }
-        #leaderboardScreen .back-btn { margin-top: 20px; }
+        .lb-header { color: #6b4c9a; border-bottom: 1px solid #4a2c7a; font-size: min(10px, 2.5vw); text-transform: uppercase; }
+        .lb-row { background: rgba(45,27,78,0.4); border-radius: 6px; margin-bottom: 6px; color: #e8d5b7; border: 1px solid transparent; transition: all 0.2s; }
+        .lb-row:hover { border-color: #6b4c9a; }
+        .lb-row:nth-child(2) { background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3); }
+        .lb-row:nth-child(3) { background: rgba(192,192,192,0.1); border: 1px solid rgba(192,192,192,0.2); }
+        .lb-row:nth-child(4) { background: rgba(205,127,50,0.1); border: 1px solid rgba(205,127,50,0.2); }
+        .lb-row.is-player { background: rgba(147,112,219,0.2); border: 1px solid rgba(147,112,219,0.5); }
+        .lb-rank { color: #d4af37; font-weight: bold; text-align: center; }
+        .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; color: #e8d5b7; }
+        .lb-score { color: #9370db; font-weight: bold; }
+        .lb-kills, .lb-combo, .lb-time { text-align: center; color: #a89cc8; }
+        .lb-empty { color: #6b4c9a; text-align: center; padding: 40px; font-size: min(16px, 4vw); }
+        .lb-loading { color: #9370db; text-align: center; padding: 40px; }
+        #leaderboardScreen .back-btn {
+            margin-top: 20px; padding: 12px 40px; font-size: 16px;
+            background: linear-gradient(135deg, #6b4c9a, #9370db); color: #fff;
+            border: 2px solid #9370db; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 1px; position: relative; z-index: 1;
+        }
+        #leaderboardScreen .back-btn:hover {
+            background: linear-gradient(135deg, #9370db, #b19cd9);
+            box-shadow: 0 0 20px rgba(147,112,219,0.5);
+        }
         /* 手机端排行榜优化 */
         @media (max-width: 480px) {
             .lb-header, .lb-row {
@@ -830,7 +1001,7 @@
             }
             .lb-kills, .lb-combo, .lb-time { display: none; }
             .lb-name { font-size: 14px; font-weight: 500; }
-            .lb-score { font-size: 15px; }
+            .lb-score { font-size: 15px; color: #d4af37; }
             .lb-rank { font-size: 14px; }
             #leaderboardScreen { padding: 15px 10px; }
             #leaderboardScreen h2 { font-size: 24px; }
@@ -1008,23 +1179,50 @@
                 </div>
                 <div class="tutorial-section">
                     <h3>⌨️ 键盘操作</h3>
-                    <div class="key-item"><span class="key">←→</span><span>移动</span></div>
-                    <div class="key-item"><span class="key">空格</span><span>跳跃</span></div>
-                    <div class="key-item"><span class="key">JKUIO</span><span>技能</span></div>
+                    <div class="key-item"><span class="key">←→↑↓</span><span>八向移动</span></div>
+                    <div class="key-item"><span class="key">J K</span><span>技能按钮</span></div>
+                    <div class="key-item"><span class="key">ESC</span><span>暂停/退出</span></div>
                 </div>
                 <div class="tutorial-section">
-                    <h3>👾 特殊敌人</h3>
-                    <div class="key-item"><span class="key">🔴</span><span>冲锋怪</span></div>
-                    <div class="key-item"><span class="key">🟣</span><span>嘴炮怪</span></div>
-                    <div class="key-item"><span class="key">🟤</span><span>坦克怪</span></div>
-                    <div class="key-item"><span class="key">🟡</span><span>自爆怪</span></div>
+                    <h3>👾 敌人类型</h3>
+                    <div class="key-item"><span class="key">🔴</span><span>冲锋怪 - 会冲向你</span></div>
+                    <div class="key-item"><span class="key">🟣</span><span>嘴炮怪 - 远程攻击</span></div>
+                    <div class="key-item"><span class="key">🟤</span><span>坦克怪 - 高血量</span></div>
+                    <div class="key-item"><span class="key">🟡</span><span>自爆怪 - 近身爆炸</span></div>
+                    <div class="key-item"><span class="key">⭐</span><span>精英怪 - 强化版本</span></div>
                 </div>
                 <div class="tutorial-section">
-                    <h3>💡 技巧</h3>
-                    <div class="key-item" style="font-size:12px;">Boss在45秒/30秒出现<br>15/30/45秒可选强化</div>
+                    <h3>⚔️ 武器系统</h3>
+                    <div class="key-item" style="font-size:12px;">武器自动攻击敌人<br>升级可选择新武器或强化</div>
+                    <div class="key-item"><span class="key">🔪</span><span>小刀 - 快速穿透</span></div>
+                    <div class="key-item"><span class="key">🔥</span><span>火球 - 范围爆炸</span></div>
+                    <div class="key-item"><span class="key">⚡</span><span>闪电 - 连锁攻击</span></div>
+                </div>
+                <div class="tutorial-section">
+                    <h3>💎 经验系统</h3>
+                    <div class="key-item" style="font-size:12px;">击杀敌人掉落经验宝石<br>收集宝石升级获得强化<br>越高级宝石经验越多</div>
+                </div>
+                <div class="tutorial-section">
+                    <h3>💡 游戏技巧</h3>
+                    <div class="key-item" style="font-size:12px;">• 前60秒是热身期<br>• 注意躲避红色警告<br>• 受伤时屏幕会闪红<br>• 点击🔊可开关音效</div>
                 </div>
             </div>
             <button class="back-btn" onclick="hideTutorial()">返回</button>
+        </div>
+        <!-- 动态新手引导 -->
+        <div id="dynamicTutorial">
+            <button class="tutorial-skip" onclick="skipTutorial()">跳过教程</button>
+            <div class="tutorial-step" id="tutorialStep">
+                <!-- 动态填充 -->
+            </div>
+            <div class="tutorial-progress" id="tutorialProgress">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+        <!-- 世界观介绍 -->
+        <div id="loreScreen">
+            <div class="lore-text" id="loreContent"></div>
+            <div class="lore-skip" onclick="skipLore()">点击任意处跳过</div>
         </div>
         <!-- 商店 -->
         <!-- 哈迪斯风格商店 -->
@@ -1059,13 +1257,13 @@
         </div>
         <!-- 成就 -->
         <div id="achieveScreen">
-            <h2>🏆 成就</h2>
+            <h2>🏆 成就殿堂</h2>
             <div class="achieve-list" id="achieveList"></div>
-            <button class="back-btn" onclick="hideAchieve()" style="margin-top:20px">返回</button>
+            <button class="achieve-back-btn" onclick="hideAchieve()">返回</button>
         </div>
         <!-- 排行榜 -->
         <div id="leaderboardScreen">
-            <h2>🏆 排行榜</h2>
+            <h2>🏆 英雄榜</h2>
             <div class="lb-tabs">
                 <div class="lb-tab active" data-mode="speed">⚡ 速战模式</div>
                 <div class="lb-tab" data-mode="endless">♾️ 无尽模式</div>
@@ -2783,7 +2981,9 @@ const defaultSaveData = {
     totalCurrency: 0,
     perfectBossKills: 0,
     maxNoHitTime: 0,
-    ownsMaserati: false
+    ownsMaserati: false,
+    tutorialCompleted: false,
+    maxWeaponsUsed: 0
 };
 
 const defaultOutGameProgress = {
@@ -3266,6 +3466,9 @@ function earnCurrency() {
     if (gameStats.maxCombo > saveData.maxCombo) saveData.maxCombo = gameStats.maxCombo;
     if (survivalTime > saveData.maxSurvivalTime) saveData.maxSurvivalTime = survivalTime;
     if (gameStats.noHitTimer > saveData.maxNoHitTime) saveData.maxNoHitTime = gameStats.noHitTimer;
+    // 记录本局使用的武器数量
+    const weaponsUsedCount = Object.keys(playerWeapons).length;
+    if (weaponsUsedCount > saveData.maxWeaponsUsed) saveData.maxWeaponsUsed = weaponsUsedCount;
     grantRunRewards();
 }
 
@@ -3573,6 +3776,93 @@ function playSound(type) {
 // 点击页面时初始化音频
 document.addEventListener('click', initAudio, { once: true });
 document.addEventListener('touchstart', initAudio, { once: true });
+
+// === 背景音乐系统 ===
+let bgmEnabled = true;
+let bgmGainNode = null;
+let bgmOscillators = [];
+
+function startBGM() {
+    if (!audioCtx || !bgmEnabled || bgmOscillators.length > 0) return;
+
+    // 创建主增益节点用于控制音量
+    bgmGainNode = audioCtx.createGain();
+    bgmGainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    bgmGainNode.connect(audioCtx.destination);
+
+    // 神秘暗黑氛围音乐 (哈迪斯风格)
+    // 使用小调和弦创造神秘感
+    // 层1: 深沉低音垫底 (Am)
+    // 层2: 中频和弦 (Dm)
+    // 层3: 高频神秘点缀
+
+    const notes = [55.00, 73.42, 87.31, 110.00]; // A1, D2, F2, A2 (Am和弦)
+    const now = audioCtx.currentTime;
+
+    notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = i < 2 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+
+        // 缓慢LFO调制创造动态感
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+        lfo.frequency.setValueAtTime(0.1 + i * 0.05, now);
+        lfoGain.gain.setValueAtTime(freq * 0.02, now);
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        lfo.start();
+
+        gain.gain.setValueAtTime(0.15 - i * 0.03, now);
+        osc.connect(gain);
+        gain.connect(bgmGainNode);
+        osc.start();
+
+        bgmOscillators.push({ osc, gain, lfo, lfoGain });
+    });
+}
+
+function stopBGM() {
+    bgmOscillators.forEach(({ osc, lfo }) => {
+        try { osc.stop(); lfo.stop(); } catch(e) {}
+    });
+    bgmOscillators = [];
+}
+
+function toggleBGM() {
+    bgmEnabled = !bgmEnabled;
+    if (bgmEnabled) startBGM();
+    else stopBGM();
+}
+
+// === 受击视觉反馈 ===
+let damageVignetteAlpha = 0;
+
+function triggerDamageVignette() {
+    damageVignetteAlpha = 0.6;
+}
+
+function updateDamageVignette() {
+    if (damageVignetteAlpha > 0) {
+        damageVignetteAlpha -= 0.05;
+    }
+}
+
+function renderDamageVignette(ctx) {
+    if (damageVignetteAlpha <= 0) return;
+
+    ctx.save();
+    const gradient = ctx.createRadialGradient(
+        canvas.width/2, canvas.height/2, canvas.height * 0.3,
+        canvas.width/2, canvas.height/2, canvas.height * 0.8
+    );
+    gradient.addColorStop(0, 'rgba(255,0,0,0)');
+    gradient.addColorStop(1, `rgba(180,0,0,${damageVignetteAlpha})`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+}
 
 // 图片
 const images = { main: new Image(), attack: new Image(), dead: new Image(), sajiao: new Image(), kick: new Image(), dash: new Image(), newmap: new Image(), monster1: new Image(), monster2: new Image(), monster3: new Image(), monster4: new Image(), boss1: new Image(), boss2: new Image(), maserati: new Image(), maseratiDash: new Image(), idleBreath: new Image(), idleBlink: new Image(), idleGlasses: new Image(), idleSuit: new Image(), ghostEnemy: new Image(), eyeEnemy: new Image(), fireEnemy: new Image(), fogEnemy: new Image() };
@@ -4019,7 +4309,22 @@ const achievements = [
     { id: 'perfectBoss', name: '完美击杀', desc: '满血击败Boss', icon: '✨', reward: 500, check: () => saveData.perfectBossKills >= 1 },
     { id: 'perfectBoss5', name: '完美主义', desc: '满血击败5个Boss', icon: '🌟', reward: 1500, check: () => saveData.perfectBossKills >= 5 },
     { id: 'noHit30', name: '无伤30秒', desc: '30秒内不受伤害', icon: '🛡️', reward: 200, check: () => saveData.maxNoHitTime >= 30 },
-    { id: 'noHit60', name: '无伤60秒', desc: '60秒内不受伤害', icon: '🛡️', reward: 500, check: () => saveData.maxNoHitTime >= 60 }
+    { id: 'noHit60', name: '无伤60秒', desc: '60秒内不受伤害', icon: '🛡️', reward: 500, check: () => saveData.maxNoHitTime >= 60 },
+
+    // 新手成就
+    { id: 'firstGame', name: '初出茅庐', desc: '完成第一局游戏', icon: '🐕', reward: 20, check: () => saveData.gamesPlayed >= 1 },
+    { id: 'tutorialDone', name: '好学生', desc: '完成新手教程', icon: '📖', reward: 30, check: () => saveData.tutorialCompleted === true },
+    { id: 'firstKill', name: '开张大吉', desc: '首次击杀敌人', icon: '🎯', reward: 10, check: () => saveData.totalKills >= 1 },
+
+    // 难度挑战成就
+    { id: 'survive120', name: '热身完毕', desc: '存活超过120秒', icon: '🔥', reward: 80, check: () => saveData.maxSurvivalTime >= 120 },
+    { id: 'survive420', name: '七分钟', desc: '单局存活超过420秒', icon: '⏳', reward: 400, check: () => saveData.maxSurvivalTime >= 420 },
+    { id: 'hellSurvivor', name: '地狱幸存者', desc: '存活到地狱难度阶段', icon: '🔥', reward: 800, check: () => saveData.maxSurvivalTime >= 360 },
+    { id: 'abyssSurvivor', name: '深渊行者', desc: '存活到绝望深渊阶段', icon: '🌑', reward: 2000, check: () => saveData.maxSurvivalTime >= 600 },
+
+    // 武器大师成就
+    { id: 'weaponMaster', name: '武器大师', desc: '单局使用3种以上武器', icon: '⚔️', reward: 150, check: () => saveData.maxWeaponsUsed >= 3 },
+    { id: 'arsenalKing', name: '军火库之王', desc: '单局使用5种以上武器', icon: '👑', reward: 500, check: () => saveData.maxWeaponsUsed >= 5 }
 ];
 
 function checkAchievements() {
@@ -5135,17 +5440,22 @@ let multiKillCount = 0;
 let multiKillTimer = 0;
 const multiKillTexts = ['', '', 'DOUBLE KILL!', 'TRIPLE KILL!', 'QUAD KILL!', 'PENTA KILL!', 'MEGA KILL!'];
 
-// === 无尽模式阶段系统 (B2: 重调早期难度) ===
+// === 无尽模式阶段系统 (氛围增强: 新手友好化) ===
 const endlessPhaseConfig = [
-    { time: 0, name: '狗潮涌动', desc: '战斗开始', chargerWeight: 2, shooterWeight: 0.5, bomberWeight: 0.5, tankWeight: 0.3, eliteChance: 0.08, spawnRate: 1.3 },
-    { time: 30, name: '压力测试', desc: '射手加入', chargerWeight: 2, shooterWeight: 2, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.12, spawnRate: 1.5 },
-    { time: 60, name: '冲锋来袭', desc: '冲锋怪狂潮', chargerWeight: 4, shooterWeight: 2, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.15, spawnRate: 1.8 },
-    { time: 120, name: '火力压制', desc: '嘴炮怪增多', chargerWeight: 3, shooterWeight: 4, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 2.0 },
-    { time: 180, name: '混编危机', desc: '敌人混编出现', chargerWeight: 2, shooterWeight: 2, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 1.8 },
-    { time: 240, name: '精英入侵', desc: '精英怪频繁', chargerWeight: 3, shooterWeight: 3, bomberWeight: 2, tankWeight: 2, eliteChance: 0.25, spawnRate: 2.0 },
-    { time: 300, name: '地狱难度', desc: '全面强化', chargerWeight: 4, shooterWeight: 4, bomberWeight: 3, tankWeight: 3, eliteChance: 0.35, spawnRate: 2.3 },
-    { time: 420, name: '死亡狂潮', desc: '极限挑战', chargerWeight: 5, shooterWeight: 5, bomberWeight: 4, tankWeight: 4, eliteChance: 0.45, spawnRate: 2.8 },
-    { time: 540, name: '绝望深渊', desc: '无尽噩梦', chargerWeight: 6, shooterWeight: 6, bomberWeight: 5, tankWeight: 5, eliteChance: 0.55, spawnRate: 3.2 }
+    // 前30秒：纯新手期，几乎无压力
+    { time: 0, name: '初次试炼', desc: '敌人开始涌现', chargerWeight: 1, shooterWeight: 0, bomberWeight: 0, tankWeight: 0, eliteChance: 0, spawnRate: 0.8 },
+    // 30-60秒：轻微提升
+    { time: 30, name: '热身阶段', desc: '射手出现', chargerWeight: 2, shooterWeight: 0.5, bomberWeight: 0, tankWeight: 0, eliteChance: 0.05, spawnRate: 1.0 },
+    // 60-120秒：正式开始
+    { time: 60, name: '狗潮涌动', desc: '战斗加剧', chargerWeight: 2, shooterWeight: 1, bomberWeight: 0.5, tankWeight: 0.3, eliteChance: 0.10, spawnRate: 1.3 },
+    // 后续保持原有节奏
+    { time: 120, name: '压力测试', desc: '冲锋怪狂潮', chargerWeight: 3, shooterWeight: 2, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.15, spawnRate: 1.6 },
+    { time: 180, name: '火力压制', desc: '嘴炮怪增多', chargerWeight: 3, shooterWeight: 4, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 2.0 },
+    { time: 240, name: '混编危机', desc: '敌人混编出现', chargerWeight: 2, shooterWeight: 2, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 1.8 },
+    { time: 300, name: '精英入侵', desc: '精英怪频繁', chargerWeight: 3, shooterWeight: 3, bomberWeight: 2, tankWeight: 2, eliteChance: 0.25, spawnRate: 2.0 },
+    { time: 360, name: '地狱难度', desc: '全面强化', chargerWeight: 4, shooterWeight: 4, bomberWeight: 3, tankWeight: 3, eliteChance: 0.35, spawnRate: 2.3 },
+    { time: 480, name: '死亡狂潮', desc: '极限挑战', chargerWeight: 5, shooterWeight: 5, bomberWeight: 4, tankWeight: 4, eliteChance: 0.45, spawnRate: 2.8 },
+    { time: 600, name: '绝望深渊', desc: '无尽噩梦', chargerWeight: 6, shooterWeight: 6, bomberWeight: 5, tankWeight: 5, eliteChance: 0.55, spawnRate: 3.2 }
 ];
 let currentEndlessPhase = 0;
 let lastPhaseTime = -1;
@@ -5335,7 +5645,16 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 });
 document.getElementById('confirmStartBtn').addEventListener('click', () => {
     document.getElementById('modeSelect').style.display = 'none';
-    startGame();
+    // 首次游戏显示世界观介绍
+    if (saveData.gamesPlayed === 0) {
+        showLore(() => {
+            startGame();
+            // 首次游戏显示动态教程
+            startDynamicTutorial();
+        });
+    } else {
+        startGame();
+    }
 });
 document.getElementById('shopBtn').addEventListener('click', showShop);
 document.getElementById('achieveBtn').addEventListener('click', showAchieve);
@@ -5351,6 +5670,7 @@ document.getElementById('pauseBtn').addEventListener('click', showExitConfirm);
 // 音效开关
 document.getElementById('soundBtn').addEventListener('click', () => {
     soundEnabled = !soundEnabled;
+    toggleBGM(); // 同时切换背景音乐
     document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
 });
 document.getElementById('confirmExitBtn').addEventListener('click', () => {
@@ -5367,6 +5687,179 @@ function showExitConfirm() {
 }
 document.getElementById('tutorialBtn').addEventListener('click', () => document.getElementById('tutorialScreen').style.display = 'flex');
 function hideTutorial() { document.getElementById('tutorialScreen').style.display = 'none'; }
+
+// === 动态新手引导系统 ===
+const tutorialSteps = [
+    {
+        title: '欢迎来到八重之犬',
+        text: '你将扮演一只勇敢的狗狗，击败来袭的敌人！',
+        keys: [],
+        action: 'auto',
+        delay: 2500
+    },
+    {
+        title: '移动',
+        text: '使用方向键或摇杆控制狗狗移动',
+        keys: ['←', '→'],
+        action: 'move',
+        condition: () => Math.abs(player.vx) > 0.5
+    },
+    {
+        title: '攻击',
+        text: '武器会自动攻击附近敌人！你也可以按技能键释放技能',
+        keys: ['J', 'K'],
+        action: 'auto',
+        delay: 3000
+    },
+    {
+        title: '躲避敌人',
+        text: '红色敌人会冲锋，紫色敌人会远程攻击，注意躲避！',
+        keys: [],
+        action: 'auto',
+        delay: 3000
+    },
+    {
+        title: '收集经验',
+        text: '击杀敌人掉落的宝石可以提升等级，获得强化！',
+        keys: [],
+        action: 'auto',
+        delay: 2500
+    },
+    {
+        title: '准备战斗！',
+        text: '祝你好运，勇敢的狗狗！',
+        keys: [],
+        action: 'complete',
+        delay: 2000
+    }
+];
+
+let tutorialActive = false;
+let currentTutorialStep = 0;
+
+function startDynamicTutorial() {
+    if (saveData.tutorialCompleted) return;
+    tutorialActive = true;
+    currentTutorialStep = 0;
+    document.getElementById('dynamicTutorial').style.display = 'flex';
+    showTutorialStep(0);
+}
+
+function showTutorialStep(index) {
+    if (index >= tutorialSteps.length) {
+        completeTutorial();
+        return;
+    }
+
+    const step = tutorialSteps[index];
+    const stepEl = document.getElementById('tutorialStep');
+
+    let keysHtml = step.keys.map(k =>
+        `<span class="tutorial-key-highlight">${k}</span>`
+    ).join('');
+
+    stepEl.innerHTML = `
+        <h3>${step.title}</h3>
+        <p>${step.text}</p>
+        ${keysHtml}
+    `;
+
+    // 更新进度点
+    const progressEl = document.getElementById('tutorialProgress');
+    progressEl.innerHTML = tutorialSteps.map((_, i) =>
+        `<div class="tutorial-dot ${i < index ? 'done' : ''} ${i === index ? 'active' : ''}"></div>`
+    ).join('');
+
+    // 处理步骤推进
+    if (step.action === 'auto' || step.action === 'complete') {
+        setTimeout(() => {
+            if (tutorialActive && currentTutorialStep === index) {
+                currentTutorialStep++;
+                showTutorialStep(currentTutorialStep);
+            }
+        }, step.delay);
+    }
+}
+
+function checkTutorialCondition() {
+    if (!tutorialActive) return;
+    const step = tutorialSteps[currentTutorialStep];
+    if (step && step.condition && step.condition()) {
+        currentTutorialStep++;
+        showTutorialStep(currentTutorialStep);
+    }
+}
+
+function skipTutorial() {
+    completeTutorial();
+}
+
+function completeTutorial() {
+    tutorialActive = false;
+    document.getElementById('dynamicTutorial').style.display = 'none';
+    saveData.tutorialCompleted = true;
+    saveGame();
+    gameState.isPaused = false;
+}
+
+// === 世界观介绍 ===
+const loreTexts = [
+    { title: '八重之犬', delay: 0 },
+    { text: '在那个被遗忘的世界里...', delay: 2000 },
+    { text: '曾经和平的村庄，如今被无尽的怪物所侵袭', delay: 4500 },
+    { text: '人们四处逃散，无人能够抵抗', delay: 7000 },
+    { text: '直到——一只狗狗站了出来', delay: 9500 },
+    { text: '"汪！"', delay: 12000 },
+    { text: '它虽然只是一只狗，但它有着不屈的灵魂', delay: 14000 },
+    { text: '用踢击、撒娇、甚至嘲讽，与怪物战斗', delay: 16500 },
+    { text: '这是属于它的战斗...', delay: 19000 }
+];
+
+let loreShowing = false;
+let loreTimeouts = [];
+let loreOnComplete = null;
+
+function showLore(onComplete) {
+    loreShowing = true;
+    loreOnComplete = onComplete;
+    document.getElementById('loreScreen').style.display = 'flex';
+    const container = document.getElementById('loreContent');
+    container.innerHTML = '';
+
+    loreTexts.forEach((item, i) => {
+        const timeout = setTimeout(() => {
+            if (item.title) {
+                container.innerHTML += `<div class="lore-title">${item.title}</div>`;
+            } else {
+                container.innerHTML += `<p style="animation-delay:${i*0.1}s">${item.text}</p>`;
+            }
+        }, item.delay);
+        loreTimeouts.push(timeout);
+    });
+
+    // 最后自动结束
+    loreTimeouts.push(setTimeout(() => {
+        finishLore();
+    }, 22000));
+
+    // 点击跳过
+    document.getElementById('loreScreen').onclick = () => skipLore();
+}
+
+function skipLore() {
+    finishLore();
+}
+
+function finishLore() {
+    loreTimeouts.forEach(clearTimeout);
+    loreTimeouts = [];
+    loreShowing = false;
+    document.getElementById('loreScreen').style.display = 'none';
+    if (loreOnComplete) {
+        loreOnComplete();
+        loreOnComplete = null;
+    }
+}
 
 function startGame() {
     gamePhase = 'playing';
@@ -5415,6 +5908,9 @@ function startGame() {
         }
     }
     startTimers();
+
+    // === 开始背景音乐 ===
+    if (soundEnabled) startBGM();
 }
 
 // 首局自动选择默认天赋
@@ -6454,26 +6950,27 @@ function spawnEnemy() {
     });
 }
 
-// 根据存活时间计算敌人强度缩放
+// 根据存活时间计算敌人强度缩放 (氛围增强: 新手友好化)
 function getEnemyTimeScale() {
     const minutes = gameStats.survivalTime / 60;
 
-    // 后期难度大幅提升
-    // 前3分钟温和，3分钟后加速增长
-    const lateGameBonus = minutes > 3 ? (minutes - 3) * 0.15 : 0;
+    // 前2分钟几乎不增强
+    const earlyGameFactor = minutes < 2 ? 0.5 : 1;
+    // 后期难度提升
+    const lateGameBonus = minutes > 4 ? (minutes - 4) * 0.2 : 0;
 
-    // 血量: 每分钟+15%，后期额外+15%
-    const hpScale = 1 + minutes * 0.15 + lateGameBonus;
-    // 速度: 每分钟+4%，上限1.6x
-    const speedScale = 1 + minutes * 0.04;
-    // 伤害: 每分钟+8%，后期额外+10%
-    const damageScale = 1 + minutes * 0.08 + lateGameBonus * 0.7;
+    // 血量: 每分钟+12%，前期减半，后期加速
+    const hpScale = 1 + minutes * 0.12 * earlyGameFactor + lateGameBonus;
+    // 速度: 每分钟+3%，上限1.5x
+    const speedScale = 1 + minutes * 0.03 * earlyGameFactor;
+    // 伤害: 每分钟+6%，前期减半，后期加速
+    const damageScale = 1 + minutes * 0.06 * earlyGameFactor + lateGameBonus * 0.5;
     // 分数: 每分钟+20%
     const pointsScale = 1 + minutes * 0.20;
 
     return {
         hp: hpScale,
-        speed: Math.min(speedScale, 1.6),  // 速度上限1.6倍
+        speed: Math.min(speedScale, 1.5),  // 速度上限1.5倍
         damage: damageScale,
         points: pointsScale
     };
@@ -7375,6 +7872,11 @@ function playerHit(reason, killerInfo = null) {
     }
 
     playSound('hit');
+
+    // === 受击视觉反馈 ===
+    triggerDamageVignette();
+    gameState.screenShake = Math.max(gameState.screenShake, 18);
+
     gameState.lives--; gameState.deathReason = reason;
     document.getElementById('lives').textContent = gameState.lives;
     updatePlayerHealthBar(true);
@@ -7591,6 +8093,12 @@ function update() {
 
     // === 武器系统更新 ===
     updateWeapons();
+
+    // === 受击视觉反馈更新 ===
+    updateDamageVignette();
+
+    // === 动态教程条件检测 ===
+    checkTutorialCondition();
 
     // === 待机动画更新 ===
     updateIdleAnimation(16); // 约60fps，每帧约16ms
@@ -8583,6 +9091,9 @@ function render() {
 
         ctx.restore();
     }
+
+    // === 受击视觉反馈 ===
+    renderDamageVignette(ctx);
 }
 
 // 调试开关
@@ -8597,6 +9108,7 @@ document.addEventListener('keydown', e => {
 // ==================== 结算 ====================
 function endGame() {
     playSound('gameover');
+    stopBGM(); // 停止背景音乐
     gameState.gameOver = true; player.isDead = true; player.currentState = 'dead';
     document.getElementById('deathImage').style.opacity = 1;
     hidePlayerHealthBar();
