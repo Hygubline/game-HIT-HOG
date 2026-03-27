@@ -1172,39 +1172,36 @@
             <h2>🎮 游戏教程</h2>
             <div class="tutorial-content">
                 <div class="tutorial-section">
+                    <h3>🎮 核心玩法</h3>
+                    <div class="key-item" style="font-size:12px;">移动躲避敌人<br>武器自动攻击<br>收集经验宝石升级<br>选择强化构建流派</div>
+                </div>
+                <div class="tutorial-section">
                     <h3>📱 手机操作</h3>
                     <div class="key-item"><span class="key">🕹️</span><span>左侧摇杆移动</span></div>
-                    <div class="key-item"><span class="key">⬆️</span><span>跳跃按钮</span></div>
-                    <div class="key-item"><span class="key">👊⚔️</span><span>攻击按钮</span></div>
+                    <div class="key-item" style="font-size:12px;">武器自动攻击，无需手动操作</div>
                 </div>
                 <div class="tutorial-section">
                     <h3>⌨️ 键盘操作</h3>
                     <div class="key-item"><span class="key">←→↑↓</span><span>八向移动</span></div>
-                    <div class="key-item"><span class="key">J K</span><span>技能按钮</span></div>
                     <div class="key-item"><span class="key">ESC</span><span>暂停/退出</span></div>
+                    <div class="key-item" style="font-size:12px;">武器自动攻击，专注走位即可</div>
+                </div>
+                <div class="tutorial-section">
+                    <h3>⚔️ 三大流派</h3>
+                    <div class="key-item"><span class="key" style="background:#ff4444">🗡️</span><span>近战吸血 - 贴脸高伤回血</span></div>
+                    <div class="key-item"><span class="key" style="background:#ff8800">💥</span><span>爆炸范围 - 清屏连锁爆破</span></div>
+                    <div class="key-item"><span class="key" style="background:#4488ff">⚡</span><span>连锁控制 - 减速扩散麻痹</span></div>
                 </div>
                 <div class="tutorial-section">
                     <h3>👾 敌人类型</h3>
-                    <div class="key-item"><span class="key">🔴</span><span>冲锋怪 - 会冲向你</span></div>
-                    <div class="key-item"><span class="key">🟣</span><span>嘴炮怪 - 远程攻击</span></div>
-                    <div class="key-item"><span class="key">🟤</span><span>坦克怪 - 高血量</span></div>
-                    <div class="key-item"><span class="key">🟡</span><span>自爆怪 - 近身爆炸</span></div>
-                    <div class="key-item"><span class="key">⭐</span><span>精英怪 - 强化版本</span></div>
+                    <div class="key-item"><span class="key">🔴</span><span>鬼火 - 蓄力冲锋</span></div>
+                    <div class="key-item"><span class="key">🟣</span><span>邪眼 - 远程射击</span></div>
+                    <div class="key-item"><span class="key">🟤</span><span>黑雾 - 高血减伤</span></div>
+                    <div class="key-item"><span class="key">🟡</span><span>幽焰 - 近身自爆</span></div>
                 </div>
                 <div class="tutorial-section">
-                    <h3>⚔️ 武器系统</h3>
-                    <div class="key-item" style="font-size:12px;">武器自动攻击敌人<br>升级可选择新武器或强化</div>
-                    <div class="key-item"><span class="key">🔪</span><span>小刀 - 快速穿透</span></div>
-                    <div class="key-item"><span class="key">🔥</span><span>火球 - 范围爆炸</span></div>
-                    <div class="key-item"><span class="key">⚡</span><span>闪电 - 连锁攻击</span></div>
-                </div>
-                <div class="tutorial-section">
-                    <h3>💎 经验系统</h3>
-                    <div class="key-item" style="font-size:12px;">击杀敌人掉落经验宝石<br>收集宝石升级获得强化<br>越高级宝石经验越多</div>
-                </div>
-                <div class="tutorial-section">
-                    <h3>💡 游戏技巧</h3>
-                    <div class="key-item" style="font-size:12px;">• 前60秒是热身期<br>• 注意躲避红色警告<br>• 受伤时屏幕会闪红<br>• 点击🔊可开关音效</div>
+                    <h3>💡 生存技巧</h3>
+                    <div class="key-item" style="font-size:12px;">• 开局即战斗，保持移动<br>• 低血量触发肾上腺素加速<br>• 精英死亡会爆炸伤害周围<br>• 升级时注意构建流派方向</div>
                 </div>
             </div>
             <button class="back-btn" onclick="hideTutorial()">返回</button>
@@ -1430,15 +1427,70 @@
         </div>
     </div>
 <script>
+// ==================== 全局游戏配置 ====================
+// 调整这些数值即可快速调平衡，无需在代码中到处搜索
+const GAME_CONFIG = {
+    // --- 刷怪节奏 ---
+    BASE_SPAWN_INTERVAL: 450,       // 敌人生成间隔 (ms)
+    MAX_ENEMIES_BASE: 20,           // 初始最大敌人数
+    MAX_ENEMIES_SCALING: 3,         // 每N秒增加的敌人上限
+    MAX_ENEMIES_INTERVAL: 20,       // 每多少秒增加一次上限
+    EARLY_SPAWN_DISTANCE: 300,      // 前30秒敌人生成距离
+    NORMAL_SPAWN_DISTANCE: 500,     // 正常敌人生成距离
+
+    // --- 经验/升级 ---
+    BASE_XP_TO_LEVEL: 50,          // 首次升级所需经验
+    XP_SCALING: 1.2,               // 每级经验需求倍率
+    BASE_XP_DROP: 2,               // 普通敌人经验掉落
+    ELITE_XP_MULT: 12,             // 精英经验倍率
+    BOSS_XP_DROP: 100,             // Boss经验掉落
+
+    // --- 肾上腺素系统 (低血量触发) ---
+    ADRENALINE_HP_THRESHOLD: 0.25, // 触发血量比例
+    ADRENALINE_SPEED_BONUS: 0.35,  // 移速加成
+    ADRENALINE_LIFESTEAL: 0.15,    // 击杀回血概率
+    ADRENALINE_DAMAGE_BONUS: 0.2,  // 伤害加成
+
+    // --- 精英死亡爆炸 ---
+    ELITE_DEATH_AOE_RANGE: 80,     // 爆炸范围
+    ELITE_DEATH_AOE_DAMAGE: 8,     // 爆炸伤害
+
+    // --- 波次脉冲 ---
+    PULSE_INTERVAL: 25,            // 每N秒一次脉冲
+    PULSE_MAX_TIME: 180,           // 脉冲系统持续到多少秒
+    PULSE_BASE_COUNT: 4,           // 基础脉冲敌人数
+
+    // --- 难度曲线 ---
+    EARLY_GAME_DURATION: 60,       // "前期"持续秒数（难度减缓期）
+    EARLY_GAME_FACTOR: 0.8,        // 前期难度系数
+
+    // --- 角色地面特效 ---
+    PLAYER_FOOT_OFFSET_Y: 25,     // 角色脚底偏移（相对于中心点向下）
+    BERSERKER_AURA_SCALE: 0.25,   // 狂战光环缩放
+    BERSERKER_AURA_OPACITY: 0.9,  // 狂战光环透明度
+    BERSERKER_BURST_SCALE: 0.35,  // 狂战爆发缩放
+    SHADOW_OFFSET_Y: 25,          // 阴影Y偏移
+    SHADOW_RX: 35,                // 阴影X半径
+    SHADOW_RY: 15,                // 阴影Y半径
+
+};
+
+// ==================== 流派配置 ====================
+const ARCHETYPE = {
+    melee:     { label: '🗡️ 近战·吸血', color: '#ff4444', desc: '贴脸高伤，击杀回血' },
+    explosion: { label: '💥 爆炸·范围', color: '#ff8800', desc: '范围清屏，连锁爆破' },
+    chain:     { label: '⚡ 连锁·控制', color: '#4488ff', desc: '减速扩散，连锁打击' },
+};
+
 // === 割草模式配置 ===
 const KUOSAO_MODE = {
-    enabled: true,                    // 是否启用割草模式
-    spawnInterval: 600,               // B1: 敌人生成间隔 (ms) - 提高初始压力
-    maxEnemies: 50,                   // B1: 最大敌人数量 - 提高上限
-    batchSpawnSize: 3,                // B1: 每次批量生成敌人数 - 增加批量
-    autoAttackEnabled: true,          // 自动攻击
-    xpEnabled: true,                  // 经验值系统
-    evolutionEnabled: true            // 武器进化系统
+    enabled: true,
+    spawnInterval: GAME_CONFIG.BASE_SPAWN_INTERVAL,
+    maxEnemies: 50,
+    batchSpawnSize: 3,
+    autoAttackEnabled: true,
+    xpEnabled: true,
+    evolutionEnabled: true
 };
 
 // === 对象池系统 ===
@@ -1599,7 +1651,7 @@ const spatialGrid = {
 let playerXP = {
     current: 0,
     level: 1,
-    toNextLevel: 100,
+    toNextLevel: GAME_CONFIG.BASE_XP_TO_LEVEL,
 
     addXP(amount) {
         this.current += amount;
@@ -1612,7 +1664,7 @@ let playerXP = {
 
     levelUp() {
         this.level++;
-        this.toNextLevel = Math.floor(100 * Math.pow(1.15, this.level - 1));
+        this.toNextLevel = Math.floor(GAME_CONFIG.BASE_XP_TO_LEVEL * Math.pow(GAME_CONFIG.XP_SCALING, this.level - 1));
         playSound('upgrade');
         showKuosaoUpgradePanel();
         spawnFloatingText(player.x, player.y - 80, '⬆️ 升级! Lv.' + this.level, '#ffd700');
@@ -1621,7 +1673,7 @@ let playerXP = {
     reset() {
         this.current = 0;
         this.level = 1;
-        this.toNextLevel = 100;
+        this.toNextLevel = GAME_CONFIG.BASE_XP_TO_LEVEL;
     }
 };
 
@@ -1841,11 +1893,16 @@ function updateWeapons() {
                                     size: 4
                                 });
                             }
-                            // 连锁闪电
-                            if (stats.chain > 0) {
-                                const chainTargets = enemies.filter(e => e !== t && Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2) < 150);
-                                for (let c = 0; c < Math.min(stats.chain, chainTargets.length); c++) {
+                            // 连锁闪电 (含闪电风暴加成)
+                            const totalChain = (stats.chain || 0) + (playerBuffs.extraChain || 0);
+                            if (totalChain > 0) {
+                                const chainTargets = enemies.filter(e => e !== t && Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2) < 180);
+                                for (let c = 0; c < Math.min(totalChain, chainTargets.length); c++) {
                                     dealDamageToEnemy(chainTargets[c], stats.damage * 0.5);
+                                    // 连锁闪电粒子
+                                    for (let p = 0; p < 4; p++) {
+                                        particles.push({ x: chainTargets[c].x, y: chainTargets[c].y, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5, life: 10, color: '#ffff00', size: 3 });
+                                    }
                                 }
                             }
                         }
@@ -2915,9 +2972,10 @@ function showKuosaoUpgradePanel() {
         const card = document.createElement('div');
         card.className = 'upgrade-card';
         const isWeapon = opt.type === 'weapon';
-        const borderColor = isWeapon ? '#ff6600' : '#6666ff';
+        const arch = opt.data?.archetype ? ARCHETYPE[opt.data.archetype] : null;
+        const borderColor = isWeapon ? '#ff6600' : (arch ? arch.color : '#6666ff');
         const bgGradient = isWeapon ? 'linear-gradient(135deg, #3a2a1e, #4a3a2e)' : 'linear-gradient(135deg, #2a2a4e, #3a3a5e)';
-        const typeLabel = isWeapon ? '⚔️ 武器' : '✨ 属性';
+        const typeLabel = isWeapon ? '⚔️ 武器' : (arch ? arch.label : '✨ 属性');
 
         card.style.borderColor = borderColor;
         card.style.background = bgGradient;
@@ -2935,9 +2993,12 @@ function showKuosaoUpgradePanel() {
             } else {
                 opt.data.apply();
                 selectedUpgrades.push(opt.data.id);
-                spawnFloatingText(player.x, player.y - 60, opt.icon + opt.name, '#ffd700');
+                const floatColor = arch ? arch.color : '#ffd700';
+                spawnFloatingText(player.x, player.y - 60, opt.icon + opt.name, floatColor);
                 playSound('upgrade');
             }
+            // 升级选择时屏幕闪光反馈
+            gameState.screenShake = 8;
             document.getElementById('upgradePanel').style.display = 'none';
             gameState.isPaused = false;
             checkEvolution();
@@ -4262,50 +4323,62 @@ let cooldowns = { slash: 0, sajiao: 0, taunt: 0, block: 0 };
 // 强化
 let playerBuffs = { kickDamage: 1, kickRange: 80, kickKnockback: 15, kickPierce: false, kickStun: false, kickLifesteal: false, slashCD: 120, slashWidth: 100, slashDouble: false, slashDamage: 5, sajiaoCD: 900, sajiaoBossDmg: 10, sajiaoInvincible: false, sajiaoHeal: false, sajiaoFear: false, tauntDuration: 180, invincibleTime: 90, comboKeep: 120, scoreMultiplier: 1, speedMult: 1, gamblerMode: false, extraChoice: false, bossDmgBonus: 1, speedBonus: 1, damageReduce: 0, regenRate: 0 };
 const upgradePool = [
-    // 原有升级
-    { id: 'kickDmg', name: '铁腿功', icon: '🦵', desc: '踢击+1', apply: () => playerBuffs.kickDamage++ },
-    { id: 'kickRange', name: '长腿怪', icon: '🦿', desc: '范围+20%', apply: () => playerBuffs.kickRange *= 1.2 },
-    { id: 'slashCD', name: '快刀手', icon: '⏱️', desc: 'CD-30%', apply: () => playerBuffs.slashCD *= 0.7 },
-    { id: 'slashDouble', name: '双剑气', icon: '⚔️', desc: '双发', apply: () => playerBuffs.slashDouble = true },
-    { id: 'sajiaoCD', name: '撒娇狂', icon: '🥺', desc: 'CD-30%', apply: () => playerBuffs.sajiaoCD *= 0.7 },
-    { id: 'sajiaoBoss', name: '破防', icon: '💔', desc: 'Boss+10', apply: () => playerBuffs.sajiaoBossDmg += 10 },
-        { id: 'extraLife', name: '续命', icon: '❤️', desc: '+1命', apply: () => { gameState.lives++; maxPlayerLives = Math.max(maxPlayerLives, gameState.lives); buildHpSegments(); updatePlayerHealthBar(false); } },
-    { id: 'scoreX', name: '双倍乐', icon: '💰', desc: 'x1.5分', apply: () => playerBuffs.scoreMultiplier *= 1.5 },
-    // 踢击流 (3个)
-    { id: 'kickPierce', name: '穿透腿', icon: '🔱', desc: '踢穿敌人', apply: () => playerBuffs.kickPierce = true },
-    { id: 'kickKnock', name: '神龙摆尾', icon: '🐉', desc: '击退+80%', apply: () => playerBuffs.kickKnockback *= 1.8 },
-    { id: 'kickVamp', name: '吸血腿', icon: '🩸', desc: '踢杀回血', apply: () => playerBuffs.kickLifesteal = true },
-        // 撒娇流 (2个)
-    { id: 'sajiaoHeal', name: '卖萌回血', icon: '💕', desc: '撒娇+1命', apply: () => playerBuffs.sajiaoHeal = true },
-    { id: 'sajiaoFear', name: '娇声震慑', icon: '😱', desc: '撒娇定身', apply: () => playerBuffs.sajiaoFear = true },
-    // 生存流 (3个)
-    { id: 'tankUp', name: '铁布衫', icon: '🛡️', desc: '减伤20%', apply: () => { playerBuffs.damageReduce = 0.2; runBuildTags.survival += 2; } },
+    // ==================== 通用升级 ====================
+    { id: 'extraLife', name: '续命', icon: '❤️', desc: '+1命', apply: () => { gameState.lives++; maxPlayerLives = Math.max(maxPlayerLives, gameState.lives); buildHpSegments(); updatePlayerHealthBar(false); } },
+    { id: 'tankUp', name: '铁布衫', icon: '🛡️', desc: '减伤20%', apply: () => { playerBuffs.damageReduce = Math.min(playerBuffs.damageReduce + 0.2, 0.6); runBuildTags.survival += 2; } },
     { id: 'regen', name: '回春术', icon: '🌿', desc: '缓慢回血', apply: () => { playerBuffs.regenRate = 1; runBuildTags.survival += 2; } },
-    { id: 'invUp', name: '金钟罩', icon: '🔔', desc: '无敌+50%', apply: () => { playerBuffs.invincibleTime *= 1.5; runBuildTags.survival += 1; } },
+    { id: 'gemMagnet', name: '经验黑洞', icon: '🕳️', desc: '拾取范围+100%', apply: () => { playerBuffs.xpMagnetRange = (playerBuffs.xpMagnetRange || 50) * 2; runBuildTags.utility += 2; } },
+    { id: 'bigGem', name: '大宝石', icon: '💎', desc: '经验值+50%', apply: () => { playerBuffs.xpMultiplier = (playerBuffs.xpMultiplier || 1) * 1.5; runBuildTags.utility += 2; } },
+    { id: 'speedDemon', name: '速度恶魔', icon: '👿', desc: '移速+30%，受伤+20%', apply: () => { playerBuffs.speedMult *= 1.3; playerBuffs.damageReduce -= 0.2; runBuildTags.speed += 3; } },
 
-    // ========== 新增流派化升级 ==========
+    // ==================== 🗡️ 近战·吸血流 ====================
+    { id: 'kickDmg', name: '铁腿功', icon: '🦵', desc: '近战伤害+2，攻速+10%', archetype: 'melee',
+      apply: () => { playerBuffs.kickDamage += 2; autoAttackConfig.kick.interval *= 0.9; runBuildTags.damage += 2; } },
+    { id: 'kickPierce', name: '穿透腿', icon: '🔱', desc: '攻击穿透敌人', archetype: 'melee',
+      apply: () => { playerBuffs.kickPierce = true; runBuildTags.damage += 2; } },
+    { id: 'kickVamp', name: '吸血腿', icon: '🩸', desc: '击杀回血', archetype: 'melee',
+      apply: () => { playerBuffs.kickLifesteal = true; runBuildTags.vampire += 3; } },
+    { id: 'vampireAura', name: '血族光环', icon: '🧛', desc: '击杀回血+范围吸血', archetype: 'melee',
+      apply: () => { playerBuffs.vampireAura = true; playerBuffs.kickLifesteal = true; runBuildTags.vampire += 3; runBuildTags.survival += 1; } },
+    { id: 'suitPressure', name: '处决者', icon: '🤵', desc: '低血敌人+80%伤害', archetype: 'melee',
+      apply: () => { playerBuffs.executeDmg = 1.8; runBuildTags.damage += 3; } },
+    { id: 'bloodFrenzy', name: '血之狂欢', icon: '🩸', desc: '2秒内杀3个=回满血', archetype: 'melee',
+      apply: () => { playerBuffs.bloodFrenzy = true; runBuildTags.vampire += 3; runBuildTags.damage += 1; } },
+    { id: 'lastStand', name: '背水一战', icon: '⚔️', desc: '1命时伤害+100%', archetype: 'melee',
+      apply: () => { playerBuffs.lastStand = true; runBuildTags.damage += 2; runBuildTags.survival += 1; } },
 
-    // 输出类 (A类)
-    { id: 'lucky8', name: '幸运8', icon: '🎱', desc: '8%暴击秒杀', apply: () => { playerBuffs.critKillChance = 0.08; runBuildTags.damage += 3; }, category: 'damage' },
-    { id: 'suitPressure', name: '西装压制', icon: '🤵', desc: '低血敌人+50%伤害', apply: () => { playerBuffs.executeDmg = 1.5; runBuildTags.damage += 2; }, category: 'damage' },
-        { id: 'overHeat', name: '越打越上头', icon: '🔥', desc: '连击越高伤害越高', apply: () => { playerBuffs.comboScaling = true; runBuildTags.damage += 3; }, category: 'damage' },
+    // ==================== 💥 爆炸·范围流 ====================
+    { id: 'aoeKing', name: '范围之王', icon: '👑', desc: '所有攻击范围+40%', archetype: 'explosion',
+      apply: () => { playerBuffs.kickRange *= 1.4; playerBuffs.slashWidth *= 1.4; runBuildTags.aoe += 3; } },
+    { id: 'socialDog', name: '灼烧气场', icon: '☀️', desc: '周围敌人持续受伤', archetype: 'explosion',
+      apply: () => { playerBuffs.damageAura = 3; runBuildTags.aoe += 3; } },
+    { id: 'chainExplosion', name: '连锁爆炸', icon: '💣', desc: '击杀触发二次爆炸', archetype: 'explosion',
+      apply: () => { playerBuffs.chainExplosion = true; runBuildTags.aoe += 3; runBuildTags.damage += 2; } },
+    { id: 'fireRain', name: '地狱火雨', icon: '🌋', desc: '每15秒天降火球清屏', archetype: 'explosion',
+      apply: () => { playerBuffs.fireRain = true; runBuildTags.aoe += 3; } },
+    { id: 'overHeat', name: '越打越上头', icon: '🔥', desc: '连击越高伤害越高', archetype: 'explosion',
+      apply: () => { playerBuffs.comboScaling = true; runBuildTags.damage += 3; } },
+    { id: 'burnGround', name: '灼烧大地', icon: '🔥', desc: '火球留下灼烧地面', archetype: 'explosion',
+      apply: () => { playerBuffs.burnGround = true; runBuildTags.aoe += 2; runBuildTags.damage += 1; } },
 
-    // 生存类 (B类)
-    { id: 'dogLife', name: '狗命续上', icon: '🐕', desc: '致命伤害时10%几率保命', apply: () => { playerBuffs.deathSave = 0.1; runBuildTags.survival += 3; }, category: 'survival' },
-    { id: 'vampireAura', name: '血族光环', icon: '🧛', desc: '击杀回血+范围吸血', apply: () => { playerBuffs.vampireAura = true; playerBuffs.kickLifesteal = true; runBuildTags.vampire += 3; runBuildTags.survival += 1; }, category: 'survival' },
-    { id: 'lastStand', name: '背水一战', icon: '⚔️', desc: '1命时伤害+100%', apply: () => { playerBuffs.lastStand = true; runBuildTags.damage += 2; runBuildTags.survival += 1; }, category: 'survival' },
+    // ==================== ⚡ 连锁·控制流 ====================
+    { id: 'lightningStorm', name: '闪电风暴', icon: '⚡', desc: '闪电额外连锁3个目标', archetype: 'chain',
+      apply: () => { playerBuffs.extraChain = (playerBuffs.extraChain || 0) + 3; runBuildTags.damage += 2; } },
+    { id: 'frostSlow', name: '极寒领域', icon: '❄️', desc: '减速效果+50%持续时间翻倍', archetype: 'chain',
+      apply: () => { playerBuffs.extraSlow = 0.5; runBuildTags.utility += 2; } },
+    { id: 'slowDmg', name: '冻伤加深', icon: '🥶', desc: '被减速敌人受伤+40%', archetype: 'chain',
+      apply: () => { playerBuffs.slowDamageBonus = 0.4; runBuildTags.damage += 2; runBuildTags.utility += 1; } },
+    { id: 'shockSpread', name: '感电扩散', icon: '💫', desc: '被电敌人死亡时电击周围', archetype: 'chain',
+      apply: () => { playerBuffs.shockSpread = true; runBuildTags.aoe += 2; runBuildTags.damage += 1; } },
+    { id: 'slashCD', name: '快刀手', icon: '⏱️', desc: '攻击CD-30%', archetype: 'chain',
+      apply: () => { playerBuffs.slashCD *= 0.7; autoAttackConfig.slash.interval *= 0.7; runBuildTags.damage += 1; } },
+    { id: 'treasureHunter', name: '寻宝猎人', icon: '🗺️', desc: '宝箱掉落+50%', archetype: 'chain',
+      apply: () => { playerBuffs.chestChance = 1.5; runBuildTags.utility += 2; } },
 
-    // 资源类 (C类)
-    { id: 'gemMagnet', name: '经验黑洞', icon: '🕳️', desc: '经验拾取范围+100%', apply: () => { playerBuffs.xpMagnetRange = (playerBuffs.xpMagnetRange || 50) * 2; runBuildTags.utility += 2; }, category: 'utility' },
-    { id: 'bigGem', name: '大宝石', icon: '💎', desc: '经验值+50%', apply: () => { playerBuffs.xpMultiplier = (playerBuffs.xpMultiplier || 1) * 1.5; runBuildTags.utility += 2; }, category: 'utility' },
-    { id: 'treasureHunter', name: '寻宝猎人', icon: '🗺️', desc: '宝箱掉落+50%', apply: () => { playerBuffs.chestChance = 1.5; runBuildTags.utility += 2; }, category: 'utility' },
-
-    // 流派类 (D类) - 更强但更有风格
-    { id: 'socialDog', name: '社会狗气场', icon: '🐶', desc: '周围敌人持续受伤', apply: () => { playerBuffs.damageAura = 2; runBuildTags.aoe += 3; }, category: 'style' },
-    { id: 'oldGlasses', name: '老花镜锁头', icon: '👓', desc: '自动攻击锁定低血敌人', apply: () => { playerBuffs.autoTarget = 'lowHP'; runBuildTags.damage += 2; }, category: 'style' },
-    { id: 'showMaster', name: '整活专家', icon: '🎪', desc: '随机触发各种效果', apply: () => { playerBuffs.chaosMode = true; runBuildTags.utility += 2; runBuildTags.damage += 1; }, category: 'style' },
-    { id: 'speedDemon', name: '速度恶魔', icon: '👿', desc: '移速+30%，但受伤+20%', apply: () => { playerBuffs.speedMult *= 1.3; playerBuffs.damageReduce -= 0.2; runBuildTags.speed += 3; }, category: 'style' },
-    { id: 'aoeKing', name: '范围之王', icon: '👑', desc: '所有技能范围+40%', apply: () => { playerBuffs.kickRange *= 1.4; playerBuffs.slashWidth *= 1.4; runBuildTags.aoe += 3; }, category: 'style' }
+    // ==================== 特殊升级 ====================
+    { id: 'lucky8', name: '幸运8', icon: '🎱', desc: '8%暴击秒杀', apply: () => { playerBuffs.critKillChance = 0.08; runBuildTags.damage += 3; } },
+    { id: 'dogLife', name: '狗命续上', icon: '🐕', desc: '致命伤害10%保命', apply: () => { playerBuffs.deathSave = 0.1; runBuildTags.survival += 3; } },
+    { id: 'showMaster', name: '整活专家', icon: '🎪', desc: '随机触发各种效果', apply: () => { playerBuffs.chaosMode = true; runBuildTags.utility += 2; runBuildTags.damage += 1; } },
 ];
 let selectedUpgrades = [];
 let selectedMode = 'speed';
@@ -5510,22 +5583,37 @@ let multiKillCount = 0;
 let multiKillTimer = 0;
 const multiKillTexts = ['', '', 'DOUBLE KILL!', 'TRIPLE KILL!', 'QUAD KILL!', 'PENTA KILL!', 'MEGA KILL!'];
 
+// === 肾上腺素系统 (低血量爽点) ===
+let adrenalineActive = false;
+let adrenalineSpeedBonus = 0;
+
+// === 血之狂欢计数 ===
+let bloodFrenzyKills = 0;
+let bloodFrenzyTimer = 0;
+
+// === 火雨计时 ===
+let fireRainTimer = 0;
+
+// === 连锁爆炸处理 ===
+let chainExplosionQueue = [];
+
 // === 无尽模式阶段系统 (氛围增强: 新手友好化) ===
 const endlessPhaseConfig = [
-    // 前30秒：纯新手期，几乎无压力
-    { time: 0, name: '初次试炼', desc: '敌人开始涌现', chargerWeight: 1, shooterWeight: 0, bomberWeight: 0, tankWeight: 0, eliteChance: 0, spawnRate: 0.8 },
-    // 30-60秒：轻微提升
-    { time: 30, name: '热身阶段', desc: '射手出现', chargerWeight: 2, shooterWeight: 0.5, bomberWeight: 0, tankWeight: 0, eliteChance: 0.05, spawnRate: 1.0 },
-    // 60-120秒：正式开始
-    { time: 60, name: '狗潮涌动', desc: '战斗加剧', chargerWeight: 2, shooterWeight: 1, bomberWeight: 0.5, tankWeight: 0.3, eliteChance: 0.10, spawnRate: 1.3 },
-    // 后续保持原有节奏
-    { time: 120, name: '压力测试', desc: '冲锋怪狂潮', chargerWeight: 3, shooterWeight: 2, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.15, spawnRate: 1.6 },
-    { time: 180, name: '火力压制', desc: '嘴炮怪增多', chargerWeight: 3, shooterWeight: 4, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 2.0 },
-    { time: 240, name: '混编危机', desc: '敌人混编出现', chargerWeight: 2, shooterWeight: 2, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 1.8 },
-    { time: 300, name: '精英入侵', desc: '精英怪频繁', chargerWeight: 3, shooterWeight: 3, bomberWeight: 2, tankWeight: 2, eliteChance: 0.25, spawnRate: 2.0 },
-    { time: 360, name: '地狱难度', desc: '全面强化', chargerWeight: 4, shooterWeight: 4, bomberWeight: 3, tankWeight: 3, eliteChance: 0.35, spawnRate: 2.3 },
-    { time: 480, name: '死亡狂潮', desc: '极限挑战', chargerWeight: 5, shooterWeight: 5, bomberWeight: 4, tankWeight: 4, eliteChance: 0.45, spawnRate: 2.8 },
-    { time: 600, name: '绝望深渊', desc: '无尽噩梦', chargerWeight: 6, shooterWeight: 6, bomberWeight: 5, tankWeight: 5, eliteChance: 0.55, spawnRate: 3.2 }
+    // 0-15秒：立即进入战斗，少量敌人逼近
+    { time: 0, name: '战斗开始', desc: '敌人来袭！', chargerWeight: 2, shooterWeight: 0.5, bomberWeight: 0, tankWeight: 0, eliteChance: 0.03, spawnRate: 1.2 },
+    // 15-40秒：快速升温，引入特殊敌人
+    { time: 15, name: '升温阶段', desc: '特殊敌人出现', chargerWeight: 2, shooterWeight: 1, bomberWeight: 0.3, tankWeight: 0.2, eliteChance: 0.08, spawnRate: 1.5 },
+    // 40-75秒：包围趋势明显，第一次小高潮
+    { time: 40, name: '狗潮涌动', desc: '包围来袭', chargerWeight: 3, shooterWeight: 2, bomberWeight: 0.8, tankWeight: 0.5, eliteChance: 0.12, spawnRate: 1.8 },
+    // 75-120秒：正式压力，混编出现
+    { time: 75, name: '压力测试', desc: '混编敌群', chargerWeight: 3, shooterWeight: 2, bomberWeight: 1, tankWeight: 0.5, eliteChance: 0.15, spawnRate: 2.0 },
+    // 120秒后保持节奏递增
+    { time: 120, name: '火力压制', desc: '远程集火', chargerWeight: 3, shooterWeight: 4, bomberWeight: 2, tankWeight: 1, eliteChance: 0.18, spawnRate: 2.2 },
+    { time: 180, name: '混编危机', desc: '全类型混战', chargerWeight: 2, shooterWeight: 2, bomberWeight: 2, tankWeight: 1, eliteChance: 0.20, spawnRate: 2.0 },
+    { time: 240, name: '精英入侵', desc: '精英频繁', chargerWeight: 3, shooterWeight: 3, bomberWeight: 2, tankWeight: 2, eliteChance: 0.28, spawnRate: 2.2 },
+    { time: 300, name: '地狱难度', desc: '全面强化', chargerWeight: 4, shooterWeight: 4, bomberWeight: 3, tankWeight: 3, eliteChance: 0.35, spawnRate: 2.5 },
+    { time: 420, name: '死亡狂潮', desc: '极限挑战', chargerWeight: 5, shooterWeight: 5, bomberWeight: 4, tankWeight: 4, eliteChance: 0.45, spawnRate: 2.8 },
+    { time: 540, name: '绝望深渊', desc: '无尽噩梦', chargerWeight: 6, shooterWeight: 6, bomberWeight: 5, tankWeight: 5, eliteChance: 0.55, spawnRate: 3.2 }
 ];
 let currentEndlessPhase = 0;
 let lastPhaseTime = -1;
@@ -5761,46 +5849,32 @@ function hideTutorial() { document.getElementById('tutorialScreen').style.displa
 // === 动态新手引导系统 ===
 const tutorialSteps = [
     {
-        title: '欢迎来到八重之犬',
-        text: '你将扮演一只勇敢的狗狗，击败来袭的敌人！',
-        keys: [],
-        action: 'auto',
-        delay: 2500
-    },
-    {
-        title: '移动',
-        text: '使用方向键或摇杆控制狗狗移动',
-        keys: ['←', '→'],
+        title: '移动躲避',
+        text: '方向键/摇杆移动，躲开敌人！',
+        keys: ['←', '→', '↑', '↓'],
         action: 'move',
-        condition: () => Math.abs(player.vx) > 0.5
+        condition: () => Math.abs(player.vx) > 0.5 || Math.abs(player.vy) > 0.5
     },
     {
-        title: '攻击',
-        text: '武器会自动攻击附近敌人！你也可以按技能键释放技能',
-        keys: ['J', 'K'],
-        action: 'auto',
-        delay: 3000
-    },
-    {
-        title: '躲避敌人',
-        text: '红色敌人会冲锋，紫色敌人会远程攻击，注意躲避！',
-        keys: [],
-        action: 'auto',
-        delay: 3000
-    },
-    {
-        title: '收集经验',
-        text: '击杀敌人掉落的宝石可以提升等级，获得强化！',
+        title: '自动战斗',
+        text: '武器会自动攻击附近敌人，你只需专注走位！',
         keys: [],
         action: 'auto',
         delay: 2500
     },
     {
-        title: '准备战斗！',
-        text: '祝你好运，勇敢的狗狗！',
+        title: '收集升级',
+        text: '拾取经验宝石升级，选择强化构建你的流派！',
+        keys: [],
+        action: 'auto',
+        delay: 2500
+    },
+    {
+        title: '开始战斗！',
+        text: '活下去，变更强！',
         keys: [],
         action: 'complete',
-        delay: 2000
+        delay: 1500
     }
 ];
 
@@ -6068,13 +6142,27 @@ function startTimers() {
             if (gamePhase !== 'playing' || gameState.isPaused) return;
 
             const activeEnemies = enemies.filter(e => !e.flying && !e.isBoss).length;
-            const maxEnemies = Math.min(KUOSAO_MODE.maxEnemies, 15 + Math.floor(gameStats.survivalTime / 30) * 3);
+            const maxEnemies = Math.min(KUOSAO_MODE.maxEnemies, GAME_CONFIG.MAX_ENEMIES_BASE + Math.floor(gameStats.survivalTime / GAME_CONFIG.MAX_ENEMIES_INTERVAL) * GAME_CONFIG.MAX_ENEMIES_SCALING);
 
             if (activeEnemies < maxEnemies) {
                 // 生成敌人
                 spawnEnemy();
             }
         }, KUOSAO_MODE.spawnInterval);
+
+        // === 波次脉冲: 定期制造紧张-释放节奏 ===
+        setInterval(() => {
+            if (gamePhase !== 'playing' || gameState.isPaused) return;
+            const t = gameStats.survivalTime;
+            if (t > 0 && t <= GAME_CONFIG.PULSE_MAX_TIME && t % GAME_CONFIG.PULSE_INTERVAL === 0) {
+                const burstCount = GAME_CONFIG.PULSE_BASE_COUNT + Math.floor(t / 30);
+                const pulseNames = ['⚠️ 敌潮来袭!', '⚠️ 包围来袭!', '⚠️ 高压波次!', '⚠️ 精锐突袭!', '⚠️ 疯狂涌入!'];
+                showEvent(pulseNames[Math.min(Math.floor(t / GAME_CONFIG.PULSE_INTERVAL) - 1, pulseNames.length - 1)]);
+                for (let i = 0; i < burstCount; i++) {
+                    setTimeout(() => { if (gamePhase === 'playing') spawnEnemy(); }, i * 150);
+                }
+            }
+        }, 1000);
 
         // 精英波次 - 每2分钟
         setInterval(() => {
@@ -6148,6 +6236,18 @@ function startTimers() {
 
             // === 无尽模式阶段系统 ===
             updateEndlessPhase();
+
+            // === 前期奖励宝箱 (制造争夺目标) ===
+            if (gameStats.survivalTime === 35) {
+                const cx = player.x + (Math.random() > 0.5 ? 200 : -200);
+                const cy = player.y + (Math.random() > 0.5 ? 150 : -150);
+                spawnChest(
+                    Math.max(50, Math.min(world.width - 50, cx)),
+                    Math.max(50, Math.min(world.height - 50, cy)),
+                    'rare'
+                );
+                showEvent('💎 宝箱出现了!');
+            }
 
             // === 危险事件触发 (每30秒有几率触发) ===
             if (gameStats.survivalTime > 30 && gameStats.survivalTime % 30 === 0) {
@@ -6302,8 +6402,9 @@ function showUpgradePanel() {
     options.forEach(opt => {
         const card = document.createElement('div');
         card.className = 'upgrade-card';
-        const borderColor = opt.type === 'weapon' ? '#ff6600' : '#6666ff';
-        const typeLabel = opt.type === 'weapon' ? '⚔️武器' : '✨属性';
+        const arch = opt.data?.archetype ? ARCHETYPE[opt.data.archetype] : null;
+        const borderColor = opt.type === 'weapon' ? '#ff6600' : (arch ? arch.color : '#6666ff');
+        const typeLabel = opt.type === 'weapon' ? '⚔️武器' : (arch ? arch.label : '✨属性');
         card.style.borderColor = borderColor;
 
         // 检查是否有进化提示
@@ -6635,18 +6736,26 @@ function dealDamageToEnemy(e, dmg, hitType = 'normal') {
     let d = dmg * (playerBuffs.globalAttackMult || 1);
     let wasCrit = false;
 
-    // === 新升级效果 ===
+    // === 升级效果 ===
     // 越打越上头：连击伤害加成
     if (playerBuffs.comboScaling && gameState.combo > 0) {
-        d *= (1 + gameState.combo * 0.05); // 每层连击+5%伤害
+        d *= (1 + gameState.combo * 0.05);
     }
-    // 西装压制：低血敌人额外伤害
+    // 处决者：低血敌人额外伤害
     if (playerBuffs.executeDmg && e.currentHp < e.hp * 0.3) {
         d *= playerBuffs.executeDmg;
     }
     // 背水一战：1命时伤害翻倍
     if (playerBuffs.lastStand && gameState.lives === 1) {
         d *= 2;
+    }
+    // 肾上腺素：低血量伤害加成
+    if (adrenalineActive) {
+        d *= (1 + GAME_CONFIG.ADRENALINE_DAMAGE_BONUS);
+    }
+    // 冻伤加深：被减速敌人受伤增加
+    if (playerBuffs.slowDamageBonus && (e.slowed || e.slowTimer > 0 || e.frozen)) {
+        d *= (1 + playerBuffs.slowDamageBonus);
     }
     // 狂战之心(旧)：血量越低伤害越高
     if (playerBuffs.berserkerMode) {
@@ -6960,7 +7069,7 @@ function spawnEnemy() {
     // 4方向生成：基于玩家位置在视野外生成
     const spawnDir = Math.floor(Math.random() * 4);
     let spawnX, spawnY, initVx = 0, initVy = 0;
-    const spawnDist = 500; // 在玩家周围500像素外生成
+    const spawnDist = gameStats.survivalTime < 30 ? GAME_CONFIG.EARLY_SPAWN_DISTANCE : GAME_CONFIG.NORMAL_SPAWN_DISTANCE;
 
     switch (spawnDir) {
         case 0: // 从左边
@@ -7024,8 +7133,8 @@ function spawnEnemy() {
 function getEnemyTimeScale() {
     const minutes = gameStats.survivalTime / 60;
 
-    // 前2分钟几乎不增强
-    const earlyGameFactor = minutes < 2 ? 0.5 : 1;
+    // 前1分钟稍微减缓
+    const earlyGameFactor = minutes < 1 ? GAME_CONFIG.EARLY_GAME_FACTOR : 1;
     // 后期难度提升
     const lateGameBonus = minutes > 4 ? (minutes - 4) * 0.2 : 0;
 
@@ -7184,6 +7293,87 @@ function handleEnemyKill(e) {
     multiKillCount++;
     multiKillTimer = 45; // 0.75秒窗口
 
+    // === 精英死亡AOE爆炸 (所有精英都有) ===
+    if (e.isElite && !playerBuffs.explosiveFinish) {
+        const aoeRange = GAME_CONFIG.ELITE_DEATH_AOE_RANGE;
+        const aoeDmg = GAME_CONFIG.ELITE_DEATH_AOE_DAMAGE;
+        enemies.forEach(nearby => {
+            if (nearby !== e && !nearby.flying) {
+                const dist = Math.sqrt((nearby.x - e.x) ** 2 + (nearby.y - e.y) ** 2);
+                if (dist < aoeRange) {
+                    nearby.currentHp -= aoeDmg;
+                    nearby.hitFlash = 8;
+                    if (nearby.currentHp <= 0 && !nearby.flying) {
+                        nearby.flying = true;
+                        nearby.vx = (nearby.x - e.x) * 0.1;
+                        nearby.vy = -8;
+                        handleEnemyKill(nearby);
+                    }
+                }
+            }
+        });
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            particles.push({
+                x: e.x, y: e.y,
+                vx: Math.cos(angle) * 6, vy: Math.sin(angle) * 6,
+                life: 18, color: '#ffd700', size: 5
+            });
+        }
+        gameState.screenShake = Math.min(gameState.screenShake + 6, 15);
+        spawnFloatingText(e.x, e.y - 40, '💥精英爆破!', '#ffd700');
+    }
+
+    // === 肾上腺素击杀回血 ===
+    if (adrenalineActive && gameState.lives < maxPlayerLives && Math.random() < GAME_CONFIG.ADRENALINE_LIFESTEAL) {
+        gameState.lives++;
+        updatePlayerHealthBar(false);
+        spawnFloatingText(player.x, player.y - 50, '💢回血!', '#ff4444');
+    }
+
+    // === 血之狂欢: 2秒内杀3个=回满血 ===
+    if (playerBuffs.bloodFrenzy) {
+        bloodFrenzyKills++;
+        bloodFrenzyTimer = 120; // 2秒窗口
+        if (bloodFrenzyKills >= 3) {
+            gameState.lives = maxPlayerLives;
+            buildHpSegments();
+            updatePlayerHealthBar(false);
+            spawnFloatingText(player.x, player.y - 70, '🩸 血之狂欢! 满血!', '#ff0000');
+            gameState.screenShake = 12;
+            playSound('upgrade');
+            bloodFrenzyKills = 0;
+            bloodFrenzyTimer = 0;
+        }
+    }
+
+    // === 连锁爆炸: 击杀触发二次爆炸 ===
+    if (playerBuffs.chainExplosion && !e._chainExploded) {
+        e._chainExploded = true;
+        chainExplosionQueue.push({ x: e.x, y: e.y });
+    }
+
+    // === 感电扩散: 被电敌人死亡时电击周围 ===
+    if (playerBuffs.shockSpread && (e.slowed || e.stunned)) {
+        enemies.forEach(nearby => {
+            if (nearby !== e && !nearby.flying) {
+                const dist = Math.sqrt((nearby.x - e.x) ** 2 + (nearby.y - e.y) ** 2);
+                if (dist < 120) {
+                    dealDamageToEnemy(nearby, 6);
+                    nearby.stunned = true;
+                    nearby.stunTimer = 30;
+                    for (let j = 0; j < 4; j++) {
+                        particles.push({
+                            x: nearby.x, y: nearby.y,
+                            vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                            life: 10, color: '#ffff00', size: 3
+                        });
+                    }
+                }
+            }
+        });
+    }
+
     // === 新遗物系统 ===
 
     // 吸血獠牙：击杀残血敌人必回血
@@ -7341,9 +7531,9 @@ function handleEnemyKill(e) {
 
     // 掉落经验宝石 (割草模式)
     if (KUOSAO_MODE.enabled && KUOSAO_MODE.xpEnabled) {
-        let xpValue = 1;  // 小型宝石
-        if (e.isBoss) xpValue = 100;
-        else if (e.isElite) xpValue = 25;
+        let xpValue = GAME_CONFIG.BASE_XP_DROP;
+        if (e.isBoss) xpValue = GAME_CONFIG.BOSS_XP_DROP;
+        else if (e.isElite) xpValue = GAME_CONFIG.ELITE_XP_MULT;
         else if (e.hp >= 3) xpValue = 5;
 
         // 经验加成
@@ -8156,6 +8346,92 @@ function update() {
         }
     }
 
+    // === 肾上腺素系统 (低血量爽点) ===
+    const hpRatio = gameState.lives / maxPlayerLives;
+    if (hpRatio <= GAME_CONFIG.ADRENALINE_HP_THRESHOLD && hpRatio > 0) {
+        if (!adrenalineActive) {
+            adrenalineActive = true;
+            spawnFloatingText(player.x, player.y - 70, '💢 肾上腺素爆发!', '#ff0000');
+            gameState.screenShake = 5;
+            playSound('upgrade');
+        }
+        adrenalineSpeedBonus = GAME_CONFIG.ADRENALINE_SPEED_BONUS;
+        // 视觉：红色粒子
+        if (Math.random() < 0.3) {
+            particles.push({
+                x: player.x + (Math.random() - 0.5) * 40,
+                y: player.y + (Math.random() - 0.5) * 40,
+                vx: (Math.random() - 0.5) * 3, vy: -2 - Math.random(),
+                life: 12, color: '#ff4444', size: 3
+            });
+        }
+    } else {
+        if (adrenalineActive) {
+            adrenalineActive = false;
+            spawnFloatingText(player.x, player.y - 50, '状态恢复', '#4ade80');
+        }
+        adrenalineSpeedBonus = 0;
+    }
+
+    // === 血之狂欢计时 ===
+    if (bloodFrenzyTimer > 0) {
+        bloodFrenzyTimer--;
+        if (bloodFrenzyTimer <= 0) bloodFrenzyKills = 0;
+    }
+
+    // === 火雨系统 ===
+    if (playerBuffs.fireRain) {
+        fireRainTimer++;
+        if (fireRainTimer >= 900) { // 15秒 = 900帧@60fps
+            fireRainTimer = 0;
+            showEvent('🌋 火雨降临!');
+            gameState.screenShake = 15;
+            // 在随机位置投下火球
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    if (gamePhase !== 'playing') return;
+                    const fx = player.x + (Math.random() - 0.5) * 400;
+                    const fy = player.y + (Math.random() - 0.5) * 400;
+                    enemies.forEach(e => {
+                        if (!e.flying) {
+                            const dist = Math.sqrt((e.x - fx) ** 2 + (e.y - fy) ** 2);
+                            if (dist < 100) dealDamageToEnemy(e, 15);
+                        }
+                    });
+                    for (let j = 0; j < 10; j++) {
+                        particles.push({
+                            x: fx, y: fy,
+                            vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+                            life: 20, color: j % 2 === 0 ? '#ff4400' : '#ffaa00', size: 5
+                        });
+                    }
+                }, i * 200);
+            }
+        }
+    }
+
+    // === 连锁爆炸处理 ===
+    if (chainExplosionQueue.length > 0) {
+        const explosion = chainExplosionQueue.shift();
+        enemies.forEach(e => {
+            if (!e.flying) {
+                const dist = Math.sqrt((e.x - explosion.x) ** 2 + (e.y - explosion.y) ** 2);
+                if (dist < 80) {
+                    dealDamageToEnemy(e, 10);
+                    e.hitFlash = 8;
+                }
+            }
+        });
+        for (let i = 0; i < 8; i++) {
+            particles.push({
+                x: explosion.x, y: explosion.y,
+                vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10,
+                life: 15, color: '#ff6600', size: 4
+            });
+        }
+        gameState.screenShake = Math.min(gameState.screenShake + 5, 15);
+    }
+
     // === 割草模式: 自动攻击 ===
     if (KUOSAO_MODE.enabled) {
         updateAutoAttack();
@@ -8311,7 +8587,7 @@ function update() {
 
         // 对角线归一化
         const mag = Math.sqrt(moveX * moveX + moveY * moveY);
-        const speed = 6 * (playerBuffs.speedMult || 1) * (playerBuffs.speedBonus || 1);
+        const speed = 6 * (playerBuffs.speedMult || 1) * (playerBuffs.speedBonus || 1) * (1 + adrenalineSpeedBonus);
         if (mag > 0) {
             player.vx = (moveX / mag) * speed * ts;
             player.vy = (moveY / mag) * speed * ts;
@@ -8889,13 +9165,31 @@ function render() {
     });
     // 玩家
     if (gamePhase === 'playing') {
-        // 俯视角阴影
+        // 俯视角阴影（脚底位置）
+        const footY = player.y + GAME_CONFIG.PLAYER_FOOT_OFFSET_Y;
         ctx.save();
         ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         ctx.beginPath();
-        ctx.ellipse(player.x, player.y + 25, 35, 15, 0, 0, Math.PI * 2);
+        ctx.ellipse(player.x, footY, GAME_CONFIG.SHADOW_RX, GAME_CONFIG.SHADOW_RY, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
+
+        // 狂战光环 - 绘制在角色下层（脚底位置）
+        if (playerBuffs.berserkerHeart && gameState.lives <= 2) {
+            ctx.save();
+            ctx.translate(player.x, footY);
+            const auraImg = berserkerImages.aura[berserkerAnim.auraFrame];
+            if (auraImg && auraImg.complete && auraImg.naturalWidth > 0) {
+                const auraScale = player.scale * GAME_CONFIG.BERSERKER_AURA_SCALE;
+                const auraW = auraImg.width * auraScale;
+                const auraH = auraImg.height * auraScale;
+                const pulse = 1 + Math.sin(Date.now() / 200) * 0.08;
+                ctx.globalAlpha = GAME_CONFIG.BERSERKER_AURA_OPACITY;
+                ctx.drawImage(auraImg, -auraW * pulse / 2, -auraH * pulse / 2, auraW * pulse, auraH * pulse);
+                ctx.globalAlpha = 1;
+            }
+            ctx.restore();
+        }
 
         ctx.save(); ctx.translate(player.x, player.y); ctx.scale(player.facingRight ? -1 : 1, 1);
         if (player.invincible && Math.floor(Date.now() / 50) % 2 === 0) ctx.globalAlpha = 0.5;
@@ -8946,31 +9240,17 @@ function render() {
             ctx.shadowBlur = 0;
             ctx.scale(player.facingRight ? -1 : 1, 1);
         }
-        // 狂战之心效果 (血量≤2时) - 使用图片动画
+        // 狂战之心效果 (血量≤2时) - 爆发动画+红色发光（光环已移至脚底层）
         if (playerBuffs.berserkerHeart && gameState.lives <= 2) {
             ctx.scale(player.facingRight ? -1 : 1, 1);
 
-            // 1. 永久光环动画 (3帧循环)
-            const auraImg = berserkerImages.aura[berserkerAnim.auraFrame];
-            if (auraImg && auraImg.complete && auraImg.naturalWidth > 0) {
-                const auraScale = player.scale * 0.25;  // 调整光环大小
-                const auraW = auraImg.width * auraScale;
-                const auraH = auraImg.height * auraScale;
-                // 添加脉动效果
-                const pulse = 1 + Math.sin(Date.now() / 200) * 0.08;
-                ctx.globalAlpha = 0.9;
-                ctx.drawImage(auraImg, -auraW * pulse / 2, -auraH * pulse / 2 - 18, auraW * pulse, auraH * pulse);
-                ctx.globalAlpha = 1;
-            }
-
-            // 2. 爆发动画 (触发时3帧序列)
+            // 爆发动画 (触发时3帧序列) - 保持在角色上层
             if (berserkerAnim.burstActive) {
                 const burstImg = berserkerImages.burst[berserkerAnim.burstFrame];
                 if (burstImg && burstImg.complete && burstImg.naturalWidth > 0) {
-                    const burstScale = player.scale * 0.35;  // 爆发效果更大
+                    const burstScale = player.scale * GAME_CONFIG.BERSERKER_BURST_SCALE;
                     const burstW = burstImg.width * burstScale;
                     const burstH = burstImg.height * burstScale;
-                    // 爆发时放大淡出
                     const progress = berserkerAnim.burstFrame / 3;
                     const expandScale = 1 + progress * 0.5;
                     ctx.globalAlpha = 1 - progress * 0.3;
@@ -8979,7 +9259,7 @@ function render() {
                 }
             }
 
-            // 3. 保留红色发光边缘作为补充
+            // 红色发光边缘
             const pulseIntensity = 0.3 + Math.sin(Date.now() / 150) * 0.2;
             ctx.shadowColor = '#ff0000';
             ctx.shadowBlur = 15 + Math.sin(Date.now() / 100) * 5;
@@ -9614,6 +9894,14 @@ function resetGame() {
 
     // === 重置死因记录 ===
     detailedDeathContext = { killerType: null, killerName: null, damageType: 'contact', wasElite: false, wasBoss: false, nearbyEnemies: 0, phase: 0 };
+
+    // === 重置新系统状态 ===
+    adrenalineActive = false;
+    adrenalineSpeedBonus = 0;
+    bloodFrenzyKills = 0;
+    bloodFrenzyTimer = 0;
+    fireRainTimer = 0;
+    chainExplosionQueue = [];
 
     // === 重置割草模式系统 ===
     gemPool.reset();

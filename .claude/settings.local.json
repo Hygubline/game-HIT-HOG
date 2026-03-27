@@ -6,7 +6,11 @@
       "Bash(findstr:*)",
       "Bash(dir:*)",
       "Bash(grep -v \"//\")",
-      "Bash(ls /c/Users/hy126/desktop/game/*.png)"
+      "Bash(ls /c/Users/hy126/desktop/game/*.png)",
+      "Bash(node -c /c/Users/hy126/desktop/game/index.html)",
+      "Bash(sed \"1d;$d\")",
+      "Bash(node -c /tmp/game_check.js)",
+      "Bash(node -c /tmp/check_js.js)"
     ]
   }
 }
