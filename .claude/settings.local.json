@@ -10,7 +10,13 @@
       "Bash(node -c /c/Users/hy126/desktop/game/index.html)",
       "Bash(sed \"1d;$d\")",
       "Bash(node -c /tmp/game_check.js)",
-      "Bash(node -c /tmp/check_js.js)"
+      "Bash(node -c /tmp/check_js.js)",
+      "Bash(node:*)",
+      "Bash(python:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/hy126/Desktop/game/**)",
+      "Bash(done)"
     ]
   }
 }
