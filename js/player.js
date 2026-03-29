@@ -338,6 +338,38 @@ function updateBerserkerAnimation(deltaTime) {
     }
 }
 
+// === 普通攻击 (劈砍) 帧图片 (4帧, 第3帧判定伤害) ===
+const slashCharFrames = [];
+for (let i = 0; i < 4; i++) {
+    slashCharFrames[i] = new Image();
+    slashCharFrames[i].src = `images/character/slash_char_0${i + 1}.png`;
+}
+
+// === 撒娇技能帧图片 ===
+const sajiaoCharFrames = [];  // 角色动画 3帧 (第2帧释放技能)
+for (let i = 0; i < 3; i++) {
+    sajiaoCharFrames[i] = new Image();
+    sajiaoCharFrames[i].src = `images/character/sajiao_char_0${i + 1}.png`;
+}
+const sajiaoHeartFrames = []; // 爱心特效 3帧 (聚集→爆发→飘散)
+for (let i = 0; i < 3; i++) {
+    sajiaoHeartFrames[i] = new Image();
+    sajiaoHeartFrames[i].src = `images/character/sajiao_heart_0${i + 1}.png`;
+}
+const sajiaoWaveFrames = [];  // 范围波纹 2帧 (起爆→扩散)
+for (let i = 0; i < 2; i++) {
+    sajiaoWaveFrames[i] = new Image();
+    sajiaoWaveFrames[i].src = `images/character/sajiao_wave_0${i + 1}.png`;
+}
+const sajiaoHitImg = new Image(); // 命中特效
+sajiaoHitImg.src = 'images/character/sajiao_hit_01.png';
+
+// === 闪避动画帧 (3帧) ===
+const dodgeFrames = [];
+dodgeFrames[0] = new Image(); dodgeFrames[0].src = 'images/character/冲刺.png';
+dodgeFrames[1] = new Image(); dodgeFrames[1].src = 'images/character/冲刺1.png';
+dodgeFrames[2] = new Image(); dodgeFrames[2].src = 'images/character/冲刺2.png';
+
 // === 跑步/死亡动画状态 ===
 const playerAnim = {
     runFrame: 0,
@@ -347,6 +379,18 @@ const playerAnim = {
     deathTimer: 0,
     deathSpeed: 150,    // 死亡动画每帧150ms
     deathPlaying: false
+};
+
+// === 技能帧动画状态 ===
+const skillAnim = {
+    // 当前播放的技能动画 (null = 没有在播放)
+    active: null,       // 'slash' | 'sajiao' | null
+    frame: 0,           // 当前帧索引
+    timer: 0,           // 帧计时器 (ms)
+    frameSpeed: 100,    // 每帧持续时间 (ms)
+    damageDealt: false,  // 本次动画是否已执行伤害判定
+    // 撒娇VFX
+    sajiaoVfx: null,    // { phase, frame, timer, x, y, hitTargets }
 };
 images.boss1.src = 'images/boss/boss1.png'; images.boss2.src = 'images/boss/boss2.png';
 // 待机动画图片

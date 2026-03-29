@@ -767,6 +767,74 @@ function drawWeapons(ctx) {
                 ctx.globalAlpha = 1;
                 break;
             }
+
+            // === 英雄系统投射物 (通用渲染) ===
+            default: {
+                ctx.translate(p.x, p.y);
+                const alpha = p.life / (p.maxLife || 60);
+                ctx.globalAlpha = alpha;
+                const angle = Math.atan2(p.vy, p.vx);
+                ctx.rotate(angle);
+
+                // 根据类型选择形状
+                if (p.type === 'slash_wave') {
+                    // 剑气波
+                    ctx.fillStyle = p.color || '#ffd700';
+                    ctx.beginPath();
+                    ctx.moveTo(-(p.size || 10), 0);
+                    ctx.lineTo(0, -(p.size || 10));
+                    ctx.lineTo((p.size || 10) * 2, 0);
+                    ctx.lineTo(0, (p.size || 10));
+                    ctx.closePath();
+                    ctx.fill();
+                    // 光晕
+                    ctx.globalAlpha = alpha * 0.3;
+                    ctx.fillStyle = p.color || '#ffd700';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, (p.size || 10) * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (p.type === 'kick_shockwave') {
+                    // 冲击波
+                    ctx.fillStyle = p.color || '#ff8844';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = alpha * 0.4;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (p.type === 'slash_aftershock') {
+                    // 斩击余波 — 使用提供的图片资源
+                    const afImg = (typeof upgradeImages !== 'undefined')
+                        ? (p.life > 10 ? upgradeImages.slash_aftershock1 : upgradeImages.slash_aftershock2)
+                        : null;
+                    if (afImg && afImg.complete && afImg.naturalWidth > 0) {
+                        const scale = 0.15 * (1 + (1 - p.life / (p.maxLife || 20)) * 0.3);
+                        const w = afImg.width * scale, h = afImg.height * scale;
+                        ctx.drawImage(afImg, -w / 2, -h / 2, w, h);
+                    } else {
+                        // fallback: 扇形
+                        ctx.fillStyle = '#ffaa44';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, p.size || 20, -0.4, 0.4);
+                        ctx.lineTo(0, 0);
+                        ctx.fill();
+                    }
+                } else {
+                    // 通用球形投射物
+                    const size = p.size || 8;
+                    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
+                    grad.addColorStop(0, '#fff');
+                    grad.addColorStop(0.5, p.color || '#ffaa00');
+                    grad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+                break;
+            }
         }
 
         ctx.restore();

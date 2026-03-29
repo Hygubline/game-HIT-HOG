@@ -58,7 +58,7 @@ const upgradePool = [
     { id: 'showMaster', name: '整活专家', icon: '🎪', desc: '攻击时低概率触发随机小效果（爆炸/吸血/加速）', apply: () => { playerBuffs.chaosMode = true; runBuildTags.utility += 2; runBuildTags.damage += 1; } },
 ];
 let selectedUpgrades = [];
-let selectedMode = 'speed';
+let selectedMode = 'wave_battle';
 let playerRelics = [];
 let pendingRelic = null;
 let selectedTalent = null;

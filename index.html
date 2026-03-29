@@ -501,6 +501,27 @@
         #shopBtn:hover, #achieveBtn:hover, #tutorialBtn:hover, #leaderboardBtn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.4); color: #fff; }
         .menu-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; }
         #mainMenu { display: flex; flex-direction: column; align-items: flex-start; }
+        /* === 波次战斗技能栏 === */
+        .wave-skill-slot {
+            width: 52px; height: 52px; border-radius: 8px; position: relative;
+            background: rgba(0,0,0,0.7); border: 2px solid #666; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .wave-skill-slot.ready { border-color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.4); }
+        .wave-skill-slot.on-cd { border-color: #444; opacity: 0.7; }
+        .wave-skill-slot .cd-fill {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6);
+            border-radius: 0 0 6px 6px; transition: height 0.1s;
+        }
+        .wave-skill-slot .cd-text {
+            position: absolute; font-size: 14px; font-weight: bold; color: #fff;
+            text-shadow: 1px 1px 2px #000; z-index: 2;
+        }
+        .wave-skill-slot .key-hint {
+            position: absolute; top: -8px; right: -4px; font-size: 9px; color: #aaa;
+            background: rgba(0,0,0,0.8); padding: 1px 4px; border-radius: 3px;
+        }
         /* 模式选择 */
         #modeSelect { display: none; flex-direction: column; align-items: center; gap: 8px; }
         .mode-select-title { color: rgba(255,255,255,0.6); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
@@ -1154,7 +1175,7 @@
                     </div>
                     <div id="modeSelect">
                         <div class="mode-select-title">选择模式</div>
-                        <div class="mode-btn selected" data-mode="speed">⚡ 速战模式 <span style="opacity:0.5">(60秒)</span><div class="mode-desc">经典快节奏，限时挑战</div></div>
+                        <div class="mode-btn selected" data-mode="wave_battle">⚔️ 波次战斗 <span style="opacity:0.5">(推荐)</span><div class="mode-desc">10波主动战斗，Boss终结</div></div>
                         <div class="mode-btn" data-mode="endless">♾️ 无尽模式<div class="mode-desc">活到死为止，挑战极限</div></div>
                         <div class="mode-actions">
                             <button class="menu-btn" id="backToMainBtn">返回</button>
@@ -1262,7 +1283,7 @@
         <div id="leaderboardScreen">
             <h2>🏆 英雄榜</h2>
             <div class="lb-tabs">
-                <div class="lb-tab active" data-mode="speed">⚡ 速战模式</div>
+                <div class="lb-tab active" data-mode="wave_battle">⚔️ 波次战斗</div>
                 <div class="lb-tab" data-mode="endless">♾️ 无尽模式</div>
             </div>
             <div class="lb-list">
@@ -1302,6 +1323,13 @@
                 <div class="hp-bar-fill" id="hpFill" style="width: 100%"></div>
                 <div class="hp-segments" id="hpSegments"></div>
             </div>
+        </div>
+        <!-- === 波次战斗UI === -->
+        <div id="waveIndicator" style="display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);
+            color:#ffd700;font-size:16px;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.5),2px 2px 0 #000;
+            z-index:50;pointer-events:none;letter-spacing:2px;"></div>
+        <div id="waveSkillBar" style="display:none;position:absolute;bottom:15px;left:50%;transform:translateX(-50%);
+            display:flex;gap:8px;z-index:50;">
         </div>
         <div id="mapName"></div>
         <button id="soundBtn">🔊</button>
@@ -1435,6 +1463,11 @@
     <script src="js/player.js"></script>
     <script src="js/map.js"></script>
     <script src="js/shop.js"></script>
+    <!-- === 新波次战斗系统 === -->
+    <script src="js/wave-manager.js"></script>
+    <script src="js/hero-system.js"></script>
+    <script src="js/wave-upgrades.js"></script>
+    <script src="js/enemy-manager.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>

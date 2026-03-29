@@ -1,5 +1,58 @@
 # 变更日志
 
+## 2026-03-28 - 波次战斗模式重构 (Wave Battle Mode)
+
+将游戏从纯自动割草模式重构为**波次制主动战斗模式**，新增 3 个模块文件，修改 4 个现有文件。
+
+### 新增文件
+
+| 文件 | 行数 | 内容 |
+|------|------|------|
+| `js/wave-manager.js` | 454 | 波次状态机 (idle→wave_start→in_wave→wave_cleared→upgrade_select→boss→victory)、10波配置数据、敌人生成调度 |
+| `js/hero-system.js` | 440 | 英雄模板定义 (dog001)、4个主动技能定义 (踢击J/斩击K/撒娇L/冲刺Space)、技能行为注册表、冷却管理 |
+| `js/enemy-manager.js` | 250 | 敌人AI行为分发 (normal/charger/shooter/bomber/tank)、死亡飞出处理、碰撞检测、自爆逻辑 |
+
+### 修改文件
+
+| 文件 | 改动 |
+|------|------|
+| `js/game.js` | +443行: `updateWaveBattle()` 主循环、`playerTakeDamage()` 包装函数、`update()` 模式分流、技能栏UI初始化、波次模式的开始/重启/结束逻辑 |
+| `index.html` | 新增波次战斗模式按钮 (默认选中)、波次指示器UI (#waveIndicator)、技能栏UI (#waveSkillBar) 及CSS、3个新JS脚本标签 |
+| `js/weapons.js` | `drawWeapons()` 新增 default 分支，渲染英雄技能弹道 (slash_wave/kick_shockwave/通用径向渐变) |
+| `js/shop.js` | 默认模式从 `speed` 改为 `wave_battle` |
+
+### 架构设计
+
+- **共存架构**: `update()` 中 `selectedMode === 'wave_battle'` 提前分流，新旧模式互不干扰
+- **数据驱动**: 英雄/技能/波次配置均为纯数据对象，行为通过注册表映射
+- **最大复用**: 复用现有 `dealDamageToEnemy`、`handleEnemyKill`、`playerHit`、`showUpgradePanel`、`spawnBoss`、`render()`、粒子/相机/血条/经验系统
+
+### 10波配置
+
+| 波次 | 名称 | 敌人类型 | 数量 | 特点 |
+|------|------|----------|------|------|
+| 1 | 幽灵前哨 | ghost_basic | 8 | 教学波，低速低血 |
+| 2 | 骷髅突袭 | skeleton_charger | 12 | 冲锋怪，间歇冲刺 |
+| 3 | 暗影射手 | shadow_shooter | 10 | 远程怪，保持距离射击 |
+| 4 | 蘑菇爆破 | mushroom_bomber | 15 | 自爆怪，接近后倒计时爆炸 |
+| 5 | 精英混战 | mixed_elite | 10 | 混合精英，首次精英出现 |
+| 6 | 铁壁军团 | iron_tank | 8 | 坦克怪，高血低速 |
+| 7 | 亡灵射手团 | undead_archer | 14 | 快速射击，低CD弹幕 |
+| 8 | 疾风冲锋 | wind_charger | 18 | 高速冲锋，密集生成 |
+| 9 | 混沌军团 | chaos_mixed | 20 | 全类型混合，最高密度 |
+| 10 | BOSS: 八重宿敌 | boss | 1 | Boss战，复用现有spawnBoss |
+
+### 4个主动技能
+
+| 按键 | 技能 | 类型 | CD | 效果 |
+|------|------|------|-----|------|
+| J | 犬踢 | melee_slash | 1s | 前方扇形近战，击退+伤害 |
+| K | 犬斩 | projectile | 2s | 发射斩击波弹道 |
+| L | 犬の撒嬌 | aoe_ground | 8s | 周身AOE，眩晕+伤害 |
+| Space | 犬突进 | dash | 3s | 快速位移+无敌帧+路径伤害 |
+
+---
+
 ## 2026-03-27 - 踢击特效升级 (Lv1~Lv5 视觉分级)
 
 使用 `images/effects/踢击/` 下的 14 张现有素材，为踢击技能 Lv1~Lv5 设计了完全不同的视觉身份。

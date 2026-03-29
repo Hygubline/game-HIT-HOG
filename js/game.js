@@ -494,6 +494,54 @@ function startGame() {
     }
 
     showPlayerHealthBar();
+
+    // === 波次战斗模式: 使用新系统初始化 ===
+    if (selectedMode === 'wave_battle') {
+        document.getElementById('mapName').textContent = '⚔️ 波次战斗';
+
+        resetGame();
+        applyPermUpgrades();
+
+        // 初始化英雄系统
+        HeroSystem.init('dog001');
+        gameState.lives = HeroSystem.getHero().baseStats.maxHp;
+
+        initPlayerHealthBar();
+
+        // 重置升级系统
+        if (typeof resetWaveUpgradeState === 'function') resetWaveUpgradeState();
+        if (typeof upgradeVfxList !== 'undefined') upgradeVfxList.length = 0;
+
+        // 初始化波次管理器
+        WaveManager.init();
+
+        // 初始化技能栏
+        initWaveSkillBar();
+
+        // 初始化经验条
+        updateXPBar();
+
+        gameState.isPaused = false;
+        gameState._victoryTriggered = false;
+        gameState._lastSecondTime = Date.now();
+
+        // 延迟开始第一波
+        setTimeout(() => {
+            if (gamePhase === 'playing' && selectedMode === 'wave_battle') {
+                WaveManager.startBattle();
+            }
+        }, 1000);
+
+        // 只启动基础计时器(时间/弹幕)
+        startTimers();
+
+        // 开始背景音乐
+        if (soundEnabled && typeof startBGM === 'function') startBGM();
+
+        return; // 跳过旧模式初始化
+    }
+
+    // --- legacy: 旧模式初始化 ---
     // 无尽模式不显示技能栏（只用武器系统）
     if (selectedMode !== 'endless') {
         if (isMobile) document.getElementById('mobileControls').style.display = 'flex';
@@ -603,6 +651,12 @@ function backToMenu() {
     document.getElementById('mainMenu').style.display = 'block';
     document.getElementById('startScreen').style.display = 'flex';
 
+    // 波次战斗: 清理UI
+    const waveIndicator = document.getElementById('waveIndicator');
+    if (waveIndicator) waveIndicator.style.display = 'none';
+    const waveSkillBar = document.getElementById('waveSkillBar');
+    if (waveSkillBar) { waveSkillBar.style.display = 'none'; waveSkillBar.innerHTML = ''; }
+
     // 割草模式: 清理UI
     const xpBar = document.getElementById('xpBar');
     if (xpBar) xpBar.style.display = 'none';
@@ -615,6 +669,15 @@ function backToMenu() {
 }
 
 function startTimers() {
+    // === 波次战斗模式: 不使用旧的 setInterval 刷怪 ===
+    if (selectedMode === 'wave_battle') {
+        // 只保留弹幕效果
+        danmakuInterval = setInterval(() => {
+            if (gamePhase === 'playing' && Math.random() > 0.8) spawnDanmaku();
+        }, 3000);
+        return; // 跳过所有旧模式计时器
+    }
+
     // === 割草模式敌人生成 ===
     if (KUOSAO_MODE.enabled && selectedMode === 'endless') {
         // 高密度敌人生成
@@ -813,8 +876,15 @@ function startWave(waveNum) {
 }
 
 // 升级面板
-function showUpgradePanel() {
+function showUpgradePanel(source) {
     if (gameState.gameOver || player.isDead) return;
+
+    // 波次战斗模式: 波次清除后使用新升级池
+    if (selectedMode === 'wave_battle' && source === 'wave_clear' && typeof showWaveUpgradePanel === 'function') {
+        showWaveUpgradePanel();
+        return;
+    }
+
     playSound('upgrade');
     gameState.isPaused = true;
     const panel = document.getElementById('upgradePanel');
@@ -982,6 +1052,12 @@ function selectUpgradeOption(opt) {
     }
     document.getElementById('upgradePanel').style.display = 'none';
     gameState.isPaused = false;
+
+    // === 波次战斗: 通知波次管理器继续下一波 ===
+    // 只在波次清除后的升级选择才推进波次, XP升级不推进
+    if (selectedMode === 'wave_battle' && typeof WaveManager !== 'undefined' && WaveManager.state === 'upgrade_select') {
+        WaveManager.onUpgradeSelected();
+    }
 }
 
 function selectUpgrade(upg) {
@@ -1259,6 +1335,14 @@ function dealDamageToEnemy(e, dmg, hitType = 'normal') {
     // 冻伤加深：被减速敌人受伤增加
     if (playerBuffs.slowDamageBonus && (e.slowed || e.slowTimer > 0 || e.frozen)) {
         d *= (1 + playerBuffs.slowDamageBonus);
+    }
+    // 心动易伤：被撒娇标记的敌人受伤+25% (Boss+15%)
+    if (typeof waveUpgradeState !== 'undefined' && waveUpgradeState.active.heart_vulnerable && e.heartMark) {
+        d *= e.isBoss ? 1.15 : 1.25;
+    }
+    // 完美闪避增伤
+    if (typeof waveUpgradeState !== 'undefined' && waveUpgradeState.perfectDodgeBuff > 0) {
+        d *= 1.25;
     }
     // 狂战之心(旧)：血量越低伤害越高
     if (playerBuffs.berserkerMode) {
@@ -1791,6 +1875,12 @@ function useItem() {
 
 function handleEnemyKill(e) {
     playSound('kill');
+
+    // === 波次战斗: 通知波次管理器 ===
+    if (selectedMode === 'wave_battle' && typeof WaveManager !== 'undefined') {
+        WaveManager.onEnemyKilled(e);
+    }
+
     // A1: 击杀时停增强 - 精英/Boss有更长的时停
     triggerHitStop(e.isBoss ? HIT_STOP.HEAVY : (e.isElite ? HIT_STOP.MEDIUM : HIT_STOP.LIGHT));
     // A5: 多杀计数
@@ -2515,6 +2605,13 @@ function playerHit(reason, killerInfo = null) {
         player.blockTimer = 0;
         return;
     }
+    // 余闪护身: 闪避后减伤30%, 概率免疫
+    if (typeof waveUpgradeState !== 'undefined' && waveUpgradeState.flashGuardTimer > 0 && Math.random() < 0.3) {
+        playSound('dash');
+        spawnFloatingText(player.x, player.y - 40, '🛡️余闪!', '#44aaff');
+        player.invincible = true; player.invincibleTimer = 20;
+        return;
+    }
     // 减伤效果：有概率完全免伤
     if (playerBuffs.damageReduce > 0 && Math.random() < playerBuffs.damageReduce) {
         playSound('dash');
@@ -2702,9 +2799,30 @@ function playerHit(reason, killerInfo = null) {
     else { player.invincible = true; player.invincibleTimer = Math.floor(playerBuffs.invincibleTime); gameState.screenShake = 15; spawnFloatingText(player.x, player.y - 40, '受伤!', '#e94560'); }
 }
 
+// === 新系统兼容接口: playerTakeDamage ===
+// 供 EnemyManager / HeroSystem 调用, 内部转发到 playerHit
+function playerTakeDamage(damage, enemy) {
+    if (!enemy) { playerHit('受到伤害'); return; }
+    playerHit('被打死', {
+        role: enemy.role || 'normal',
+        name: enemy.name || '敌人',
+        isElite: enemy.isElite || false,
+        isBoss: enemy.isBoss || false,
+        damageType: enemy._damageType || 'contact'
+    });
+}
+
 // ==================== 更新 ====================
 function update() {
-    if (gamePhase !== 'playing' || gameState.gameOver || gameState.isPaused) return;
+    if (gamePhase !== 'playing' || gameState.gameOver) return;
+
+    // === 波次战斗模式: 使用新系统 ===
+    if (selectedMode === 'wave_battle') {
+        updateWaveBattle();
+        return;
+    }
+
+    if (gameState.isPaused) return;
 
     // Hitstop: pause game briefly on impact
     if (gameState.hitStop > 0) {
@@ -3724,6 +3842,15 @@ function render() {
                 img = deathFrames[playerAnim.deathFrame] || images.dead;
             }
             else if (player.blocking) img = images.main;
+            else if (typeof skillAnim !== 'undefined' && skillAnim.active === 'slash' && typeof slashCharFrames !== 'undefined') {
+                img = slashCharFrames[skillAnim.frame] || images.attack;
+            }
+            else if (typeof skillAnim !== 'undefined' && skillAnim.active === 'sajiao' && typeof sajiaoCharFrames !== 'undefined') {
+                img = sajiaoCharFrames[skillAnim.frame] || images.sajiao;
+            }
+            else if (typeof skillAnim !== 'undefined' && skillAnim.active === 'dodge' && typeof dodgeFrames !== 'undefined') {
+                img = dodgeFrames[Math.min(skillAnim.frame, 2)] || images.dash;
+            }
             else if (player.slashing) img = images.attack;
             else if (player.currentState === 'sajiao') img = images.sajiao;
             else if (player.kicking) img = images.kick;
@@ -3806,6 +3933,12 @@ function render() {
         }
         ctx.restore();
     }
+    // 撒娇VFX (爱心/波纹/命中特效, 世界坐标)
+    if (typeof drawSajiaoVfx === 'function') drawSajiaoVfx(ctx);
+    // 升级VFX (斩击余波/猎步/回场等)
+    if (typeof drawUpgradeVfx === 'function') drawUpgradeVfx(ctx);
+    // 心动易伤标记
+    if (typeof drawHeartMarks === 'function') drawHeartMarks(ctx);
     // 飘字
     floatingTexts.forEach(t => {
         const maxLife = t.isCrit ? 70 : 50;
@@ -3999,12 +4132,345 @@ document.addEventListener('keydown', e => {
 });
 
 // ==================== 结算 ====================
+// ==================== 波次战斗模式 - 主更新循环 ====================
+function updateWaveBattle() {
+    // 暂停状态 (升级面板、XP升级等)
+    if (gameState.isPaused) return;
+
+    // 波次管理器暂停时(升级选择), 只更新UI不更新战斗
+    if (WaveManager.state === 'upgrade_select') {
+        // 等待玩家选择升级, gameState.isPaused 由 showUpgradePanel 设置
+        return;
+    }
+
+    // 胜利/游戏结束
+    if (WaveManager.state === 'victory') {
+        if (!gameState._victoryTriggered) {
+            gameState._victoryTriggered = true;
+            gameState.deathReason = '通关成功!';
+            gameState.score += 5000;
+            // 延迟显示结算
+            setTimeout(() => {
+                if (typeof showVictory === 'function') {
+                    showVictory();
+                } else {
+                    endGame();
+                }
+            }, 1500);
+        }
+        return;
+    }
+
+    if (WaveManager.state === 'game_over') return;
+    if (gameState.gameOver) return;
+
+    // Hitstop
+    if (gameState.hitStop > 0) { gameState.hitStop--; return; }
+
+    const ts = gameState.slowMo ? 0.3 : 1;
+
+    // === 英雄系统: 更新技能冷却 ===
+    HeroSystem.updateCooldowns();
+
+    // === 技能帧动画更新 ===
+    if (typeof updateSkillAnimation === 'function') updateSkillAnimation(16);
+    if (typeof updateSajiaoVfx === 'function') updateSajiaoVfx(16);
+    // === 升级系统更新 ===
+    if (typeof updateWaveUpgrades === 'function') updateWaveUpgrades(ts);
+    if (typeof updateUpgradeVfx === 'function') updateUpgradeVfx(16);
+
+    // === 英雄系统: 检测技能输入 (动画播放中不接受新技能) ===
+    if (typeof skillAnim === 'undefined' || !skillAnim.active) {
+        HeroSystem.checkSkillInput(keys);
+    }
+
+    // === 英雄被动效果 ===
+    const passiveEffects = HeroSystem.getPassiveEffects();
+    if (passiveEffects) {
+        adrenalineActive = true;
+        adrenalineSpeedBonus = passiveEffects.speedBonus || 0;
+    } else {
+        adrenalineActive = false;
+        adrenalineSpeedBonus = 0;
+    }
+
+    // === 波次管理器更新 (刷怪 / 清波检测) ===
+    WaveManager.update();
+
+    // === 敌人AI更新 ===
+    EnemyManager.updateEnemies(ts);
+    EnemyManager.cleanupFlying(ts);
+
+    // === 敌人-玩家碰撞 ===
+    EnemyManager.checkPlayerCollision();
+
+    // === 玩家移动 (复用现有逻辑) ===
+    if (!player.isDead && !player.blocking) {
+        let moveX = 0, moveY = 0;
+        if (keys['ArrowLeft'] || keys['KeyA']) moveX = -1;
+        if (keys['ArrowRight'] || keys['KeyD']) moveX = 1;
+        if (keys['ArrowUp'] || keys['KeyW']) moveY = -1;
+        if (keys['ArrowDown'] || keys['KeyS']) moveY = 1;
+
+        if (isMobile) {
+            if (Math.abs(touchState.moveX) > 0.2) moveX = touchState.moveX;
+            if (Math.abs(touchState.moveY) > 0.2) moveY = -touchState.moveY;
+        }
+
+        const mag = Math.sqrt(moveX * moveX + moveY * moveY);
+        const hero = HeroSystem.getHero();
+        const baseSpeed = hero ? hero.baseStats.moveSpeed : 6;
+        const speed = baseSpeed * (playerBuffs.speedMult || 1) * (playerBuffs.speedBonus || 1) * (1 + adrenalineSpeedBonus);
+        if (mag > 0) {
+            player.vx = (moveX / mag) * speed * ts;
+            player.vy = (moveY / mag) * speed * ts;
+            if (moveX !== 0) player.facingRight = moveX > 0;
+        } else {
+            player.vx *= 0.8;
+            player.vy *= 0.8;
+        }
+    }
+
+    // 无敌计时
+    if (player.invincibleTimer > 0) { player.invincibleTimer--; if (player.invincibleTimer === 0) { player.invincible = false; player._dodgeActive = false; } }
+    if (player._dodgeTimer > 0) {
+        player._dodgeTimer--;
+        if (player._dodgeTimer <= 0) {
+            player._dodgeActive = false;
+            // 重置完美闪避判定标记
+            enemies.forEach(e => { e._perfectDodged = false; });
+        }
+    }
+    if (player.kickTimer > 0) { player.kickTimer--; if (player.kickTimer === 0) { player.kicking = false; if (!player.isDead && player.currentState === 'kick') player.currentState = 'idle'; } }
+    if (player.slashTimer > 0) { player.slashTimer--; if (player.slashTimer === 0) { player.slashing = false; if (!player.isDead && player.currentState === 'slash') player.currentState = 'idle'; } }
+
+    // 位移
+    if (!player.isDead) {
+        player.x += player.vx * ts * frameDeltaScale;
+        player.y += player.vy * ts * frameDeltaScale;
+        player.x = Math.max(40, Math.min(world.width - 40, player.x));
+        player.y = Math.max(40, Math.min(world.height - 40, player.y));
+        applyMapCollision(player, 25);
+        camera.update();
+    }
+
+    // === 武器投射物更新 (复用旧逻辑) ===
+    for (let i = weaponProjectiles.length - 1; i >= 0; i--) {
+        const p = weaponProjectiles[i];
+        p.x += p.vx * ts * frameDeltaScale;
+        p.y += p.vy * ts * frameDeltaScale;
+        p.life--;
+        if (p.life <= 0) { weaponProjectiles.splice(i, 1); continue; }
+
+        // 碰撞检测
+        for (const e of enemies) {
+            if (e.flying || e.currentHp <= 0) continue;
+            if (p.hit && p.hit.includes(e)) continue;
+            const dist = Math.sqrt((p.x - e.x) ** 2 + (p.y - e.y) ** 2);
+            if (dist < (e.size || 40) * 0.5 + (p.size || 8)) {
+                if (typeof dealDamageToEnemy === 'function') {
+                    dealDamageToEnemy(e, p.damage);
+                } else {
+                    e.currentHp -= p.damage;
+                    e.hitFlash = 8;
+                }
+                if (typeof spawnHitEffect === 'function') spawnHitEffect(e.x, e.y, 1.5);
+                if (p.hit) p.hit.push(e);
+                if (p.pierce !== undefined) {
+                    p.pierce--;
+                    if (p.pierce <= 0) { weaponProjectiles.splice(i, 1); break; }
+                } else {
+                    weaponProjectiles.splice(i, 1); break;
+                }
+            }
+        }
+    }
+
+    // === 敌人弹幕碰撞 (shooter怪的弹幕) ===
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i];
+        p.x += p.vx * ts * frameDeltaScale;
+        p.y += p.vy * ts * frameDeltaScale;
+        p.life--;
+        if (p.isEnemy && !player.isDead) {
+            if (Math.sqrt((p.x - player.x) ** 2 + (p.y - player.y) ** 2) < p.size + 25) {
+                // 闪避无敌中: 弹幕消除 + 完美闪避判定
+                if (player.invincible) {
+                    if (player._dodgeActive && typeof waveUpgradeState !== 'undefined' && waveUpgradeState.active.perfect_dodge && !p._perfectDodged) {
+                        p._perfectDodged = true;
+                        if (typeof triggerPerfectDodge === 'function') triggerPerfectDodge();
+                    }
+                    projectiles.splice(i, 1);
+                    continue;
+                }
+                playerTakeDamage(p.damage || 1, { role: 'shooter', _damageType: 'projectile' });
+                projectiles.splice(i, 1);
+                continue;
+            }
+        }
+        if (p.life <= 0 || p.x < -40 || p.x > world.width + 40 || p.y < -40 || p.y > world.height + 40) {
+            projectiles.splice(i, 1);
+        }
+    }
+
+    // === 粒子更新 ===
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += (p.vx || 0) * ts;
+        p.y += (p.vy || 0) * ts;
+        p.life--;
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+
+    // === 浮动文字 ===
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        floatingTexts[i].y -= 1.5 * ts;
+        floatingTexts[i].life--;
+        if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+    }
+
+    // 震屏衰减
+    if (gameState.screenShake > 0) gameState.screenShake *= 0.9;
+    if (gameState.screenShake < 0.5) gameState.screenShake = 0;
+
+    // 连击衰减
+    if (gameState.comboTimer > 0) { gameState.comboTimer--; if (gameState.comboTimer === 0) gameState.combo = 0; }
+
+    // 慢动作
+    if (gameState.slowMoTimer > 0) { gameState.slowMoTimer--; if (gameState.slowMoTimer === 0) { gameState.slowMo = false; } }
+
+    // 生存时间
+    if (!gameState._lastSecondTime) gameState._lastSecondTime = Date.now();
+    if (Date.now() - gameState._lastSecondTime >= 1000) {
+        gameState._lastSecondTime = Date.now();
+        gameStats.survivalTime++;
+        document.getElementById('time').textContent = gameStats.survivalTime + 's';
+    }
+
+    // === 踢击特效更新 ===
+    if (typeof updateKickEffects === 'function') updateKickEffects(ts);
+
+    // === 更新波次UI指示器 ===
+    const waveIndicator = document.getElementById('waveIndicator');
+    if (waveIndicator) {
+        const config = WaveManager.getCurrentConfig();
+        const waveNum = WaveManager.currentWave + 1;
+        if (WaveManager.state === 'in_wave' && config) {
+            const aliveCount = enemies.filter(e => !e.isBoss && !e.flying && e.currentHp > 0).length;
+            waveIndicator.textContent = `WAVE ${waveNum}/${WaveManager.totalWaves} - ${config.name} [${aliveCount}]`;
+            waveIndicator.style.color = '#ffd700';
+        } else if (WaveManager.state === 'boss_wave') {
+            waveIndicator.textContent = `WAVE ${waveNum}/${WaveManager.totalWaves} - BOSS FIGHT!`;
+            waveIndicator.style.color = '#ff4444';
+        } else if (WaveManager.state === 'wave_start') {
+            waveIndicator.style.color = '#ffd700';
+        } else if (WaveManager.state === 'wave_cleared') {
+            waveIndicator.textContent = `WAVE ${waveNum - 1} CLEARED!`;
+            waveIndicator.style.color = '#4ade80';
+        }
+    }
+
+    // === 更新技能冷却UI ===
+    updateWaveSkillBarUI();
+
+    // === 经验宝石更新 (复用) ===
+    if (typeof gemPool !== 'undefined' && gemPool.active) {
+        for (let i = gemPool.active.length - 1; i >= 0; i--) {
+            const gem = gemPool.active[i];
+            if (!gem.active) continue;
+            gem.bobOffset += 0.05;
+            // 磁吸
+            const dist = Math.sqrt((gem.x - player.x) ** 2 + (gem.y - player.y) ** 2);
+            const magnetRange = playerBuffs.xpMagnetRange || 50;
+            if (dist < magnetRange) {
+                gem.magnetSpeed = Math.min(gem.magnetSpeed + 0.5, 8);
+                const dx = player.x - gem.x, dy = player.y - gem.y;
+                const mag = Math.sqrt(dx * dx + dy * dy);
+                if (mag > 0) { gem.x += (dx / mag) * gem.magnetSpeed; gem.y += (dy / mag) * gem.magnetSpeed; }
+            }
+            if (dist < 20) {
+                const val = gemPool.collect(gem);
+                if (val > 0) playerXP.addXP(val * (playerBuffs.xpMultiplier || 1));
+            }
+        }
+    }
+
+    // 更新UI分数
+    document.getElementById('score').textContent = gameState.score;
+}
+
+// === 波次战斗: 技能栏UI更新 ===
+function updateWaveSkillBarUI() {
+    const bar = document.getElementById('waveSkillBar');
+    if (!bar || bar.style.display === 'none') return;
+
+    const slots = bar.querySelectorAll('.wave-skill-slot');
+    HeroSystem.skillSlots.forEach((skillId, idx) => {
+        const slot = slots[idx];
+        if (!slot) return;
+        const skillDef = SkillDefinitions[skillId];
+        if (!skillDef) return;
+
+        const cdPercent = HeroSystem.getSkillCooldownPercent(skillId);
+        const cdFill = slot.querySelector('.cd-fill');
+        const cdText = slot.querySelector('.cd-text');
+
+        if (cdPercent > 0) {
+            slot.classList.remove('ready');
+            slot.classList.add('on-cd');
+            if (cdFill) cdFill.style.height = (cdPercent * 100) + '%';
+            if (cdText) {
+                const remaining = HeroSystem.skillCooldowns[skillId] || 0;
+                cdText.textContent = Math.ceil(remaining / 60) + '';
+                cdText.style.display = 'block';
+            }
+        } else {
+            slot.classList.add('ready');
+            slot.classList.remove('on-cd');
+            if (cdFill) cdFill.style.height = '0%';
+            if (cdText) cdText.style.display = 'none';
+        }
+    });
+}
+
+// === 波次战斗: 初始化技能栏 ===
+function initWaveSkillBar() {
+    const bar = document.getElementById('waveSkillBar');
+    if (!bar) return;
+    bar.innerHTML = '';
+    bar.style.display = 'flex';
+
+    HeroSystem.skillSlots.forEach((skillId, idx) => {
+        const skillDef = SkillDefinitions[skillId];
+        if (!skillDef) return;
+
+        const slot = document.createElement('div');
+        slot.className = 'wave-skill-slot ready';
+        const keyLabel = skillDef.keyBind.replace('Key', '').replace('Space', 'SPC');
+        slot.innerHTML = `
+            <span style="z-index:2;pointer-events:none">${skillDef.icon}</span>
+            <div class="cd-fill" style="height:0%"></div>
+            <div class="cd-text" style="display:none"></div>
+            <div class="key-hint">${keyLabel}</div>
+        `;
+        // 点击也能释放技能
+        slot.addEventListener('click', () => HeroSystem.castSkill(skillId));
+        bar.appendChild(slot);
+    });
+}
+
 function endGame() {
     playSound('gameover');
-    stopBGM(); // 停止背景音乐
+    stopBGM();
     gameState.gameOver = true; player.isDead = true; player.currentState = 'dead';
     document.getElementById('deathImage').style.opacity = 1;
     hidePlayerHealthBar();
+
+    // 隐藏波次UI
+    const waveIndicator = document.getElementById('waveIndicator');
+    if (waveIndicator) waveIndicator.style.display = 'none';
+    const waveSkillBar = document.getElementById('waveSkillBar');
+    if (waveSkillBar) waveSkillBar.style.display = 'none';
     if (isMobile) document.getElementById('mobileControls').style.display = 'none';
 
     // 记录死亡时的详细上下文
@@ -4102,11 +4568,17 @@ function endGame() {
     }, 1200);
 }
 
-// ==================== 胜利动画 (急速模式) ====================
+// ==================== 胜利动画 ====================
 function showVictory() {
-    playSound('upgrade'); // 播放胜利音效
+    playSound('upgrade');
     gameState.gameOver = true;
     gameState.isPaused = true;
+
+    // 隐藏波次UI
+    const waveIndicator = document.getElementById('waveIndicator');
+    if (waveIndicator) waveIndicator.style.display = 'none';
+    const waveSkillBar = document.getElementById('waveSkillBar');
+    if (waveSkillBar) waveSkillBar.style.display = 'none';
     stopTimers();
     hidePlayerHealthBar();
     if (isMobile) document.getElementById('mobileControls').style.display = 'none';
@@ -4383,6 +4855,12 @@ function resetGame() {
     playerAnim.runFrame = 0; playerAnim.runTimer = 0;
     playerAnim.deathFrame = 0; playerAnim.deathTimer = 0;
     playerAnim.deathPlaying = false;
+    // 重置技能帧动画
+    if (typeof skillAnim !== 'undefined') {
+        skillAnim.active = null; skillAnim.frame = 0; skillAnim.timer = 0;
+        skillAnim.damageDealt = false; skillAnim._pendingSkill = null;
+        skillAnim.sajiaoVfx = null;
+    }
     idleAnim.currentAnim = 'breath';
     // 重置狂战动画
     berserkerAnim.auraFrame = 0; berserkerAnim.auraTimer = 0;
@@ -4470,10 +4948,44 @@ function resetGame() {
 function restartGame() {
     stopTimers();
     document.getElementById('gameOver').style.display = 'none';
-    currentMap = 0; // 村庄广场
+    currentMap = 0;
     document.getElementById('mapName').textContent = '📍 ' + mapThemes[currentMap].name;
 
-    // 割草模式显示
+    // === 波次战斗模式重启 ===
+    if (selectedMode === 'wave_battle') {
+        resetGame();
+        applyPermUpgrades();
+        showPlayerHealthBar();
+
+        HeroSystem.init('dog001');
+        gameState.lives = HeroSystem.getHero().baseStats.maxHp;
+        initPlayerHealthBar();
+
+        if (typeof resetWaveUpgradeState === 'function') resetWaveUpgradeState();
+        if (typeof upgradeVfxList !== 'undefined') upgradeVfxList.length = 0;
+
+        WaveManager.init();
+        initWaveSkillBar();
+        updateXPBar();
+
+        gameState.isPaused = false;
+        gameState._victoryTriggered = false;
+        gameState._lastSecondTime = Date.now();
+        gamePhase = 'playing';
+
+        startTimers();
+
+        setTimeout(() => {
+            if (gamePhase === 'playing' && selectedMode === 'wave_battle') {
+                WaveManager.startBattle();
+            }
+        }, 1000);
+
+        if (typeof startBGM === 'function' && soundEnabled) startBGM();
+        return;
+    }
+
+    // --- legacy: 旧模式重启 ---
     if (KUOSAO_MODE.enabled && selectedMode === 'endless') {
         document.getElementById('mapName').textContent += ' (割草模式)';
     }
@@ -4483,14 +4995,12 @@ function restartGame() {
     showPlayerHealthBar();
     initPlayerHealthBar();
 
-    // 割草模式: 初始化经验条
     if (KUOSAO_MODE.enabled && KUOSAO_MODE.xpEnabled && selectedMode === 'endless') {
         updateXPBar();
     }
 
     gameState.isPaused = true;
 
-    // 无尽模式：显示初始武器选择
     if (selectedMode === 'endless') {
         showStarterWeaponPanel();
     } else {
@@ -4500,7 +5010,6 @@ function restartGame() {
     startTimers();
     gamePhase = 'playing';
 
-    // 无尽模式不显示技能栏
     if (selectedMode !== 'endless') {
         if (isMobile) document.getElementById('mobileControls').style.display = 'flex';
     }

@@ -16,7 +16,12 @@
       "Bash(for f:*)",
       "Bash(do echo:*)",
       "Read(//c/Users/hy126/Desktop/game/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(do node:*)",
+      "Bash(wc:*)",
+      "Bash(echo \"$f OK\")",
+      "Bash(echo \"$f FAIL\")",
+      "Bash(grep:*)"
     ]
   }
 }

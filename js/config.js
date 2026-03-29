@@ -237,7 +237,12 @@ let playerXP = {
         this.level++;
         this.toNextLevel = Math.floor(GAME_CONFIG.BASE_XP_TO_LEVEL * Math.pow(GAME_CONFIG.XP_SCALING, this.level - 1));
         playSound('upgrade');
-        showKuosaoUpgradePanel();
+        // 波次战斗模式: XP升级也用新升级池
+        if (typeof selectedMode !== 'undefined' && selectedMode === 'wave_battle' && typeof showWaveUpgradePanel === 'function') {
+            showWaveUpgradePanel();
+        } else {
+            showKuosaoUpgradePanel();
+        }
         spawnFloatingText(player.x, player.y - 80, '⬆️ 升级! Lv.' + this.level, '#ffd700');
     },
 

@@ -1,4 +1,60 @@
 # 八重之犬 - 开发者日志
+## 2026-03-28
+
+### 波次战斗模式重构 — 从自动割草到主动战斗
+
+**设计目标**: 将核心玩法从"自动攻击+走位"转型为"波次推进+主动技能释放"，同时保留原有速战/无尽模式不受影响。
+
+---
+
+#### 完成内容
+
+**任务1: 波次状态机 (wave-manager.js)**
+- 实现完整状态流: idle → wave_start → in_wave → wave_cleared → upgrade_select → boss_wave → victory → game_over
+- 10波递进难度配置，每波单一敌人主题 (幽灵→骷髅冲锋→暗影射手→蘑菇自爆→精英混战→铁壁坦克→亡灵射手→疾风冲锋→混沌军团→Boss)
+- 波次间升级面板复用现有 showUpgradePanel()，仅在 wave_cleared 状态下推进波次
+
+**任务2: 英雄模板系统 (hero-system.js)**
+- 数据/行为分离: heroDefinitions (纯数据) + SkillBehaviors (行为注册表)
+- dog001 作为首个英雄模板，含基础属性、4技能槽位、被动技能、视觉引用
+- 4个主动技能: 犬踢(J)近战扇形、犬斩(K)弹道、犬の撒嬌(L)周身AOE、犬突进(Space)冲刺
+- 技能冷却系统挂载在 player.skillCooldowns 上，技能栏UI实时显示CD
+
+**任务3: 敌人管理器 (enemy-manager.js)**
+- AI行为按 role 分发: normal直追、charger间歇冲锋、shooter保距射击、bomber自爆倒计时、tank缓推
+- 死亡处理委托给现有 handleEnemyKill() + 通知 WaveManager 计数
+- 碰撞检测独立方法，每帧最多受一次碰撞伤害
+
+**任务4: game.js 集成**
+- update() 中 selectedMode === 'wave_battle' 提前分流，完全隔离新旧逻辑
+- updateWaveBattle() 作为新主循环: 技能CD更新 → 技能输入检测 → 波次调度 → 敌人AI → 玩家移动 → 弹道碰撞 → 粒子 → UI刷新
+- playerTakeDamage() 包装 playerHit()，为新系统提供统一受伤接口
+- startGame/restartGame/endGame 均增加 wave_battle 分支处理
+
+**任务5: 渲染与UI**
+- weapons.js drawWeapons() 增加 default 分支渲染英雄技能弹道
+- index.html 新增波次指示器 (#waveIndicator) 和技能栏 (#waveSkillBar)
+- 技能栏显示按键提示、冷却遮罩、CD倒计时文字
+
+---
+
+#### 关键设计决策
+
+1. **共存而非替换**: 新模式通过 early-return 路由与旧模式共存，零破坏性
+2. **最大复用**: render()、dealDamageToEnemy、handleEnemyKill、spawnBoss、showUpgradePanel、粒子/相机/血条/经验系统全部复用
+3. **XP升级 vs 波次升级区分**: selectUpgradeOption() 仅在 WaveManager.state === 'upgrade_select' 时推进波次，避免经验升级误触发波次切换
+4. **死亡链路**: 技能命中 → dealDamageToEnemy → hp≤0 → handleEnemyKill (含WaveManager通知) → flying状态 → cleanupFlying 移除
+
+---
+
+#### 后续方向
+
+1. Boss波 (第10波) 需要专属Boss AI和技能模式，当前复用 spawnBoss 作为占位
+2. 波次间升级选项可定制为与当前英雄相关的强化
+3. hero-system 的 SkillBehaviors 注册表支持未来新英雄直接注册新行为
+4. 敌人视觉素材目前使用颜色占位，后续替换为专属精灵图
+5. 技能特效可复用现有踢击分级素材 (images/effects/踢击/)
+
 ## 2026-03-25
 改动总结
 
